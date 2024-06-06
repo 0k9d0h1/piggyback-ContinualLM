@@ -5,9 +5,10 @@ from torch import nn
 
 from transformers.activations import get_activation
 
-from transformers.adapters.configuration import AdapterConfig, AdapterFusionConfig
-from transformers.adapters.context import ForwardContext
+from adapters.configuration import AdapterConfig, AdapterFusionConfig
+from adapters.context import ForwardContext
 from networks.plugin.plugin import Myplugin
+
 
 class Activation_Function_Class(nn.Module):
     """
@@ -29,7 +30,7 @@ class Activation_Function_Class(nn.Module):
 
 
 class AdapterDown(nn.Module):
-    def __init__(self,input_size,down_sample,adapter_name,config,args):
+    def __init__(self, input_size, down_sample, adapter_name, config, args):
         super().__init__()
         # list for all modules of the adapter, passed into nn.Sequential()
         self.config = config
@@ -38,21 +39,24 @@ class AdapterDown(nn.Module):
         self.add_layer_norm_before = config["ln_before"]
         if self.add_layer_norm_before:
             self.adapter_norm_before = nn.LayerNorm(input_size)
-        if ('adapter_hat' in self.args.baseline or 'adapter_cat' in self.args.baseline or 'transformer_hat' in self.args.baseline \
-                or 'adapter_bcl' in self.args.baseline or 'adapter_ctr' in self.args.baseline \
+        if ('adapter_hat' in self.args.baseline or 'adapter_cat' in self.args.baseline or 'transformer_hat' in self.args.baseline
+                or 'adapter_bcl' in self.args.baseline or 'adapter_ctr' in self.args.baseline
                 or 'adapter_classic' in self.args.baseline or 'adapter_demix' in self.args.baseline):  # BCL included HAT
-            self.linear_down = Myplugin(input_size=input_size, down_sample=down_sample,args=args)
+            self.linear_down = Myplugin(
+                input_size=input_size, down_sample=down_sample, args=args)
         else:
             self.linear_down = nn.Linear(input_size, down_sample)
 
         if config["phm_layer"]:
             # Linear down projection of the input
-            self.phm_layer = PHMLayer(adapter_name, self.input_size, self.down_sample, "down", config)
+            self.phm_layer = PHMLayer(
+                adapter_name, self.input_size, self.down_sample, "down", config)
 
         # select non-linearity
-        self.non_linearity = Activation_Function_Class(config["non_linearity"].lower())
+        self.non_linearity = Activation_Function_Class(
+            config["non_linearity"].lower())
 
-    def forward(self,x,layer_type=None):
+    def forward(self, x, layer_type=None):
         # If we want to have a layer norm on input, we add it to seq_list
         if self.add_layer_norm_before:
             x = self.adapter_norm_before(x)
@@ -62,16 +66,17 @@ class AdapterDown(nn.Module):
             x = self.phm_layer(x)
         else:
             if (
-                        'adapter_hat' in self.args.baseline or 'adapter_cat' in self.args.baseline or 'transformer_hat' in self.args.baseline \
-                        or 'adapter_bcl' in self.args.baseline or 'adapter_ctr' in self.args.baseline \
-                        or 'adapter_classic' in self.args.baseline or 'adapter_demix' in self.args.baseline):  # BCL included HAT
-                x = self.linear_down(x,layer_type=layer_type)
+                'adapter_hat' in self.args.baseline or 'adapter_cat' in self.args.baseline or 'transformer_hat' in self.args.baseline
+                or 'adapter_bcl' in self.args.baseline or 'adapter_ctr' in self.args.baseline
+                    or 'adapter_classic' in self.args.baseline or 'adapter_demix' in self.args.baseline):  # BCL included HAT
+                x = self.linear_down(x, layer_type=layer_type)
 
             else:
                 x = self.linear_down(x)
 
         x = self.non_linearity(x)
         return x
+
 
 class Adapter(nn.Module):
     """
@@ -108,25 +113,27 @@ class Adapter(nn.Module):
         # ensure that the down sample size is at least 1
         if self.down_sample < 1:
             self.down_sample = 1
-        if ('adapter_hat' in self.args.baseline or 'adapter_cat' in self.args.baseline or 'transformer_hat' in self.args.baseline \
-                or 'adapter_bcl' in self.args.baseline or 'adapter_ctr' in self.args.baseline \
+        if ('adapter_hat' in self.args.baseline or 'adapter_cat' in self.args.baseline or 'transformer_hat' in self.args.baseline
+                or 'adapter_bcl' in self.args.baseline or 'adapter_ctr' in self.args.baseline
                 or 'adapter_classic' in self.args.baseline or 'adapter_demix' in self.args.baseline):  # BCL included HAT
-            linear_up = Myplugin(input_size=self.down_sample, down_sample=self.input_size, args=args)
+            linear_up = Myplugin(input_size=self.down_sample,
+                                 down_sample=self.input_size, args=args)
 
         else:
             linear_up = nn.Linear(self.down_sample, self.input_size)
 
-
         # sequential adapter, first downproject, then non-linearity then upsample. In the forward pass we include the
         # residual connection
-        self.adapter_down = AdapterDown(self.input_size,self.down_sample,adapter_name,config,args)
+        self.adapter_down = AdapterDown(
+            self.input_size, self.down_sample, adapter_name, config, args)
 
         # # Up projection to input size
         if config["phm_layer"]:
             # Linear down projection of the input
-            self.adapter_up = PHMLayer(adapter_name, self.down_sample, self.input_size, "up", config)
+            self.adapter_up = PHMLayer(
+                adapter_name, self.down_sample, self.input_size, "up", config)
         else:
-            self.adapter_up = linear_up #TODO: two layers of adapter
+            self.adapter_up = linear_up  # TODO: two layers of adapter
 
         # Additional scaling factor (from He et al. (2021))
         if isinstance(config["scaling"], float):
@@ -134,7 +141,8 @@ class Adapter(nn.Module):
         elif config["scaling"] == "learned":
             self.scaling = nn.Parameter(torch.ones(1))
         else:
-            raise ValueError("Unknown scaling type: {}".format(config["scaling"]))
+            raise ValueError(
+                "Unknown scaling type: {}".format(config["scaling"]))
 
         # If we want to have a layer norm on output, we apply it later after a separate residual connection
         # This means that we learn a new output layer norm, which replaces another layer norm learned in the bert layer
@@ -147,12 +155,14 @@ class Adapter(nn.Module):
             self.adapter_up.apply(self.init_bert_weights)
         elif config["init_weights"] == "mam_adapter":
             with torch.no_grad():
-                nn.init.kaiming_uniform_(self.adapter_down[0].weight, a=math.sqrt(5))
+                nn.init.kaiming_uniform_(
+                    self.adapter_down[0].weight, a=math.sqrt(5))
                 nn.init.zeros_(self.adapter_up.weight)
                 nn.init.zeros_(self.adapter_down[0].bias)
                 nn.init.zeros_(self.adapter_up.bias)
         else:
-            raise ValueError("Unknown init_weights type: {}".format(config["init_weights"]))
+            raise ValueError("Unknown init_weights type: {}".format(
+                config["init_weights"]))
 
     def pre_forward(
         self,
@@ -194,13 +204,14 @@ class Adapter(nn.Module):
 
         return hidden_states, query, residual
 
-    def forward(self, x, residual_input, layer_type,down_mask=None,up_mask=None):  # , residual_input=None):
+    # , residual_input=None):
+    def forward(self, x, residual_input, layer_type, down_mask=None, up_mask=None):
 
-        if ( 'adapter_hat' in self.args.baseline or 'adapter_cat' in self.args.baseline or 'transformer_hat' in self.args.baseline \
-                    or 'adapter_bcl' in self.args.baseline or 'adapter_ctr' in self.args.baseline \
-                    or 'adapter_classic' in self.args.baseline or 'adapter_demix' in self.args.baseline):  # BCL included HAT
-            down = self.adapter_down(x,layer_type=layer_type)
-            up = self.adapter_up(down,layer_type=layer_type)
+        if ('adapter_hat' in self.args.baseline or 'adapter_cat' in self.args.baseline or 'transformer_hat' in self.args.baseline
+            or 'adapter_bcl' in self.args.baseline or 'adapter_ctr' in self.args.baseline
+                or 'adapter_classic' in self.args.baseline or 'adapter_demix' in self.args.baseline):  # BCL included HAT
+            down = self.adapter_down(x, layer_type=layer_type)
+            up = self.adapter_up(down, layer_type=layer_type)
         else:
             down = self.adapter_down(x)
             up = self.adapter_up(down)
@@ -365,10 +376,12 @@ class BertFusion(nn.Module):
             self.key.apply(Adapter.init_bert_weights)
 
         if self.config["value"]:
-            self.value = nn.Linear(self.dense_size, self.dense_size, bias=False)
+            self.value = nn.Linear(
+                self.dense_size, self.dense_size, bias=False)
             self.value.apply(Adapter.init_bert_weights)
             if self.config["value_initialized"]:
-                self.value.weight.data = (torch.zeros(self.dense_size, self.dense_size) + 0.000001).fill_diagonal_(1.0)
+                self.value.weight.data = (torch.zeros(
+                    self.dense_size, self.dense_size) + 0.000001).fill_diagonal_(1.0)
 
         if self.config["temperature"]:
             self.T = 50.0
@@ -398,7 +411,8 @@ class BertFusion(nn.Module):
             value_layer = value
 
         # Take the dot product between "query" and "key" to get the raw attention scores.
-        attention_scores = torch.squeeze(torch.matmul(query_layer.unsqueeze(2), key_layer.transpose(-2, -1)), dim=2)
+        attention_scores = torch.squeeze(torch.matmul(
+            query_layer.unsqueeze(2), key_layer.transpose(-2, -1)), dim=2)
 
         attention_scores = self.dropout(attention_scores)
 
@@ -409,7 +423,8 @@ class BertFusion(nn.Module):
         if not self.training:
             self.recent_attention = attention_probs.detach().cpu().numpy()
 
-        context_layer = torch.squeeze(torch.matmul(attention_probs.unsqueeze(2), value_layer), dim=2)
+        context_layer = torch.squeeze(torch.matmul(
+            attention_probs.unsqueeze(2), value_layer), dim=2)
 
         if self.config["value"] and not self.config["value_before_softmax"]:
             # key/value have dims => batch, toks, number-of-adapters, feats
@@ -453,12 +468,15 @@ class NICECouplingBlock(nn.Module):
         self.conditional = len(dims_c) > 0
         condition_length = sum([dims_c[i][0] for i in range(len(dims_c))])
 
-        subnet_constructor = get_subnet_constructor(non_linearity, reduction_factor)
-        self.F = subnet_constructor(self.split_len2 + condition_length, self.split_len1)
-        self.G = subnet_constructor(self.split_len1 + condition_length, self.split_len2)
+        subnet_constructor = get_subnet_constructor(
+            non_linearity, reduction_factor)
+        self.F = subnet_constructor(
+            self.split_len2 + condition_length, self.split_len1)
+        self.G = subnet_constructor(
+            self.split_len1 + condition_length, self.split_len2)
 
     def forward(self, x, c=[], rev=False):
-        x1, x2 = (x[:, :, : self.split_len1], x[:, :, self.split_len1 :])
+        x1, x2 = (x[:, :, : self.split_len1], x[:, :, self.split_len1:])
         if not rev:
             x2_c = torch.cat([x2, *c], 1) if self.conditional else x2
             y1 = x1 + self.F(x2_c)
@@ -501,14 +519,18 @@ class GLOWCouplingBlock(nn.Module):
         self.min_s = math.exp(-clamp)
 
         assert all(
-            [tuple(dims_c[i][1:]) == tuple(dims_in[0][1:]) for i in range(len(dims_c))]
+            [tuple(dims_c[i][1:]) == tuple(dims_in[0][1:])
+             for i in range(len(dims_c))]
         ), f"Dimensions of input and one or more conditions don't agree: {dims_c} vs {dims_in}."
         self.conditional = len(dims_c) > 0
         condition_length = sum([dims_c[i][0] for i in range(len(dims_c))])
 
-        subnet_constructor = get_subnet_constructor(non_linearity, reduction_factor)
-        self.s1 = subnet_constructor(self.split_len1 + condition_length, self.split_len2 * 2)
-        self.s2 = subnet_constructor(self.split_len2 + condition_length, self.split_len1 * 2)
+        subnet_constructor = get_subnet_constructor(
+            non_linearity, reduction_factor)
+        self.s1 = subnet_constructor(
+            self.split_len1 + condition_length, self.split_len2 * 2)
+        self.s2 = subnet_constructor(
+            self.split_len2 + condition_length, self.split_len1 * 2)
 
     def e(self, s):
         return torch.exp(self.clamp * 0.636 * torch.atan(s / self.clamp))
@@ -517,14 +539,14 @@ class GLOWCouplingBlock(nn.Module):
         return self.clamp * 0.636 * torch.atan(s / self.clamp)
 
     def forward(self, x, c=[], rev=False):
-        x1, x2 = (x[:, :, : self.split_len1], x[:, :, self.split_len1 :])
+        x1, x2 = (x[:, :, : self.split_len1], x[:, :, self.split_len1:])
 
         if not rev:
             s2, t2 = x1.clone(), x2.clone()
             y1 = self.e(s2) * x1 + t2
 
             r1 = self.s1(torch.cat([y1, *c], 1) if self.conditional else y1)
-            s1, t1 = r1[:, : self.split_len2], r1[:, self.split_len2 :]
+            s1, t1 = r1[:, : self.split_len2], r1[:, self.split_len2:]
             y2 = self.e(s1) * x2 + t1
             self.last_jac = torch.sum(self.log_e(s1), dim=tuple(range(1, self.ndims + 1))) + torch.sum(
                 self.log_e(s2), dim=tuple(range(1, self.ndims + 1))
@@ -532,11 +554,11 @@ class GLOWCouplingBlock(nn.Module):
 
         else:  # names of x and y are swapped!
             r1 = self.s1(torch.cat([x1, *c], 1) if self.conditional else x1)
-            s1, t1 = r1[:, : self.split_len2], r1[:, self.split_len2 :]
+            s1, t1 = r1[:, : self.split_len2], r1[:, self.split_len2:]
             y2 = (x2 - t1) / self.e(s1)
 
             r2 = self.s2(torch.cat([y2, *c], 1) if self.conditional else y2)
-            s2, t2 = r2[:, : self.split_len1], r2[:, self.split_len1 :]
+            s2, t2 = r2[:, : self.split_len1], r2[:, self.split_len1:]
             y1 = (x1 - t2) / self.e(s2)
             self.last_jac = -torch.sum(self.log_e(s1), dim=tuple(range(1, self.ndims + 1))) - torch.sum(
                 self.log_e(s2), dim=tuple(range(1, self.ndims + 1))
@@ -579,7 +601,8 @@ class PHMLayer(nn.Module):
         config: dict,
     ) -> None:
         super(PHMLayer, self).__init__()
-        assert config["hypercomplex_nonlinearity"] in ["phm", "glorot-normal", "glorot-uniform", "normal"]
+        assert config["hypercomplex_nonlinearity"] in [
+            "phm", "glorot-normal", "glorot-uniform", "normal"]
         assert config["phm_c_init"] in ["normal", "uniform"]
         assert (
             in_features % config["phm_dim"] == 0
@@ -626,7 +649,8 @@ class PHMLayer(nn.Module):
                 )
             else:
                 self.W = nn.Parameter(
-                    torch.Tensor(size=(self.phm_dim, self._in_feats_per_axis, self._out_feats_per_axis)),
+                    torch.Tensor(
+                        size=(self.phm_dim, self._in_feats_per_axis, self._out_feats_per_axis)),
                     requires_grad=True,
                 )
         if self.bias_flag:
@@ -713,9 +737,11 @@ class PHMLayer(nn.Module):
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         if self.shared_W_phm:
-            parameters = ForwardContext.get_context().shared_parameters[self.name]
+            parameters = ForwardContext.get_context(
+            ).shared_parameters[self.name]
             if self.factorized_phm_W:
-                W = torch.bmm(parameters[f"W_{self.position}_left"], parameters[f"W_{self.position}_right"])
+                W = torch.bmm(
+                    parameters[f"W_{self.position}_left"], parameters[f"W_{self.position}_right"])
             else:
                 W = parameters[f"W_{self.position}"]
         else:
@@ -724,9 +750,11 @@ class PHMLayer(nn.Module):
             else:
                 W = self.W
         if self.shared_phm_rule:
-            parameters = ForwardContext.get_context().shared_parameters[self.name]
+            parameters = ForwardContext.get_context(
+            ).shared_parameters[self.name]
             if self.factorized_phm_rule:
-                phm_rule = torch.bmm(parameters["phm_rule_left"], parameters["phm_rule_right"])
+                phm_rule = torch.bmm(
+                    parameters["phm_rule_left"], parameters["phm_rule_right"])
             else:
                 phm_rule = parameters["phm_rule"]
         else:
@@ -746,19 +774,29 @@ class PHMLayer(nn.Module):
         parameters = nn.ParameterDict()
         if self.shared_W_phm:
             if self.factorized_phm_W:
-                W_down_left = torch.Tensor(size=(self.phm_dim, self._in_feats_per_axis, self.phm_rank))
-                W_down_right = torch.Tensor(size=(self.phm_dim, self.phm_rank, self._out_feats_per_axis))
-                W_up_left = torch.Tensor(size=(self.phm_dim, self._out_feats_per_axis, self.phm_rank))
-                W_up_right = torch.Tensor(size=(self.phm_dim, self.phm_rank, self._in_feats_per_axis))
+                W_down_left = torch.Tensor(
+                    size=(self.phm_dim, self._in_feats_per_axis, self.phm_rank))
+                W_down_right = torch.Tensor(
+                    size=(self.phm_dim, self.phm_rank, self._out_feats_per_axis))
+                W_up_left = torch.Tensor(
+                    size=(self.phm_dim, self._out_feats_per_axis, self.phm_rank))
+                W_up_right = torch.Tensor(
+                    size=(self.phm_dim, self.phm_rank, self._in_feats_per_axis))
                 self.init_W(W_left=W_down_left, W_right=W_down_right)
                 self.init_W(W_left=W_up_left, W_right=W_up_right)
-                parameters["W_down_left"] = nn.Parameter(W_down_left, requires_grad=True)
-                parameters["W_down_right"] = nn.Parameter(W_down_right, requires_grad=True)
-                parameters["W_up_left"] = nn.Parameter(W_up_left, requires_grad=True)
-                parameters["W_up_right"] = nn.Parameter(W_up_right, requires_grad=True)
+                parameters["W_down_left"] = nn.Parameter(
+                    W_down_left, requires_grad=True)
+                parameters["W_down_right"] = nn.Parameter(
+                    W_down_right, requires_grad=True)
+                parameters["W_up_left"] = nn.Parameter(
+                    W_up_left, requires_grad=True)
+                parameters["W_up_right"] = nn.Parameter(
+                    W_up_right, requires_grad=True)
             else:
-                W_down = torch.Tensor(size=(self.phm_dim, self._in_feats_per_axis, self._out_feats_per_axis))
-                W_up = torch.Tensor(size=(self.phm_dim, self._out_feats_per_axis, self._in_feats_per_axis))
+                W_down = torch.Tensor(
+                    size=(self.phm_dim, self._in_feats_per_axis, self._out_feats_per_axis))
+                W_up = torch.Tensor(
+                    size=(self.phm_dim, self._out_feats_per_axis, self._in_feats_per_axis))
                 self.init_W(W=W_down)
                 self.init_W(W=W_up)
                 parameters["W_down"] = nn.Parameter(W_down, requires_grad=True)
@@ -773,7 +811,8 @@ class PHMLayer(nn.Module):
                 )
                 if self.c_init == "normal":
                     phm_rule_left.data.normal_(mean=0, std=self.phm_init_range)
-                    phm_rule_right.data.normal_(mean=0, std=self.phm_init_range)
+                    phm_rule_right.data.normal_(
+                        mean=0, std=self.phm_init_range)
                 elif self.c_init == "uniform":
                     phm_rule_left.data.uniform_(-1, 1)
                     phm_rule_right.data.uniform_(-1, 1)

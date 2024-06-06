@@ -6,11 +6,13 @@ from networks import prompt
 from networks.baselines import simcse
 import torch.nn.functional as F
 from transformers.modeling_outputs import MaskedLMOutput, ModelOutput
+from dataclasses import dataclass
 import numpy as np
+
 
 class MyModel(nn.Module):
 
-    def __init__(self, model,teacher=None,args=None):
+    def __init__(self, model, teacher=None, args=None):
         super().__init__()
         self.model = model
         self.teacher = teacher
@@ -22,23 +24,22 @@ class MyModel(nn.Module):
         self.cos = nn.CosineSimilarity()
         self.tanh = torch.nn.Tanh()
         self.softmax = torch.nn.Softmax(dim=1)
-        self.frequency_table = torch.Tensor([1 for _ in range(args.ntasks)]).float().cuda()
-        self.kd_loss =  utils.model.DistillKL(1)
+        self.frequency_table = torch.Tensor(
+            [1 for _ in range(args.ntasks)]).float().cuda()
+        self.kd_loss = utils.model.DistillKL(1)
         self.dropout = nn.Dropout(0.1)
         self.contrast = utils.model.MyContrastive()
 
-
-
-    def forward(self,inputs,
+    def forward(self, inputs,
                 self_fisher=None,
                 masks=None,
                 mask_pre=None,
-                prune_loss=None,head_mask=None,output_mask=None, # all for the softmask
+                prune_loss=None, head_mask=None, output_mask=None,  # all for the softmask
                 intermediate_mask=None,
+                task_label=None
                 ):
 
-
-        input_ids =  inputs['input_ids']
+        input_ids = inputs['input_ids']
         inputs_ori_ids = inputs['inputs_ori_ids']
         labels = inputs['labels']
         attention_mask = inputs['attention_mask']
@@ -50,40 +51,43 @@ class MyModel(nn.Module):
         infoword_loss = None
         hidden_states = None
 
-        if prune_loss is not None and 'distill' in prune_loss: # detect importance with KL as L_impt
+        if prune_loss is not None and 'distill' in prune_loss:  # detect importance with KL as L_impt
             outputs = self.model(input_ids=input_ids, labels=labels, attention_mask=attention_mask,
-                                     head_mask=head_mask,
-                                     output_mask=output_mask,
-                                     intermediate_mask=intermediate_mask,
-                                     output_hidden_states=True, output_attentions=True)
+                                 head_mask=head_mask,
+                                 output_mask=output_mask,
+                                 intermediate_mask=intermediate_mask,
+                                 output_hidden_states=True, output_attentions=True)
             teacher_outputs = self.teacher(input_ids=input_ids, labels=labels, attention_mask=attention_mask,
                                            head_mask=head_mask,
                                            output_mask=output_mask,
                                            intermediate_mask=intermediate_mask,
                                            output_hidden_states=True, output_attentions=True)
 
+            loss = self.kd_loss(
+                teacher_outputs.hidden_states[-1], outputs.hidden_states[-1])
 
-            loss = self.kd_loss(teacher_outputs.hidden_states[-1], outputs.hidden_states[-1])
-
-        elif prune_loss is not None and 'mlm' in prune_loss: # detect importance with MLM as L_impt
+        elif prune_loss is not None and 'mlm' in prune_loss:  # detect importance with MLM as L_impt
             outputs = self.model(input_ids=inputs_ori_ids, labels=labels, attention_mask=attention_mask,
-                                     head_mask=head_mask,
-                                     output_mask=output_mask,
-                                     intermediate_mask=intermediate_mask,
-                                     output_hidden_states=True, output_attentions=True)
+                                 head_mask=head_mask,
+                                 output_mask=output_mask,
+                                 intermediate_mask=intermediate_mask,
+                                 output_hidden_states=True, output_attentions=True)
             loss = outputs.loss
-
 
         else:
 
             if 'prompt' in self.args.baseline:
-                inputs_embeds = prompt.cat_learned_embedding_to_input(self.model, input_ids, self.args.task).cuda()
+                inputs_embeds = prompt.cat_learned_embedding_to_input(
+                    self.model, input_ids, self.args.task).cuda()
                 labels = prompt.extend_labels(self.model, labels).cuda()
-                attention_mask = prompt.extend_attention_mask(self.model, attention_mask).cuda()
+                attention_mask = prompt.extend_attention_mask(
+                    self.model, attention_mask).cuda()
 
                 outputs = self.model(inputs_embeds=inputs_embeds, labels=labels, attention_mask=attention_mask,
                                      output_hidden_states=True)
-
+            elif 'piggyback' in self.args.baseline or 'lora' in self.args.baseline:
+                outputs = self.model(input_ids=input_ids, labels=labels,
+                                     attention_mask=attention_mask, task_label=task_label, output_hidden_states=True)
             else:
                 if 'distill' in self.args.baseline:
                     student_ori = self.model(input_ids=inputs_ori_ids, labels=labels, attention_mask=attention_mask,
@@ -92,7 +96,8 @@ class MyModel(nn.Module):
                     teacher_ori = self.teacher(input_ids=inputs_ori_ids, labels=labels, attention_mask=attention_mask,
                                                output_hidden_states=True)
 
-                    distill_loss = self.kd_loss(teacher_ori.hidden_states[-1], student_ori.hidden_states[-1])
+                    distill_loss = self.kd_loss(
+                        teacher_ori.hidden_states[-1], student_ori.hidden_states[-1])
 
                 outputs = self.model(input_ids=input_ids, labels=labels, attention_mask=attention_mask,
                                      output_hidden_states=True)
@@ -108,7 +113,6 @@ class MyModel(nn.Module):
                         loss_reg += torch.sum(
                             self_fisher['module.model.' + name] * (param_old.cuda() - param.cuda()).pow(2)) / 2
                 loss += self.args.lamb * loss_reg
-
 
             elif 'adapter_hat' in self.args.baseline \
                     or 'transformer_hat' in self.args.baseline \
@@ -150,9 +154,11 @@ class MyModel(nn.Module):
                                                      output_hidden_states=True)
 
                         pre_pooled_output = pre_outputs.hidden_states[-1]
-                        mean_pre_pooled_output = torch.mean(pre_pooled_output, dim=1)
+                        mean_pre_pooled_output = torch.mean(
+                            pre_pooled_output, dim=1)
 
-                        pre_pooled_outputs.append(mean_pre_pooled_output.unsqueeze(-1).clone())
+                        pre_pooled_outputs.append(
+                            mean_pre_pooled_output.unsqueeze(-1).clone())
 
                     self.args.task = cur_task
                     self.args.s = cur_s
@@ -160,22 +166,26 @@ class MyModel(nn.Module):
                     pre_pooled_outputs = torch.cat(pre_pooled_outputs, -1)
 
                     cur_pooled_outputs = outputs.hidden_states[-1]
-                    mean_cur_pooled_output = torch.mean(cur_pooled_outputs, dim=1)
+                    mean_cur_pooled_output = torch.mean(
+                        cur_pooled_outputs, dim=1)
 
                     pre_pooled_outputs = torch.cat([pre_pooled_outputs, mean_cur_pooled_output.unsqueeze(-1).clone()],
                                                    -1)  # include itselves
 
-                    pooled_output = self.model.self_attns[self.args.task](pre_pooled_outputs)  # softmax on task
+                    pooled_output = self.model.self_attns[self.args.task](
+                        pre_pooled_outputs)  # softmax on task
                     pooled_output = pooled_output.sum(-1)  # softmax on task
                     pooled_output = self.dropout(pooled_output)
                     pooled_output = F.normalize(pooled_output, dim=1)
 
-                    mix_pooled_reps = [mean_cur_pooled_output.clone().unsqueeze(1)]
+                    mix_pooled_reps = [
+                        mean_cur_pooled_output.clone().unsqueeze(1)]
                     mix_pooled_reps.append(pooled_output.unsqueeze(1).clone())
                     cur_mix_outputs = torch.cat(mix_pooled_reps, dim=1)
 
-                    loss += self.contrast(cur_mix_outputs,con_type='unsupervised')  # train attention and contrastive learning at the same time
-
+                    # train attention and contrastive learning at the same time
+                    loss += self.contrast(cur_mix_outputs,
+                                          con_type='unsupervised')
 
             elif 'simcse' in self.args.baseline:
                 inputs_ori_ids_dup = inputs_ori_ids.repeat(2, 1)
@@ -186,15 +196,14 @@ class MyModel(nn.Module):
                                          attention_mask=attention_mask_dup,
                                          output_hidden_states=True)
 
-                outputs_ori_hidden_state = outputs_ori.hidden_states[-1].view(-1, 2, 164, 768)
+                outputs_ori_hidden_state = outputs_ori.hidden_states[-1].view(
+                    -1, 2, 164, 768)
 
                 z1 = outputs_ori_hidden_state[:, 0]
                 z2 = outputs_ori_hidden_state[:, 1]
                 mean_z1 = torch.mean(z1, dim=1)
                 mean_z2 = torch.mean(z2, dim=1)
                 simcse_loss = simcse.sequence_level_contrast(mean_z1, mean_z2)
-
-
 
             elif ('dga' in self.args.baseline or 'das' in self.args.baseline) and not prune_loss:
                 inputs_ori_ids_dup = inputs_ori_ids.repeat(2, 1)
@@ -210,7 +219,8 @@ class MyModel(nn.Module):
                                          output_mask=output_mask,
                                          output_hidden_states=True)
 
-                outputs_ori_hidden_state = outputs_ori.hidden_states[-1].view(-1, 2, 164, 768)
+                outputs_ori_hidden_state = outputs_ori.hidden_states[-1].view(
+                    -1, 2, 164, 768)
 
                 z1 = outputs_ori_hidden_state[:, 0]
                 z2 = outputs_ori_hidden_state[:, 1]
@@ -219,7 +229,8 @@ class MyModel(nn.Module):
                 mean_z1 = torch.mean(z1, dim=1)
                 mean_z2 = torch.mean(z2, dim=1)
                 mean_z3 = torch.mean(z3, dim=1)
-                contrast_loss = simcse.sequence_level_contrast(mean_z1, mean_z2, mean_z3)
+                contrast_loss = simcse.sequence_level_contrast(
+                    mean_z1, mean_z2, mean_z3)
 
             elif 'tacl' in self.args.baseline and not prune_loss:
                 outputs_ori = self.model(input_ids=inputs_ori_ids, labels=labels, attention_mask=attention_mask,
@@ -228,15 +239,17 @@ class MyModel(nn.Module):
                                                output_hidden_states=True)
 
                 z1 = outputs_teacher.hidden_states[-1]  # anchor: masks
-                z2 = outputs_ori.hidden_states[-1]  # positive samples: original
+                # positive samples: original
+                z2 = outputs_ori.hidden_states[-1]
                 tacl_loss = utils.model.tacl_loss(z1, z2, (labels == -100).long(),
-                                            eps=0.0)  # contrasive_labels: bsz x seqlen; masked positions with 0., otherwise 1.
+                                                  eps=0.0)  # contrasive_labels: bsz x seqlen; masked positions with 0., otherwise 1.
 
             elif 'taco' in self.args.baseline and not prune_loss:
                 outputs_ori = self.model(input_ids=inputs_ori_ids, labels=labels, attention_mask=attention_mask,
                                          output_hidden_states=True)
 
-                inputs_embeds = getattr(self.model, 'roberta').embeddings(inputs_ori_ids)
+                inputs_embeds = getattr(
+                    self.model, 'roberta').embeddings(inputs_ori_ids)
                 z1 = outputs_ori.hidden_states[-1]  # anchor: masks
 
                 global_z1 = z1 - inputs_embeds
@@ -271,7 +284,8 @@ class MyModel(nn.Module):
                 for z_id, z in enumerate(ngram_z1):
                     z1 = ngram_z1[z_id][
                         (labels[z_id] != -100).unsqueeze(-1).expand_as(ngram_z1[z_id])]  # Only the span for masked
-                    z1 = z1.view(1, -1, ngram_z1.size(-1))  # cannot do this, becuase each sequence has a different span
+                    # cannot do this, becuase each sequence has a different span
+                    z1 = z1.view(1, -1, ngram_z1.size(-1))
                     mean_z1.append(torch.mean(z1, dim=1))
 
                 mean_z1 = torch.stack(mean_z1).squeeze(1)
@@ -279,7 +293,8 @@ class MyModel(nn.Module):
                 z2 = outputs_mask.hidden_states[-1]
                 mean_z2 = torch.mean(z2, dim=1)
 
-                infoword_loss = simcse.sequence_level_contrast(mean_z1, mean_z2)
+                infoword_loss = simcse.sequence_level_contrast(
+                    mean_z1, mean_z2)
 
         return MyRobertaOutput(
             loss=loss,
@@ -294,6 +309,14 @@ class MyModel(nn.Module):
         )
 
 
+@dataclass
 class MyRobertaOutput(ModelOutput):
     all_attention: torch.FloatTensor = None
     loss: torch.FloatTensor = None
+    contrast_loss: torch.FloatTensor = None
+    distill_loss: torch.FloatTensor = None
+    simcse_loss: torch.FloatTensor = None
+    tacl_loss: torch.FloatTensor = None
+    taco_loss: torch.FloatTensor = None
+    infoword_loss: torch.FloatTensor = None
+    hidden_states: torch.FloatTensor = None

@@ -8,10 +8,7 @@ export HF_DATASETS_CACHE='/home/eecomp_test/donghoon/dataset_cache'
 export TRANSFORMERS_CACHE='/home/eecomp_test/donghoon/model_cache'
 max_samples=640000
 
-
-
-
-for idrandom in 0
+for idrandom in  0
 do
   for pt_task in 0 1 2 3 4 5
   do
@@ -22,6 +19,7 @@ do
     --idrandom ${idrandom} \
     --ntasks 6 \
     --pt_task ${pt_task} \
-    --baseline 'das'
+    --baseline 'piggyback'
   done
 done
+

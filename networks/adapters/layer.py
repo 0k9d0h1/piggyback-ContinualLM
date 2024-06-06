@@ -4,9 +4,9 @@ from typing import List, Mapping, Union
 import torch
 from torch import nn
 
-from transformers.adapters.composition import AdapterCompositionBlock, BatchSplit, Fuse, Parallel, Split, Stack
-from transformers.adapters.configuration import AdapterConfig
-from transformers.adapters.context import AdapterSetup, ForwardContext
+from adapters.composition import AdapterCompositionBlock, BatchSplit, Fuse, Parallel, Split, Stack
+from adapters.configuration import AdapterConfig
+from adapters.context import AdapterSetup, ForwardContext
 from .modeling import Adapter, BertFusion, ParallelAdapter
 
 
@@ -56,6 +56,7 @@ class AdapterLayer(AdapterLayerBase):
         self.location_key = location_key
         self.config = config
         self.args = args
+
     def _init_adapter_modules(self):
         self.adapters = nn.ModuleDict(dict())
         self.adapter_fusion_layer = nn.ModuleDict(dict())
@@ -97,7 +98,8 @@ class AdapterLayer(AdapterLayerBase):
                 config=adapter_config,
                 args=self.args
             )
-            adapter.train(self.training)  # make sure training mode is consistent
+            # make sure training mode is consistent
+            adapter.train(self.training)
             self.adapters[adapter_name] = adapter
 
     def delete_adapter(self, adapter_name: str):
@@ -106,7 +108,8 @@ class AdapterLayer(AdapterLayerBase):
 
     def add_fusion_layer(self, adapter_names: Union[List, str]):
         """See BertModel.add_fusion_layer"""
-        adapter_names = adapter_names if isinstance(adapter_names, list) else adapter_names.split(",")
+        adapter_names = adapter_names if isinstance(
+            adapter_names, list) else adapter_names.split(",")
         if self.config.adapters.common_config_value(adapter_names, self.location_key):
             fusion_config = self.config.adapters.get_fusion(adapter_names)
             fusion = BertFusion(
@@ -114,11 +117,13 @@ class AdapterLayer(AdapterLayerBase):
                 self.config.hidden_size,
                 self.config.attention_probs_dropout_prob,
             )
-            fusion.train(self.training)  # make sure training mode is consistent
+            # make sure training mode is consistent
+            fusion.train(self.training)
             self.adapter_fusion_layer[",".join(adapter_names)] = fusion
 
     def delete_fusion_layer(self, adapter_names: Union[List, str]):
-        adapter_names = adapter_names if isinstance(adapter_names, str) else ",".join(adapter_names)
+        adapter_names = adapter_names if isinstance(
+            adapter_names, str) else ",".join(adapter_names)
         if adapter_names in self.adapter_fusion_layer:
             del self.adapter_fusion_layer[adapter_names]
 
@@ -188,8 +193,10 @@ class AdapterLayer(AdapterLayerBase):
             # Case 5: We have a single adapter which is part of this module -> forward pass
             elif adapter_stack_layer in self.adapters:
                 adapter_layer = self.adapters[adapter_stack_layer]
-                hidden_states, _, residual = adapter_layer.pre_forward(hidden_states, input_tensor, layer_norm)
-                hidden_states, _, up = adapter_layer(hidden_states, residual_input=residual, layer_type=layer_type, down_mask=down_mask, up_mask=up_mask)
+                hidden_states, _, residual = adapter_layer.pre_forward(
+                    hidden_states, input_tensor, layer_norm)
+                hidden_states, _, up = adapter_layer(
+                    hidden_states, residual_input=residual, layer_type=layer_type, down_mask=down_mask, up_mask=up_mask)
                 # as this stack might be part of a fusion block, return the adapter up-projection output here
                 # together with the final output (with potential residuals & norms) if we reached the last block of the stack
                 if i == len(adapter_setup) - 1:
@@ -216,13 +223,15 @@ class AdapterLayer(AdapterLayerBase):
         for adapter_block in adapter_setup:
             # Case 1: We have a nested stack -> call stack method
             if isinstance(adapter_block, Stack):
-                _, up, _ = self.adapter_stack(adapter_block, hidden_states, input_tensor, layer_norm, lvl=lvl + 1)
+                _, up, _ = self.adapter_stack(
+                    adapter_block, hidden_states, input_tensor, layer_norm, lvl=lvl + 1)
                 if up is not None:  # could be none if stack is empty
                     up_list.append(up)
             # Case 2: We have a single adapter which is part of this module -> forward pass
             elif adapter_block in self.adapters:
                 adapter_layer = self.adapters[adapter_block]
-                _, _, up = adapter_layer(hidden_states, residual_input=residual)
+                _, _, up = adapter_layer(
+                    hidden_states, residual_input=residual)
                 up_list.append(up)
             # Case 3: nesting other composition blocks is invalid
             elif isinstance(adapter_block, AdapterCompositionBlock):
@@ -252,20 +261,21 @@ class AdapterLayer(AdapterLayerBase):
         """
         # config of _first_ of splitted adapters is significant
         first_adapter = self.adapters[adapter_setup.first()]
-        hidden_states, query, residual = first_adapter.pre_forward(hidden_states, input_tensor, layer_norm)
+        hidden_states, query, residual = first_adapter.pre_forward(
+            hidden_states, input_tensor, layer_norm)
 
         # split hidden representations and residuals at split index
         split_hidden_states = [
             hidden_states[:, : adapter_setup.split_index, :],
-            hidden_states[:, adapter_setup.split_index :, :],
+            hidden_states[:, adapter_setup.split_index:, :],
         ]
         split_input_tensor = [
             input_tensor[:, : adapter_setup.split_index, :],
-            input_tensor[:, adapter_setup.split_index :, :],
+            input_tensor[:, adapter_setup.split_index:, :],
         ]
         split_residual = [
             residual[:, : adapter_setup.split_index, :],
-            residual[:, adapter_setup.split_index :, :],
+            residual[:, adapter_setup.split_index:, :],
         ]
 
         for i, adapter_block in enumerate(adapter_setup):
@@ -287,7 +297,8 @@ class AdapterLayer(AdapterLayerBase):
             # Case 4: We have a single adapter which is part of this module -> forward pass
             elif adapter_block in self.adapters:
                 adapter_layer = self.adapters[adapter_block]
-                split_hidden_states[i], _, _ = adapter_layer(split_hidden_states[i], residual_input=split_residual[i])
+                split_hidden_states[i], _, _ = adapter_layer(
+                    split_hidden_states[i], residual_input=split_residual[i])
             # Case 5: nesting other composition blocks is invalid
             elif isinstance(adapter_block, AdapterCompositionBlock):
                 raise ValueError(
@@ -309,8 +320,10 @@ class AdapterLayer(AdapterLayerBase):
         context = ForwardContext.get_context()
         if not context.adapters_parallelized:
             orig_batch_size = input_tensor.shape[0]
-            input_tensor = input_tensor.repeat(self.config.adapters.active_setup.parallel_channels, 1, 1)
-            hidden_states = hidden_states.repeat(self.config.adapters.active_setup.parallel_channels, 1, 1)
+            input_tensor = input_tensor.repeat(
+                self.config.adapters.active_setup.parallel_channels, 1, 1)
+            hidden_states = hidden_states.repeat(
+                self.config.adapters.active_setup.parallel_channels, 1, 1)
             context.adapters_parallelized = True
         else:
             # The base model should handle replication of input.
@@ -323,7 +336,8 @@ class AdapterLayer(AdapterLayerBase):
 
         # We assume all adapters have the same config
         first_adapter = self.adapters[adapter_setup.first()]
-        hidden_states, _, residual = first_adapter.pre_forward(hidden_states, input_tensor, layer_norm)
+        hidden_states, _, residual = first_adapter.pre_forward(
+            hidden_states, input_tensor, layer_norm)
 
         # sequentially feed different parts of the blown-up batch into different adapters
         children_hidden = []
@@ -332,8 +346,10 @@ class AdapterLayer(AdapterLayerBase):
             if isinstance(child, Stack):
                 child_hidden_states, _, _ = self.adapter_stack(
                     child,
-                    hidden_states[i * orig_batch_size : (i + 1) * orig_batch_size],
-                    input_tensor[i * orig_batch_size : (i + 1) * orig_batch_size],
+                    hidden_states[i *
+                                  orig_batch_size: (i + 1) * orig_batch_size],
+                    input_tensor[i *
+                                 orig_batch_size: (i + 1) * orig_batch_size],
                     layer_norm,
                     lvl=lvl + 1,
                 )
@@ -342,8 +358,10 @@ class AdapterLayer(AdapterLayerBase):
             elif isinstance(child, BatchSplit):
                 child_hidden_states = self.adapter_batchsplit(
                     child,
-                    hidden_states[i * orig_batch_size : (i + 1) * orig_batch_size],
-                    input_tensor[i * orig_batch_size : (i + 1) * orig_batch_size],
+                    hidden_states[i *
+                                  orig_batch_size: (i + 1) * orig_batch_size],
+                    input_tensor[i *
+                                 orig_batch_size: (i + 1) * orig_batch_size],
                     layer_norm,
                     lvl=lvl + 1,
                 )
@@ -352,8 +370,10 @@ class AdapterLayer(AdapterLayerBase):
             elif child in self.adapters:
                 adapter_layer = self.adapters[child]
                 child_hidden_states, _, _ = adapter_layer(
-                    hidden_states[i * orig_batch_size : (i + 1) * orig_batch_size],
-                    residual_input=residual[i * orig_batch_size : (i + 1) * orig_batch_size],
+                    hidden_states[i *
+                                  orig_batch_size: (i + 1) * orig_batch_size],
+                    residual_input=residual[i *
+                                            orig_batch_size: (i + 1) * orig_batch_size],
                 )
                 children_hidden.append(child_hidden_states)
             # Case 4: nesting other composition blocks is invalid
@@ -365,7 +385,8 @@ class AdapterLayer(AdapterLayerBase):
                 )
             # Case X: No adapter which is part of this module -> ignore
             else:
-                children_hidden.append(hidden_states[i * orig_batch_size : (i + 1) * orig_batch_size])
+                children_hidden.append(
+                    hidden_states[i * orig_batch_size: (i + 1) * orig_batch_size])
 
         # concatenate all outputs and return
         hidden_states = torch.cat(children_hidden, 0)
@@ -380,7 +401,8 @@ class AdapterLayer(AdapterLayerBase):
             )
 
         first_adapter = self.adapters[adapter_setup.first()]
-        hidden_states, _, residual = first_adapter.pre_forward(hidden_states, input_tensor, layer_norm)
+        hidden_states, _, residual = first_adapter.pre_forward(
+            hidden_states, input_tensor, layer_norm)
         children_hidden = []
         for i, adapter_block in enumerate(adapter_setup):
             # compute ids of sequences thet should be passed to the ith adapter
@@ -392,8 +414,8 @@ class AdapterLayer(AdapterLayerBase):
             if isinstance(adapter_block, Stack):
                 child, _, _ = self.adapter_stack(
                     adapter_block,
-                    hidden_states[batch_idx[0] : batch_idx[1]],
-                    input_tensor[batch_idx[0] : batch_idx[1]],
+                    hidden_states[batch_idx[0]: batch_idx[1]],
+                    input_tensor[batch_idx[0]: batch_idx[1]],
                     layer_norm,
                     lvl=lvl + 1,
                 )
@@ -402,8 +424,8 @@ class AdapterLayer(AdapterLayerBase):
             elif isinstance(adapter_block, Split):
                 child = self.adapter_split(
                     adapter_block,
-                    hidden_states[batch_idx[0] : batch_idx[1]],
-                    input_tensor[batch_idx[0] : batch_idx[1]],
+                    hidden_states[batch_idx[0]: batch_idx[1]],
+                    input_tensor[batch_idx[0]: batch_idx[1]],
                     layer_norm,
                     lvl=lvl + 1,
                 )
@@ -412,8 +434,8 @@ class AdapterLayer(AdapterLayerBase):
             elif isinstance(adapter_block, BatchSplit):
                 child = self.adapter_batchsplit(
                     adapter_block,
-                    hidden_states[batch_idx[0] : batch_idx[1]],
-                    input_tensor[batch_idx[0] : batch_idx[1]],
+                    hidden_states[batch_idx[0]: batch_idx[1]],
+                    input_tensor[batch_idx[0]: batch_idx[1]],
                     layer_norm,
                     lvl=lvl + 1,
                 )
@@ -423,7 +445,8 @@ class AdapterLayer(AdapterLayerBase):
 
                 adapter_layer = self.adapters[adapter_block]
                 child, _, _ = adapter_layer(
-                    hidden_states[batch_idx[0] : batch_idx[1]], residual_input=residual[batch_idx[0] : batch_idx[1]]
+                    hidden_states[batch_idx[0]: batch_idx[1]
+                                  ], residual_input=residual[batch_idx[0]: batch_idx[1]]
                 )
                 children_hidden.append(child)
             # Case 5: nesting other composition blocks is invalid
@@ -464,9 +487,11 @@ class AdapterLayer(AdapterLayerBase):
                     adapter_setup, hidden_states, input_tensor, layer_type, down_mask, up_mask, layer_norm
                 )
             elif isinstance(adapter_setup, Fuse):
-                hidden_states = self.adapter_fusion(adapter_setup, hidden_states, input_tensor, layer_norm)
+                hidden_states = self.adapter_fusion(
+                    adapter_setup, hidden_states, input_tensor, layer_norm)
             elif isinstance(adapter_setup, Split):
-                hidden_states = self.adapter_split(adapter_setup, hidden_states, input_tensor, layer_norm)
+                hidden_states = self.adapter_split(
+                    adapter_setup, hidden_states, input_tensor, layer_norm)
             elif isinstance(adapter_setup, Parallel):
                 # notice that we are overriding input tensor here to keep the same dim as hidden_states for the residual
                 # in case we were blowing up the batch for parallel processing of multiple adapters for the same input
@@ -474,12 +499,14 @@ class AdapterLayer(AdapterLayerBase):
                     adapter_setup, hidden_states, input_tensor, layer_norm
                 )
             elif isinstance(adapter_setup, BatchSplit):
-                hidden_states = self.adapter_batchsplit(adapter_setup, hidden_states, input_tensor, layer_norm)
+                hidden_states = self.adapter_batchsplit(
+                    adapter_setup, hidden_states, input_tensor, layer_norm)
             else:
                 raise ValueError(f"Invalid adapter setup {adapter_setup}")
 
             last_adapter = self.adapters[adapter_setup.last()]
-            hidden_states = last_adapter.post_forward(hidden_states, input_hidden_states, input_tensor, layer_norm)
+            hidden_states = last_adapter.post_forward(
+                hidden_states, input_hidden_states, input_tensor, layer_norm)
 
         elif layer_norm:
             hidden_states = layer_norm(hidden_states + input_tensor)

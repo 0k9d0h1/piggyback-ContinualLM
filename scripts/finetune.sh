@@ -4,9 +4,8 @@
 #SBATCH -o posttrain_procy_qa-%j.out
 #SBATCH --gres gpu:2
 
-export HF_DATASETS_CACHE='/hdd_1/zke4/dataset_cache'
-export TRANSFORMERS_CACHE='/sdb/zke4/model_cache'
-export TRANSFORMERS_OFFLINE=1
+export HF_DATASETS_CACHE='/home/eecomp_test/donghoon/dataset_cache'
+export TRANSFORMERS_CACHE='/home/eecomp_test/donghoon/model_cache'
 
 max_samples=640000
 
@@ -28,7 +27,7 @@ do
           --ntasks 6 \
           --max_samples ${max_samples} \
           --seed ${seed[$round]} \
-        --baseline 'das'
+        --baseline 'piggyback'
       done
     done
   done

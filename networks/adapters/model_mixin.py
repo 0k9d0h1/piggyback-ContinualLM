@@ -9,15 +9,16 @@ from typing import Iterable, List, Optional, Tuple, Union
 import torch
 from torch import nn
 
-from transformers.adapters.composition import AdapterCompositionBlock, Fuse, Stack, parse_composition
-from transformers.adapters.configuration import AdapterConfig, AdapterConfigBase, AdapterFusionConfig, get_adapter_config_hash
-from transformers.adapters.context import AdapterSetup, ForwardContext
-from transformers.adapters.hub_mixin import PushAdapterToHubMixin
+from adapters.composition import AdapterCompositionBlock, Fuse, Stack, parse_composition
+from adapters.configuration import AdapterConfig, AdapterFusionConfig
+from adapters.utils import get_adapter_config_hash
+from adapters.context import AdapterSetup, ForwardContext
+from adapters.hub_mixin import PushAdapterToHubMixin
 from .layer import AdapterLayer, AdapterLayerBase
-from transformers.adapters.loading import AdapterFusionLoader, AdapterLoader, PredictionHeadLoader, WeightsLoader
+from adapters.loading import AdapterFusionLoader, AdapterLoader, PredictionHeadLoader, WeightsLoader
 from .modeling import Adapter, GLOWCouplingBlock, NICECouplingBlock
-from transformers.adapters.utils import EMBEDDING_FILE, TOKENIZER_PATH, inherit_doc
-from transformers.adapters.wrappers.configuration import wrap_config
+from adapters.utils import EMBEDDING_FILE, TOKENIZER_PATH, inherit_doc
+from adapters.wrappers.configuration import wrap_config
 from .prefix_tuning import PrefixTuningPool, PrefixTuningShim
 
 
@@ -43,7 +44,8 @@ class InvertibleAdaptersMixin:
             adapter_name (str): The name of the adapter for which to add an invertible adapter module.
         """
         if adapter_name in self.invertible_adapters:
-            raise ValueError(f"Model already contains an adapter module for '{adapter_name}'.")
+            raise ValueError(
+                f"Model already contains an adapter module for '{adapter_name}'.")
         adapter_config = self.config.adapters.match(
             adapter_name,
             config_type=AdapterConfig,
@@ -63,9 +65,11 @@ class InvertibleAdaptersMixin:
                     reduction_factor=adapter_config["inv_adapter_reduction_factor"],
                 )
             else:
-                raise ValueError(f"Invalid invertible adapter type '{adapter_config['inv_adapter']}'.")
+                raise ValueError(
+                    f"Invalid invertible adapter type '{adapter_config['inv_adapter']}'.")
             self.invertible_adapters[adapter_name] = inv_adap
-            self.invertible_adapters[adapter_name].apply(Adapter.init_bert_weights)
+            self.invertible_adapters[adapter_name].apply(
+                Adapter.init_bert_weights)
 
     def delete_invertible_adapter(self, adapter_name: str):
         if adapter_name in self.invertible_adapters:
@@ -90,7 +94,8 @@ class InvertibleAdaptersMixin:
         if self.config.adapters.active_setup is not None and len(self.config.adapters.active_setup) > 0:
             first_adapter = self.config.adapters.active_setup.first()
             if first_adapter in self.invertible_adapters:
-                hidden_states = self.invertible_adapters[first_adapter](hidden_states, rev=rev)
+                hidden_states = self.invertible_adapters[first_adapter](
+                    hidden_states, rev=rev)
 
         return hidden_states
 
@@ -122,14 +127,17 @@ class ModelAdaptersMixin(PushAdapterToHubMixin, ABC):
         # Link all prefix tunings
         if add_prefix_tuning_pool:
             self.base_model.prefix_tuning = PrefixTuningPool(self.config)
-            self.apply_to_adapter_layers(lambda i, layer: self._link_prefix_to_pool(layer))
+            self.apply_to_adapter_layers(
+                lambda i, layer: self._link_prefix_to_pool(layer))
 
         # Initialize adapters from config
         for adapter_name in self.config.adapters:
-            self.apply_to_adapter_layers(lambda i, layer: layer.add_adapter(adapter_name, i))
+            self.apply_to_adapter_layers(
+                lambda i, layer: layer.add_adapter(adapter_name, i))
         # Initialize fusion from config
         for fusion_name in self.config.adapters.fusions:
-            self.apply_to_adapter_layers(lambda i, layer: layer.add_fusion_layer(fusion_name))
+            self.apply_to_adapter_layers(
+                lambda i, layer: layer.add_fusion_layer(fusion_name))
 
         self.loaded_embeddings["default"] = self.get_input_embeddings()
 
@@ -158,7 +166,8 @@ class ModelAdaptersMixin(PushAdapterToHubMixin, ABC):
         self.train()
         self.freeze_model(True)
         adapter_setup = parse_composition(adapter_setup)
-        self.apply_to_adapter_layers(lambda i, layer: layer.enable_adapters(adapter_setup, True, False))
+        self.apply_to_adapter_layers(
+            lambda i, layer: layer.enable_adapters(adapter_setup, True, False))
         for adapter_name in adapter_setup:
             if adapter_name in self.shared_parameters:
                 for param in self.shared_parameters[adapter_name].values():
@@ -177,14 +186,16 @@ class ModelAdaptersMixin(PushAdapterToHubMixin, ABC):
             "add_fusion() has been deprecated in favor of add_adapter_fusion(). Please use the newer method instead.",
             FutureWarning,
         )
-        self.train_adapter_fusion(adapter_setup, unfreeze_adapters=unfreeze_adapters)
+        self.train_adapter_fusion(
+            adapter_setup, unfreeze_adapters=unfreeze_adapters)
 
     def train_adapter_fusion(self, adapter_setup: Union[list, AdapterCompositionBlock], unfreeze_adapters=False):
         """Sets the model into mode for training of adapter fusion determined by a list of adapter names."""
         self.train()
         self.freeze_model(True)
         adapter_setup = parse_composition(adapter_setup)
-        self.apply_to_adapter_layers(lambda i, layer: layer.enable_adapters(adapter_setup, unfreeze_adapters, True))
+        self.apply_to_adapter_layers(lambda i, layer: layer.enable_adapters(
+            adapter_setup, unfreeze_adapters, True))
         # use the adapters to be trained by default in every forward pass
         self.set_active_adapters(adapter_setup)
         # TODO implement fusion for invertible adapters
@@ -223,7 +234,8 @@ class ModelAdaptersMixin(PushAdapterToHubMixin, ABC):
             adapter_setup (list):
                 The list of adapters to be activated by default. Can be a fusion or stacking configuration.
         """
-        adapter_setup = parse_composition(adapter_setup, model_type=self.config.model_type)
+        adapter_setup = parse_composition(
+            adapter_setup, model_type=self.config.model_type)
         if adapter_setup:
             for adapter_name in adapter_setup.flatten():
                 if adapter_name not in self.config.adapters.adapters:
@@ -252,13 +264,15 @@ class ModelAdaptersMixin(PushAdapterToHubMixin, ABC):
         """
 
         if isinstance(config, dict):
-            config = AdapterConfigBase.load(config)  # ensure config is ok and up-to-date
+            # ensure config is ok and up-to-date
+            config = AdapterConfig.load(config)
         # In case adapter already exists and we allow overwriting, explicitly delete the existing one first
         if overwrite_ok and adapter_name in self.config.adapters:
             self.delete_adapter(adapter_name)
         self.config.adapters.add(adapter_name, config=config)
         try:
-            self.apply_to_adapter_layers(lambda i, layer: layer.add_adapter(adapter_name, i))
+            self.apply_to_adapter_layers(
+                lambda i, layer: layer.add_adapter(adapter_name, i))
             # PHM Layer
             if self.config.adapters.match(adapter_name, AdapterConfig, location_key="phm_layer"):
                 self._add_shared_parameters(adapter_name, config)
@@ -276,7 +290,8 @@ class ModelAdaptersMixin(PushAdapterToHubMixin, ABC):
 
     def _add_shared_parameters(self, adapter_name, adapter_config: AdapterConfig):
         self.shared_parameters[adapter_name] = (
-            list(self.get_adapter(adapter_name)[0].values())[0].adapter_down[0].init_shared_parameters()
+            list(self.get_adapter(adapter_name)[0].values())[
+                0].adapter_down[0].init_shared_parameters()
         )
 
     def add_fusion(self, adapter_names: Union[Fuse, list], adapter_fusion_config=None, override_kwargs=None):
@@ -284,7 +299,8 @@ class ModelAdaptersMixin(PushAdapterToHubMixin, ABC):
             "add_fusion() has been deprecated in favor of add_adapter_fusion(). Please use the newer method instead.",
             FutureWarning,
         )
-        adapter_fusion_config = AdapterFusionConfig.from_dict(adapter_fusion_config).replace(**override_kwargs)
+        adapter_fusion_config = AdapterFusionConfig.from_dict(
+            adapter_fusion_config).replace(**override_kwargs)
         self.add_adapter_fusion(adapter_names, adapter_fusion_config)
 
     def add_adapter_fusion(
@@ -320,12 +336,14 @@ class ModelAdaptersMixin(PushAdapterToHubMixin, ABC):
             adapter_names = adapter_names.split(",")
 
         if isinstance(config, dict):
-            config = AdapterFusionConfig.from_dict(config)  # ensure config is ok and up-to-date
+            # ensure config is ok and up-to-date
+            config = AdapterFusionConfig.from_dict(config)
         # In case adapter already exists and we allow overwriting, explicitly delete the existing one first
         if overwrite_ok and self.config.adapters.get_fusion(adapter_names) is not None:
             self.delete_adapter_fusion(adapter_names)
         self.config.adapters.add_fusion(adapter_names, config=config)
-        self.apply_to_adapter_layers(lambda i, layer: layer.add_fusion_layer(adapter_names))
+        self.apply_to_adapter_layers(
+            lambda i, layer: layer.add_fusion_layer(adapter_names))
         if set_active:
             if not isinstance(adapter_names, list):
                 adapter_names = adapter_names.split(",")
@@ -339,10 +357,12 @@ class ModelAdaptersMixin(PushAdapterToHubMixin, ABC):
             adapter_name (str): The name of the adapter.
         """
         if adapter_name not in self.config.adapters:
-            logger.info("No adapter '%s' found for deletion. Skipping.", adapter_name)
+            logger.info(
+                "No adapter '%s' found for deletion. Skipping.", adapter_name)
             return
         del self.config.adapters.adapters[adapter_name]
-        self.apply_to_adapter_layers(lambda i, layer: layer.delete_adapter(adapter_name))
+        self.apply_to_adapter_layers(
+            lambda i, layer: layer.delete_adapter(adapter_name))
         if isinstance(self, InvertibleAdaptersMixin):
             self.delete_invertible_adapter(adapter_name)
         # Reset active adapters if this was the only active adapter
@@ -363,13 +383,16 @@ class ModelAdaptersMixin(PushAdapterToHubMixin, ABC):
         elif isinstance(adapter_names, str):
             adapter_fusion_name = adapter_names
         else:
-            raise ValueError("Invalid AdapterFusion definition: {}".format(adapter_names))
+            raise ValueError(
+                "Invalid AdapterFusion definition: {}".format(adapter_names))
 
         if adapter_fusion_name not in self.config.adapters.fusions:
-            logger.info("No AdapterFusion '%s' found for deletion. Skipping.", adapter_fusion_name)
+            logger.info(
+                "No AdapterFusion '%s' found for deletion. Skipping.", adapter_fusion_name)
             return
         del self.config.adapters.fusions[adapter_fusion_name]
-        self.apply_to_adapter_layers(lambda i, layer: layer.delete_fusion_layer(adapter_fusion_name))
+        self.apply_to_adapter_layers(
+            lambda i, layer: layer.delete_fusion_layer(adapter_fusion_name))
         # Reset active adapters if this was the active setup
         if self.active_adapters == adapter_names:
             self.active_adapters = None
@@ -424,7 +447,8 @@ class ModelAdaptersMixin(PushAdapterToHubMixin, ABC):
         elif isinstance(adapter_names, str):
             adapter_fusion_name = adapter_names
         else:
-            raise ValueError("Invalid AdapterFusion definition: {}".format(adapter_names))
+            raise ValueError(
+                "Invalid AdapterFusion definition: {}".format(adapter_names))
 
         loader = AdapterFusionLoader(self)
         loader.save(save_directory, adapter_fusion_name, meta_dict)
@@ -525,7 +549,8 @@ class ModelAdaptersMixin(PushAdapterToHubMixin, ABC):
         """
 
         loader = AdapterFusionLoader(self)
-        load_dir, load_name = loader.load(adapter_fusion_name_or_path, load_as, set_active=set_active)
+        load_dir, load_name = loader.load(
+            adapter_fusion_name_or_path, load_as, set_active=set_active)
         # load additional custom weights
         if custom_weights_loaders:
             for weights_loader in custom_weights_loaders:
@@ -558,7 +583,8 @@ class ModelAdaptersMixin(PushAdapterToHubMixin, ABC):
                 meta_dict.update({"config_id": h})
             else:
                 meta_dict = {"config_id": h}
-            self.save_adapter(save_path, name, meta_dict=meta_dict, custom_weights_loaders=custom_weights_loaders)
+            self.save_adapter(save_path, name, meta_dict=meta_dict,
+                              custom_weights_loaders=custom_weights_loaders)
 
     def save_all_adapter_fusions(
         self,
@@ -597,10 +623,12 @@ class ModelAdaptersMixin(PushAdapterToHubMixin, ABC):
         This method is called by the ``ForwardContext`` at the beginning of the forward pass.
         """
         # some warnings if we don't use available adapters
-        active_adapters = getattr(self, "active_adapters", None) or AdapterSetup.get_context_adapter_setup()
+        active_adapters = getattr(
+            self, "active_adapters", None) or AdapterSetup.get_context_adapter_setup()
         if not active_adapters:
             if self.has_adapters():
-                logger.warning("There are adapters available but none are activated for the forward pass.")
+                logger.warning(
+                    "There are adapters available but none are activated for the forward pass.")
             return
 
         context.adapters_parallelized = False
@@ -625,7 +653,8 @@ class ModelAdaptersMixin(PushAdapterToHubMixin, ABC):
         from ..models.auto.tokenization_auto import AutoTokenizer
 
         if name in self.loaded_embeddings:
-            raise ValueError("An embedding with the name {} already exists".format(name))
+            raise ValueError(
+                "An embedding with the name {} already exists".format(name))
         tokenizer = None
         tokenizer_path = os.path.join(path, TOKENIZER_PATH)
         if os.path.isdir(tokenizer_path):
@@ -633,7 +662,8 @@ class ModelAdaptersMixin(PushAdapterToHubMixin, ABC):
 
         embedding_path = os.path.join(path, EMBEDDING_FILE)
         if not os.path.isfile(embedding_path):
-            raise FileNotFoundError("No embeddings found at {}".format(embedding_path))
+            raise FileNotFoundError(
+                "No embeddings found at {}".format(embedding_path))
         weights = torch.load(embedding_path)
 
         self.loaded_embeddings[name] = nn.Embedding.from_pretrained(weights)
@@ -656,7 +686,8 @@ class ModelAdaptersMixin(PushAdapterToHubMixin, ABC):
 
         """
         if name in self.loaded_embeddings:
-            raise ValueError("An embedding with the name {} already exists".format(name))
+            raise ValueError(
+                "An embedding with the name {} already exists".format(name))
         if embedding_dim is None:
             embedding_dim = self.config.hidden_size
         embedding = nn.Embedding(tokenizer.vocab_size, embedding_dim)
@@ -668,13 +699,15 @@ class ModelAdaptersMixin(PushAdapterToHubMixin, ABC):
                 "Reference embedding and reference tokenizer are required to use initialize embeddings from reference embedding"
             )
         if reference_embedding is not None and reference_tokenizer is not None:
-            tokens = set(tokenizer.get_vocab().keys()) & set(reference_tokenizer.get_vocab().keys())
+            tokens = set(tokenizer.get_vocab().keys()) & set(
+                reference_tokenizer.get_vocab().keys())
             reference_vocab = reference_tokenizer.get_vocab()
             vocab = tokenizer.get_vocab()
             for t in tokens:
                 idx_reference = reference_vocab[t]
                 idx = vocab[t]
-                embedding.weight[idx] = self.loaded_embeddings[reference_embedding].weight[idx_reference].clone()
+                embedding.weight[idx] = self.loaded_embeddings[reference_embedding].weight[idx_reference].clone(
+                )
         embedding.train(False)
         self.loaded_embeddings[name] = embedding
         self.set_active_embeddings(name)
@@ -690,7 +723,8 @@ class ModelAdaptersMixin(PushAdapterToHubMixin, ABC):
         if name not in self.loaded_embeddings:
             raise ValueError("No embedding with name {}".format(name))
         if self.active_embeddings == name:
-            logger.warning("The active embedding is deleted. Setting the default embedding as active.")
+            logger.warning(
+                "The active embedding is deleted. Setting the default embedding as active.")
             self.set_active_embeddings("default")
         del self.loaded_embeddings[name]
 
@@ -722,7 +756,8 @@ class ModelAdaptersMixin(PushAdapterToHubMixin, ABC):
             name: The name of the embedding that should be used
 
         """
-        self.loaded_embeddings[self.active_embeddings] = self.get_input_embeddings()
+        self.loaded_embeddings[self.active_embeddings] = self.get_input_embeddings(
+        )
         self.set_input_embeddings(self.loaded_embeddings[name])
         self._active_embedding = name
 
@@ -733,13 +768,15 @@ class ModelAdaptersMixin(PushAdapterToHubMixin, ABC):
     def get_fusion_regularization_loss(self):
         reg_loss = 0.0
 
-        target = torch.zeros((self.config.hidden_size, self.config.hidden_size)).fill_diagonal_(1.0).to(self.device)
+        target = torch.zeros((self.config.hidden_size, self.config.hidden_size)).fill_diagonal_(
+            1.0).to(self.device)
         for i, layer in self.iter_layers():
             for module in layer.modules():
                 if isinstance(module, AdapterLayer):
                     for _, layer_fusion in module.adapter_fusion_layer.items():
                         if hasattr(layer_fusion, "value"):
-                            reg_loss += 0.01 * (target - layer_fusion.value.weight).pow(2).sum()
+                            reg_loss += 0.01 * \
+                                (target - layer_fusion.value.weight).pow(2).sum()
 
         return reg_loss
 
@@ -823,9 +860,11 @@ class ModelWithHeadsAdaptersMixin(ModelAdaptersMixin):
         recursion
         """
         if self.base_model is self:
-            super().add_adapter(adapter_name, config, overwrite_ok=overwrite_ok, set_active=set_active)
+            super().add_adapter(adapter_name, config,
+                                overwrite_ok=overwrite_ok, set_active=set_active)
         else:
-            self.base_model.add_adapter(adapter_name, config, overwrite_ok=overwrite_ok, set_active=set_active)
+            self.base_model.add_adapter(
+                adapter_name, config, overwrite_ok=overwrite_ok, set_active=set_active)
 
     def train_adapter(self, adapter_setup: Union[list, AdapterCompositionBlock], train_embeddings=False):
         """
@@ -845,14 +884,16 @@ class ModelWithHeadsAdaptersMixin(ModelAdaptersMixin):
         if self.base_model is self:
             super().train_adapter_fusion(adapter_setup, unfreeze_adapters=unfreeze_adapters)
         else:
-            self.base_model.train_adapter_fusion(adapter_setup, unfreeze_adapters=unfreeze_adapters)
+            self.base_model.train_adapter_fusion(
+                adapter_setup, unfreeze_adapters=unfreeze_adapters)
 
     def save_head(self, save_directory: str, head_name: str = None):
         loader = PredictionHeadLoader(self)
         loader.save(save_directory, name=head_name)
 
     def load_head(self, save_directory, load_as=None, id2label=None, **kwargs):
-        loader = PredictionHeadLoader(self, convert_to_flex_head=self._convert_to_flex_head)
+        loader = PredictionHeadLoader(
+            self, convert_to_flex_head=self._convert_to_flex_head)
         return loader.load(save_directory, load_as=load_as, id2label=id2label, **kwargs)
 
     def save_adapter(
@@ -866,7 +907,8 @@ class ModelWithHeadsAdaptersMixin(ModelAdaptersMixin):
         if with_head:
             if custom_weights_loaders is None:
                 custom_weights_loaders = []
-            custom_weights_loaders.append(PredictionHeadLoader(self, error_on_missing=False))
+            custom_weights_loaders.append(
+                PredictionHeadLoader(self, error_on_missing=False))
         super().save_adapter(
             save_directory,
             adapter_name,
@@ -962,7 +1004,8 @@ class ModelWithHeadsAdaptersMixin(ModelAdaptersMixin):
         Raises:
             ValueError: If the given AdapterFusion name is invalid.
         """
-        super().save_adapter_fusion(save_directory, adapter_names, meta_dict, custom_weights_loaders)
+        super().save_adapter_fusion(save_directory,
+                                    adapter_names, meta_dict, custom_weights_loaders)
 
         if with_head:
             # Make sure to cover the different options for adapter_names
@@ -975,7 +1018,8 @@ class ModelWithHeadsAdaptersMixin(ModelAdaptersMixin):
             else:
                 head_name = adapter_names
             if head_name not in self.heads:
-                raise ValueError("No head with name {} found".format(head_name))
+                raise ValueError(
+                    "No head with name {} found".format(head_name))
             loader = PredictionHeadLoader(self)
             loader.save(save_directory, head_name)
 
@@ -991,8 +1035,10 @@ class ModelWithHeadsAdaptersMixin(ModelAdaptersMixin):
         if with_head:
             if custom_weights_loaders is None:
                 custom_weights_loaders = []
-            custom_weights_loaders.append(PredictionHeadLoader(self, error_on_missing=False))
-        super().load_adapter_fusion(adapter_fusion_name_or_path, load_as, custom_weights_loaders, set_active)
+            custom_weights_loaders.append(
+                PredictionHeadLoader(self, error_on_missing=False))
+        super().load_adapter_fusion(adapter_fusion_name_or_path,
+                                    load_as, custom_weights_loaders, set_active)
 
     def save_all_heads(self, save_directory):
         for head_name in self.heads:

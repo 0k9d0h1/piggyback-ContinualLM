@@ -1,3 +1,5 @@
+from networks.baselines import ewc, hat, softmask, memory
+import utils
 import logging
 import torch
 from transformers import (
@@ -10,10 +12,9 @@ from transformers import (
 logger = logging.getLogger(__name__)
 MODEL_CONFIG_CLASSES = list(MODEL_MAPPING.keys())
 MODEL_TYPES = tuple(conf.model_type for conf in MODEL_CONFIG_CLASSES)
-import utils
-from networks.baselines import ewc, hat, softmask, memory
 
-def compute(self,model,head_impt, intermediate_impt, output_impt,batch, loss,buffer,mask_back,outputs,epoch,step,accelerator):
+
+def compute(self, model, head_impt, intermediate_impt, output_impt, batch, loss, buffer, mask_back, outputs, epoch, step, accelerator):
 
     if 'derpp' in self.args.baseline \
             and not (buffer is None or buffer.is_empty()) \
@@ -25,7 +26,6 @@ def compute(self,model,head_impt, intermediate_impt, output_impt,batch, loss,buf
         loss += replay_outputs.loss * self.args.replay_beta
         loss += self.mse(
             replay_outputs.hidden_states[-1], replay_batch['logits']) * self.args.replay_alpha
-        
 
     if 'dga' in self.args.baseline or 'das' in self.args.baseline:
         contrast_loss = outputs.contrast_loss
@@ -52,7 +52,8 @@ def compute(self,model,head_impt, intermediate_impt, output_impt,batch, loss,buf
     if accelerator.is_main_process and epoch < 1 and step < 1:
         for n, p in accelerator.unwrap_model(model).named_parameters():
             if p.grad is not None:
-                print(f'Gradient of param "{n}" with size {tuple(p.size())} detected')
+                print(
+                    f'Gradient of param "{n}" with size {tuple(p.size())} detected')
 
     if self.args.pt_task > 0 and \
             ('adapter_hat' in self.args.baseline
@@ -79,5 +80,12 @@ def compute(self,model,head_impt, intermediate_impt, output_impt,batch, loss,buf
     if 'dga' in self.args.baseline or 'das' in self.args.baseline:
         softmask.soft_mask_gradient(model, head_impt, intermediate_impt, output_impt, accelerator, epoch, step,
                                     self.args)
+
+    if 'piggyback' in self.args.baseline:
+        for module in model.modules():
+            if 'ElementWise' in str(type(module)):
+                abs_weights = module.weight.data.abs()
+                module.masks[str(self.args.pt_task)].grad.data.div_(
+                    abs_weights.mean())
 
     return model

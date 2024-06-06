@@ -3,9 +3,9 @@ from typing import List, Union
 import torch
 from torch import nn
 
-from transformers.adapters.composition import AdapterCompositionBlock
-from transformers.adapters.configuration import PrefixTuningConfig
-from transformers.adapters.context import AdapterSetup, ForwardContext
+from adapters.composition import AdapterCompositionBlock
+from adapters.configuration import PrefixTuningConfig
+from adapters.context import AdapterSetup, ForwardContext
 from .layer import AdapterLayerBase
 from .modeling import Activation_Function_Class
 
@@ -30,7 +30,8 @@ class PrefixTuning(nn.Module):
         self.control_trans = nn.Sequential(
             nn.Linear(self.input_size, self.config.bottleneck_size),
             Activation_Function_Class(self.config.non_linearity.lower()),
-            nn.Linear(self.config.bottleneck_size, self.n_layers * 2 * self.input_size),
+            nn.Linear(self.config.bottleneck_size,
+                      self.n_layers * 2 * self.input_size),
         )
         self.dropout = nn.Dropout(self.config.dropout)
 
@@ -38,7 +39,8 @@ class PrefixTuning(nn.Module):
         device = next(self.parameters()).device
         input_tokens = self.input_tokens.unsqueeze(0).expand(1, -1).to(device)
         embs = self.wte(input_tokens)
-        key_values = self.control_trans(embs)  # batch_size x prefix_length x n_layers*2*input_size
+        # batch_size x prefix_length x n_layers*2*input_size
+        key_values = self.control_trans(embs)
         key_values = key_values.view(
             self.config.prefix_length * self.n_layers * 2 * self.input_size
         )  # *2 for key and value
@@ -47,11 +49,14 @@ class PrefixTuning(nn.Module):
 
     def forward(self, batch_size):
         device = next(self.parameters()).device
-        input_tokens = self.input_tokens.unsqueeze(0).expand(batch_size, -1).to(device)
+        input_tokens = self.input_tokens.unsqueeze(
+            0).expand(batch_size, -1).to(device)
         embs = self.wte(input_tokens)
-        key_values = self.control_trans(embs)  # batch_size x prefix_length x n_layers*2*input_size
+        # batch_size x prefix_length x n_layers*2*input_size
+        key_values = self.control_trans(embs)
         key_values = key_values.view(
-            batch_size, self.config.prefix_length, self.n_layers * 2, self.n_heads, self.n_embd_per_head
+            batch_size, self.config.prefix_length, self.n_layers *
+            2, self.n_heads, self.n_embd_per_head
         )  # *2 for key and value
         key_values = self.dropout(key_values)
         # n_layers * (2 x batch_size x n_heads x prefix_length x n_embd_per_head)
@@ -75,7 +80,8 @@ class FlatPrefixTuning(nn.Module):
         self.n_embd_per_head = self.input_size // self.n_heads
         self.config = config
 
-        self.control_trans = nn.Parameter(torch.randn(self.config.prefix_length * self.n_layers * 2 * self.input_size))
+        self.control_trans = nn.Parameter(torch.randn(
+            self.config.prefix_length * self.n_layers * 2 * self.input_size))
 
         self.dropout = nn.Dropout(self.config.dropout)
 
@@ -102,14 +108,16 @@ class PrefixTuningGroup(nn.ModuleDict):
         else:
             prefix_tuning_class = PrefixTuning
         for k, kwargs in module_configs.items():
-            self[k] = prefix_tuning_class(**kwargs, config=prefix_tuning_config)
+            self[k] = prefix_tuning_class(
+                **kwargs, config=prefix_tuning_config)
 
     def eject(self):
         """Converts all PrefixTuning modules into FlatPrefixTuning modules."""
         for k, v in self.items():
             if isinstance(v, PrefixTuning):
                 config = v.config.replace(flat=True)
-                self[k] = FlatPrefixTuning(v.n_layers, v.n_heads, v.input_size, config)
+                self[k] = FlatPrefixTuning(
+                    v.n_layers, v.n_heads, v.input_size, config)
                 weights = v.eject()
                 self[k].control_trans = nn.Parameter(weights)
 
@@ -157,12 +165,14 @@ class PrefixTuningPool(nn.Module):
 
     def confirm_prefix(self, prefix_name: str):
         """Create Prefix Tuning module based on shim layer infications."""
-        prefix_tuning_config = self.config.adapters.match(prefix_name, PrefixTuningConfig)
+        prefix_tuning_config = self.config.adapters.match(
+            prefix_name, PrefixTuningConfig)
         if prefix_tuning_config is None:
             return
 
         if prefix_name not in self.prefix_counts:
-            raise ValueError(f"Prefix {prefix_name} not found in PrefixTuningPool")
+            raise ValueError(
+                f"Prefix {prefix_name} not found in PrefixTuningPool")
 
         module_configs = {}
         for location_key, count in self.prefix_counts[prefix_name].items():
@@ -172,7 +182,8 @@ class PrefixTuningPool(nn.Module):
                 "input_size": self.config.hidden_size,
             }
         prefix_tuning = PrefixTuningGroup(module_configs, prefix_tuning_config)
-        prefix_tuning.train(self.training)  # make sure training mode is consistent
+        # make sure training mode is consistent
+        prefix_tuning.train(self.training)
         self.prefix_tunings[prefix_name] = prefix_tuning
         del self.prefix_counts[prefix_name]
 
@@ -201,7 +212,8 @@ class PrefixTuningPool(nn.Module):
         prefix_states = {}
         if adapter_setup is not None:
             # Infer batch size
-            input_tensor_names = ["input_ids", "decoder_input_ids", "attention_mask", "inputs_embeds"]
+            input_tensor_names = [
+                "input_ids", "decoder_input_ids", "attention_mask", "inputs_embeds"]
             batch_size = None
             for name in input_tensor_names:
                 if kwargs.get(name, None) is not None:
@@ -211,7 +223,8 @@ class PrefixTuningPool(nn.Module):
                 if len(args) > 0:
                     batch_size = args[0].size(0)
                 else:
-                    raise ValueError("Could not infer batch size for prefix tuning from inputs.")
+                    raise ValueError(
+                        "Could not infer batch size for prefix tuning from inputs.")
 
             # Pass to sub-layers
             for name in adapter_setup.flatten():
@@ -256,7 +269,8 @@ class PrefixTuningShim(AdapterLayerBase):
             location_key=used_location_key,
         )
         if prefix_tuning_config is not None:
-            prefix_id = self.pool.indicate_prefix(adapter_name, self.location_key)
+            prefix_id = self.pool.indicate_prefix(
+                adapter_name, self.location_key)
             self.prefixes[adapter_name] = prefix_id
 
     def delete_adapter(self, adapter_name: str):
@@ -310,18 +324,22 @@ class PrefixTuningShim(AdapterLayerBase):
                     ]
 
                     key_states = torch.cat([prefix_keys, key_states], dim=2)
-                    value_states = torch.cat([prefix_values, value_states], dim=2)
+                    value_states = torch.cat(
+                        [prefix_values, value_states], dim=2)
                     if attention_mask is not None:
                         if attention_mask.dim() == 2:
-                            prefix_mask = torch.ones(batch_size, prefix_keys.size(2)).to(attention_mask.device)
+                            prefix_mask = torch.ones(batch_size, prefix_keys.size(2)).to(
+                                attention_mask.device)
                         else:
                             prefix_mask = torch.ones(batch_size, 1, attention_mask.size(2), prefix_keys.size(2)).to(
                                 attention_mask.device
                             )
                         if invert_mask:
                             prefix_mask = 1.0 - prefix_mask
-                        attention_mask = torch.cat([prefix_mask, attention_mask], dim=-1)
+                        attention_mask = torch.cat(
+                            [prefix_mask, attention_mask], dim=-1)
             else:
-                raise ValueError(f"Invalid adapter setup. Cannot use {adapter_setup} with prefix tuning.")
+                raise ValueError(
+                    f"Invalid adapter setup. Cannot use {adapter_setup} with prefix tuning.")
 
         return key_states, value_states, attention_mask

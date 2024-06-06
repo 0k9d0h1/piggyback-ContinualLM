@@ -1,3 +1,4 @@
+from torch.utils.tensorboard import SummaryWriter
 import time
 from pathlib import Path
 
@@ -11,16 +12,22 @@ from torch import nn
 from networks.baselines.supsup import MultitaskMaskLinear
 
 from networks.transformers.roberta import MyRobertaForSequenceClassification, MyRobertaForMaskedLM
+from networks.transformers.roberta_piggyback import PiggybackRobertaForSequenceClassification, PiggybackRobertaForMaskedLM
+from networks.transformers.roberta_LoRA import LoRARobertaForSequenceClassification, LoRARobertaForMaskedLM
 from networks.prompt.tuning import MyRobertaForSequenceClassificationSoftPromptTunning, MyRobertaForMaskedLMSoftPromptTunning
 from networks.posttrain.model import MyModel
+from .manage import copy_weights
 import utils
 from transformers import (
     MODEL_MAPPING,
     AdamW,
+    RobertaConfig,
+    RobertaModel,
     get_scheduler,
     Adafactor
 )
 ########################################################################################################################
+
 
 def print_model_report(model):
     print('-' * 100)
@@ -35,8 +42,7 @@ def print_model_report(model):
     print('-' * 100)
 
     with open('para', 'a') as clocker_file:
-        clocker_file.writelines((human_format(count)).replace('M','') + '\n')
-
+        clocker_file.writelines((human_format(count)).replace('M', '') + '\n')
 
     return count
 
@@ -96,7 +102,8 @@ def compute_mean_std_dataset(dataset):
         mean += image.mean(3).mean(2)
     mean /= len(dataset)
 
-    mean_expanded = mean.view(mean.size(0), mean.size(1), 1, 1).expand_as(image)
+    mean_expanded = mean.view(
+        mean.size(0), mean.size(1), 1, 1).expand_as(image)
     for image, _ in loader:
         std += (image - mean_expanded).pow(2).sum(3).sum(2)
 
@@ -115,7 +122,8 @@ def report_tr(res, e, sbatch, clock0, clock1):
         'Diff loss:{:.3f} |'.format(
             e + 1,
             1000 * sbatch * (clock1 - clock0) / res['size'],
-            1000 * sbatch * (time.time() - clock1) / res['size'], res['loss_tot'],
+            1000 * sbatch * (time.time() - clock1) /
+            res['size'], res['loss_tot'],
             res['loss_t'], res['acc_t'], res['loss_a'], res['acc_d'], res['loss_d']), end='')
 
 
@@ -178,8 +186,6 @@ def is_number(s):
 
 # we need to analysis the results, tensorboard
 
-from torch.utils.tensorboard import SummaryWriter
-
 
 # default `log_dir` is "runs" - we'll be more specific here
 def setup_writer(name):
@@ -218,8 +224,10 @@ class DistillKL(nn.Module):
         p_s = F.log_softmax(y_s / self.T, dim=1)
         p_t = F.softmax(y_t / self.T, dim=1)
 
-        loss = F.kl_div(p_s, p_t, size_average=False) * (self.T ** 2) / y_s.shape[0]
+        loss = F.kl_div(p_s, p_t, size_average=False) * \
+            (self.T ** 2) / y_s.shape[0]
         return loss
+
 
 def prepare_sequence_posttrain(args):
     args.sequence_file = 'posttrain'
@@ -251,7 +259,8 @@ def prepare_sequence_posttrain(args):
                     new_dir = f'{output}before_distill{pre_t}/'
                     os.makedirs(new_dir, exist_ok=True)
                 saved_output = f'{output_dir}/{data[0]}_roberta/before_distill0/'
-                args.saved_output_dir += [saved_output] # only used in the first one (for the importance of general knoweledge)
+                # only used in the first one (for the importance of general knoweledge)
+                args.saved_output_dir += [saved_output]
 
             if 'before_distill' in args.softmask_compute and 'one' in args.baseline:
                 for pre_t in range(args.pt_task + 1):
@@ -263,27 +272,30 @@ def prepare_sequence_posttrain(args):
             if 'after_mlm' in args.softmask_compute:
                 new_dir = f'{output}after_mlm{pre_t}/'
                 os.makedirs(new_dir, exist_ok=True)
-                args.saved_output_dir += [f'{output_dir}/{data[t]}_roberta/after_mlm{t}/' for t in range(args.pt_task)]
+                args.saved_output_dir += [
+                    f'{output_dir}/{data[t]}_roberta/after_mlm{t}/' for t in range(args.pt_task)]
 
     else:
-        args.saved_output_dir = [f'{args.base_dir}/seq{args.idrandom}/{args.max_samples}samples/{args.baseline}/{args.dataset_name}/{data[t]}_roberta/' for t in range(args.pt_task + 1)]
+        args.saved_output_dir = [
+            f'{args.base_dir}/seq{args.idrandom}/{args.max_samples}samples/{args.baseline}/{args.dataset_name}/{data[t]}_roberta/' for t in range(args.pt_task + 1)]
 
-    print(f'The directory of saved models or saved importances: {args.saved_output_dir}')
-
+    print(
+        f'The directory of saved models or saved importances: {args.saved_output_dir}')
 
     args.output_dir = output
     args.task = args.pt_task
 
     args.data = data
     args.base_model_name_or_path = "roberta-base"
-    args.eval_t = args.pt_task # we need to use the adapter/plugin
+    args.eval_t = args.pt_task  # we need to use the adapter/plugin
 
     if 'comb' in args.baseline:
         args.dataset_name = '_unsup'
     else:
         args.dataset_name = data[args.pt_task]
 
-    if args.pt_task == 0 or 'one' in args.baseline or ('wiki' in args.baseline and args.pt_task==1): # no pre-trained for the first
+    # no pre-trained for the first
+    if args.pt_task == 0 or 'one' in args.baseline or ('wiki' in args.baseline and args.pt_task == 1):
         args.model_name_or_path = "roberta-base"
     else:
         args.model_name_or_path = ckpt
@@ -291,20 +303,19 @@ def prepare_sequence_posttrain(args):
     if args.eval_only:
         args.model_name_or_path = f'{args.base_dir}/seq{args.idrandom}/{args.max_samples}samples/{args.baseline}/{data[args.pt_task]}_roberta/'
 
-
     print(f'Output directory: {args.output_dir}')
     print(f'Dataset: {args.dataset_name}')
     print(f'Pretrained model: {args.model_name_or_path}')
 
-
     if 'ewc' in args.baseline:
-        args.lamb = 5000  # Grid search = [500,1000,2000,5000,10000,20000,50000]; best was 5000 for ewc
+        # Grid search = [500,1000,2000,5000,10000,20000,50000]; best was 5000 for ewc
+        args.lamb = 5000
     if 'adapter_hat' in args.baseline \
             or 'transformer_hat' in args.baseline \
             or 'adapter_bcl' in args.baseline \
             or 'adapter_classic' in args.baseline:
-        args.lamb=0.75
-    args.class_num = 1 # placeholder for pre-training
+        args.lamb = 0.75
+    args.class_num = 1  # placeholder for pre-training
     return args
 
 
@@ -324,8 +335,8 @@ def prepare_sequence_finetune(args):
         datas = f.readlines()[args.idrandom]
         data = datas.split()
 
-    posttrain2endtask = {"pubmed_unsup":"chemprot_sup", "phone_unsup":"phone_sup", "ai_unsup":"scierc_sup", "camera_unsup":"camera_sup", "acl_unsup":"aclarc_sup", "restaurant_unsup":"restaurant_sup"}
-
+    posttrain2endtask = {"pubmed_unsup": "chemprot_sup", "phone_unsup": "phone_sup", "ai_unsup": "scierc_sup",
+                         "camera_unsup": "camera_sup", "acl_unsup": "aclarc_sup", "restaurant_unsup": "restaurant_sup"}
 
     output = f'{args.base_dir}/seq{args.idrandom}/{args.max_samples}samples/{args.baseline}/{data[args.pt_task]}_roberta/'
     ckpt = f'{args.base_dir}/seq{args.idrandom}/{args.max_samples}samples/{args.baseline}/{data[args.pt_task]}_roberta/'
@@ -337,18 +348,17 @@ def prepare_sequence_finetune(args):
 
     args.task = args.ft_task
 
-
     print(f'Output directory: {args.output_dir}')
     print(f'Dataset: {args.dataset_name}')
     print(f'Pretrained model: {args.model_name_or_path}')
 
     if args.dataset_name in ['aclarc_sup']:
         args.epoch = 10
-    elif args.dataset_name in ["hoc_multi","scierc_sup", "covidintent_sup",'restaurant_sup',"laptop_sup"]:
+    elif args.dataset_name in ["hoc_multi", "scierc_sup", "covidintent_sup", 'restaurant_sup', "laptop_sup"]:
         args.epoch = 5
     elif args.dataset_name in ['phone_sup', "camera_sup"]:
         args.epoch = 15
-    elif args.dataset_name in ['chemprot_sup','rct_sample_sup','electric_sup','hyperpartisan_sup']:
+    elif args.dataset_name in ['chemprot_sup', 'rct_sample_sup', 'electric_sup', 'hyperpartisan_sup']:
         args.epoch = 10
 
     args.s = args.smax
@@ -391,14 +401,13 @@ def _lookfor_model_prompt(args, training_type):
     return model
 
 
-def _lookfor_model_adapter(args,training_type):
+def _lookfor_model_adapter(args, training_type):
 
     if training_type == 'finetune':
         MODEL = MyRobertaForSequenceClassification
 
     elif training_type == 'posttrain':
         MODEL = MyRobertaForMaskedLM
-
 
     model = MODEL.from_pretrained(
         args.model_name_or_path,
@@ -408,18 +417,18 @@ def _lookfor_model_adapter(args,training_type):
     )
 
     if 'one' in args.baseline or args.pt_task == 0:
-        model.add_adapter('adapter') # no mh_adapter by default
+        model.add_adapter('adapter')  # no mh_adapter by default
     else:
         model.load_adapter(args.model_name_or_path)
 
-    model.train_adapter('adapter') # note this train_adapter will affect even the parent node
+    # note this train_adapter will affect even the parent node
+    model.train_adapter('adapter')
     # train adapter reopen the adapter
 
     if 'adapter_classic' in args.baseline:
-        for n,p in model.named_parameters():  # nothing is trainable in teacher
-            if 'self_attns' in n: # classic
+        for n, p in model.named_parameters():  # nothing is trainable in teacher
+            if 'self_attns' in n:  # classic
                 p.requires_grad = True
-
 
     teacher = MODEL.from_pretrained(
         args.model_name_or_path,
@@ -432,7 +441,98 @@ def _lookfor_model_adapter(args,training_type):
     return model
 
 
-def _lookfor_model_others(args,training_type):
+def _lookfor_model_piggyback(args, training_type):
+
+    model_pretrained = RobertaModel.from_pretrained(
+        args.base_model_name_or_path)
+    if training_type == 'finetune':
+        config = RobertaConfig(max_position_embeddings=514)
+        model = PiggybackRobertaForSequenceClassification(
+            config, args, args.class_num)
+
+        model_state = torch.load(os.path.join(
+            args.model_name_or_path, 'model.pt'))
+        model.roberta.load_state_dict(model_state, strict=False)
+
+        for n, p in model.named_parameters():
+            if 'mask' not in n:
+                p.requires_grad = True
+            else:
+                p.requires_grad = False
+
+    elif training_type == 'posttrain':
+        config = RobertaConfig(max_position_embeddings=514)
+        model = PiggybackRobertaForMaskedLM(
+            config, args)
+
+        if "piggyback" in args.model_name_or_path:
+            for i in range(args.pt_task + 1):
+                model.adaptation(0, i)
+
+            model_state = torch.load(os.path.join(
+                args.model_name_or_path, 'model.pt'))
+            model.roberta.load_state_dict(model_state, strict=False)
+
+        for n, p in model.roberta.named_parameters():
+            if 'mask' in n:
+                p.requires_grad = True
+            else:
+                p.requires_grad = False
+
+    copy_weights(model, model_pretrained)
+    model = MyModel(model, teacher=None, args=args)
+
+    return model
+
+
+def _lookfor_model_lora(args, training_type):
+
+    model_pretrained = RobertaModel.from_pretrained(
+        args.base_model_name_or_path)
+    if training_type == 'finetune':
+        config = RobertaConfig(max_position_embeddings=514,
+                               lora_r=args.lora_r, lora_alpha=args.lora_alpha, training_type='finetune', baseline=args.baseline)
+        model = LoRARobertaForSequenceClassification(
+            config, args, args.class_num)
+
+        model_state = torch.load(os.path.join(
+            args.model_name_or_path, 'model.pt'))
+        model.roberta.load_state_dict(model_state, strict=False)
+
+        for p in model.parameters():
+            p.requires_grad = True
+
+    elif training_type == 'posttrain':
+        config = RobertaConfig(max_position_embeddings=514,
+                               lora_r=args.lora_r, lora_alpha=args.lora_alpha, training_type='posttrain', baseline=args.baseline)
+        model = LoRARobertaForMaskedLM(
+            config, args)
+
+        if "lora" in args.model_name_or_path:
+            for i in range(args.pt_task + 1):
+                model.adaptation(0, i)
+
+            model_state = torch.load(os.path.join(
+                args.model_name_or_path, 'model.pt'))
+            model.roberta.load_state_dict(model_state, strict=False)
+
+            for module in model.modules():
+                if 'ElementWise' in str(type(module)):
+                    print(module.masks['0'].data)
+
+        for n, p in model.roberta.named_parameters():
+            if 'lora' in n:
+                p.requires_grad = True
+            else:
+                p.requires_grad = False
+
+    copy_weights(model, model_pretrained)
+    model = MyModel(model, teacher=None, args=args)
+
+    return model
+
+
+def _lookfor_model_others(args, training_type):
 
     if training_type == 'finetune':
         MODEL = MyRobertaForSequenceClassification
@@ -471,12 +571,21 @@ def lookfor_model_posttrain(args):
             model = _lookfor_model_prompt(args, 'posttrain')
             return model
 
+        elif 'piggyback' in args.baseline:
+            model = _lookfor_model_piggyback(args, 'posttrain')
+            return model
+
+        elif 'lora' in args.baseline:
+            model = _lookfor_model_lora(args, 'posttrain')
+            return model
+
         else:
             model = _lookfor_model_others(args, 'posttrain')
             return model
 
     else:
         raise ValueError('You must provide the model name or path.')
+
 
 def lookfor_model_finetune(args):
 
@@ -497,17 +606,15 @@ def lookfor_model_finetune(args):
         raise ValueError('You must provide the model name or path.')
 
 
-
-
 def get_view_for(n, p, masks, config, args):
     from utils.roberta import get_view_for as get_view_for
 
     return get_view_for(n, p, masks, config, args)
 
 
-def mask(model, accelerator,args):
+def mask(model, accelerator, args):
     from utils.roberta import mask as mask
-    return mask(model, accelerator,args)
+    return mask(model, accelerator, args)
 
 
 def get_view_for_tsv(n, model_ori, args):
@@ -516,15 +623,15 @@ def get_view_for_tsv(n, model_ori, args):
     return get_view_for_tsv(n, model_ori, args)
 
 
-def lookfor_baseline_variable(self,args):
+def lookfor_baseline_variable(self, args):
     from utils.roberta import lookfor_baseline_variable as lookfor_baseline_variable
 
-    return lookfor_baseline_variable(self,args)
+    return lookfor_baseline_variable(self, args)
 
-                        
 
 def gather_imp(head_imp):
-    head_imp_list = [torch.zeros_like(head_imp) for _ in range(dist.get_world_size())]
+    head_imp_list = [torch.zeros_like(head_imp)
+                     for _ in range(dist.get_world_size())]
     # Allgather
     dist.all_gather(tensor_list=head_imp_list, tensor=head_imp.contiguous())
 
@@ -538,15 +645,18 @@ def gather_imp(head_imp):
 
 
 def gather_mean(head_imp):
-    head_importance_list = [torch.zeros_like(head_imp) for _ in range(dist.get_world_size())]
-    dist.all_gather(tensor_list=head_importance_list, tensor=head_imp.contiguous()) # everyone need to do this
+    head_importance_list = [torch.zeros_like(
+        head_imp) for _ in range(dist.get_world_size())]
+    dist.all_gather(tensor_list=head_importance_list,
+                    tensor=head_imp.contiguous())  # everyone need to do this
     head_importance_list = torch.stack(head_importance_list)
-    head_importance = torch.mean(head_importance_list,dim=0)
+    head_importance = torch.mean(head_importance_list, dim=0)
     return head_importance
 
 
-def frequency_norm(frequency,eps=5e-5):
-    frequency = (frequency - frequency.mean()) / (frequency.std()+eps)  # 2D, we need to deal with this for each layer
+def frequency_norm(frequency, eps=5e-5):
+    # 2D, we need to deal with this for each layer
+    frequency = (frequency - frequency.mean()) / (frequency.std()+eps)
     return frequency
 
 
@@ -559,32 +669,33 @@ def sim_matrix(a, b, eps=1e-8):
     return sim_mt
 
 
-
-def deep_copy(model,accelerator,args):
+def deep_copy(model, accelerator, args):
 
     unwrap_model = accelerator.unwrap_model(model)
     unwrap_adaptive_model = deepcopy(unwrap_model)
-    optimizer_grouped_parameters = utils.optimize.lookfor_optimize(unwrap_adaptive_model,args)  # everything is based on adative_model
+    optimizer_grouped_parameters = utils.optimize.lookfor_optimize(
+        unwrap_adaptive_model, args)  # everything is based on adative_model
     adaptive_optimizer = AdamW(optimizer_grouped_parameters)
-    adaptive_model,adaptive_optimizer = accelerator.prepare(unwrap_adaptive_model,adaptive_optimizer)
+    adaptive_model, adaptive_optimizer = accelerator.prepare(
+        unwrap_adaptive_model, adaptive_optimizer)
 
-    return adaptive_model,adaptive_optimizer
-
+    return adaptive_model, adaptive_optimizer
 
 
 class Self_Attn(nn.Module):
     """ Self attention Layer"""
-    def __init__(self,attn_size):
-        super(Self_Attn,self).__init__()
 
-        self.query_conv = nn.Linear(attn_size,attn_size)
-        self.key_conv = nn.Linear(attn_size , attn_size)
-        self.value_conv = nn.Linear(attn_size ,attn_size)
+    def __init__(self, attn_size):
+        super(Self_Attn, self).__init__()
+
+        self.query_conv = nn.Linear(attn_size, attn_size)
+        self.key_conv = nn.Linear(attn_size, attn_size)
+        self.value_conv = nn.Linear(attn_size, attn_size)
 
         self.gamma = nn.Parameter(torch.zeros(1))
-        self.softmax  = nn.Softmax(dim=-1) #
+        self.softmax = nn.Softmax(dim=-1)
 
-    def forward(self,x):
+    def forward(self, x):
         """
             inputs :
                 x : input feature maps( B,max_length,hidden_size)
@@ -593,24 +704,25 @@ class Self_Attn(nn.Module):
                 attention: B X N X N (N is Width*Height)
         """
 
-        m_batchsize,width ,height = x.size()
-        proj_query  = self.query_conv(x).view(m_batchsize,width,height).permute(0,2,1) # B X CX(N)
-        proj_key =  self.key_conv(x).view(m_batchsize,width,height) # B X C x (*W*H)
-        energy =  torch.bmm(proj_query,proj_key) # transpose check
+        m_batchsize, width, height = x.size()
+        proj_query = self.query_conv(x).view(
+            m_batchsize, width, height).permute(0, 2, 1)  # B X CX(N)
+        proj_key = self.key_conv(x).view(
+            m_batchsize, width, height)  # B X C x (*W*H)
+        energy = torch.bmm(proj_query, proj_key)  # transpose check
 
-        attention = self.softmax(energy) # BX (N) X (N)
+        attention = self.softmax(energy)  # BX (N) X (N)
 
         # attention =  F.gumbel_softmax(energy,hard=True,dim=-1)
-        proj_value = self.value_conv(x).view(m_batchsize,width,height) # B X C X N
+        proj_value = self.value_conv(x).view(
+            m_batchsize, width, height)  # B X C X N
 
-        out = torch.bmm(proj_value,attention.permute(0,2,1) )
-        out = out.view(m_batchsize,width,height)
+        out = torch.bmm(proj_value, attention.permute(0, 2, 1))
+        out = out.view(m_batchsize, width, height)
 
         out = self.gamma*out + x
 
-
         return out
-
 
 
 class EncoderLayer(nn.Module):
@@ -618,26 +730,31 @@ class EncoderLayer(nn.Module):
 
     def __init__(self, n_head, d_model, d_inner, d_k, d_v, dropout=0.1):
         super(EncoderLayer, self).__init__()
-        self.slf_attn = MultiHeadAttention(n_head, d_model, d_k, d_v, dropout=dropout)
-        self.pos_ffn = PositionwiseFeedForward(d_model, d_inner, dropout=dropout)
+        self.slf_attn = MultiHeadAttention(
+            n_head, d_model, d_k, d_v, dropout=dropout)
+        self.pos_ffn = PositionwiseFeedForward(
+            d_model, d_inner, dropout=dropout)
         self.position_enc = PositionalEncoding(d_model)
         self.layer_norm = nn.LayerNorm(d_model, eps=1e-6)
         self.dropout = nn.Dropout(dropout)
 
-    def forward(self, enc_input, enc_q=None,ranking=None):
-        #TODO: Positional/ranking embedding
+    def forward(self, enc_input, enc_q=None, ranking=None):
+        # TODO: Positional/ranking embedding
 
         if enc_q is None:
-            enc_output, enc_slf_attn = self.slf_attn(enc_input, enc_input, enc_input)
+            enc_output, enc_slf_attn = self.slf_attn(
+                enc_input, enc_input, enc_input)
             enc_output = self.pos_ffn(enc_output)
 
         else:
-            enc_output, enc_slf_attn = self.slf_attn(enc_q, enc_input, enc_input)
+            enc_output, enc_slf_attn = self.slf_attn(
+                enc_q, enc_input, enc_input)
             enc_output = self.pos_ffn(enc_output)
 
         enc_output = self.layer_norm(enc_output)
 
         return enc_output, enc_slf_attn
+
 
 class MultiHeadAttention(nn.Module):
     ''' Multi-Head Attention module '''
@@ -654,21 +771,19 @@ class MultiHeadAttention(nn.Module):
         self.w_vs = nn.Linear(d_model, n_head * d_v, bias=False)
         self.fc = nn.Linear(n_head * d_v, d_model, bias=False)
 
-        self.attention = ScaledDotProductAttention(temperature=d_k ** 0.5) #sqrt d_k
+        self.attention = ScaledDotProductAttention(
+            temperature=d_k ** 0.5)  # sqrt d_k
 
         self.dropout = nn.Dropout(dropout)
         self.layer_norm = nn.LayerNorm(d_model, eps=1e-6)
 
-
     def forward(self, q, k, v):
-
 
         d_k, d_v, n_head = self.d_k, self.d_v, self.n_head
         sz_b, len_q, len_k, len_v = q.size(0), q.size(1), k.size(1), v.size(1)
 
-        residual = torch.squeeze(q,1)
+        residual = torch.squeeze(q, 1)
         q = self.layer_norm(q)
-
 
         # Pass through the pre-attention projection: b x lq x (n*dv)
         # Separate different heads: b x lq x n x dv
@@ -679,16 +794,15 @@ class MultiHeadAttention(nn.Module):
         # Transpose for attention dot product: b x n x lq x dv
         q, k, v = q.transpose(1, 2), k.transpose(1, 2), v.transpose(1, 2)
 
-
         q, attn = self.attention(q, k, v)
 
         # Transpose to move the head dimension back: b x lq x n x dv
         # Combine the last two dimensions to concatenate all the heads together: b x lq x (n*dv)
 
         if len_q == 1:
-            q = q.transpose(1, 2).contiguous().view(sz_b,-1)
+            q = q.transpose(1, 2).contiguous().view(sz_b, -1)
         else:
-            q = q.transpose(1, 2).contiguous().view(sz_b, len_q,-1)
+            q = q.transpose(1, 2).contiguous().view(sz_b, len_q, -1)
 
         q = self.dropout(self.fc(q))
         q += residual
@@ -712,13 +826,14 @@ class ScaledDotProductAttention(nn.Module):
 
         return output, attn
 
+
 class PositionwiseFeedForward(nn.Module):
     ''' A two-feed-forward-layer module '''
 
     def __init__(self, d_in, d_hid, dropout=0.1):
         super().__init__()
-        self.w_1 = nn.Linear(d_in, d_hid) # position-wise
-        self.w_2 = nn.Linear(d_hid, d_in) # position-wise
+        self.w_1 = nn.Linear(d_in, d_hid)  # position-wise
+        self.w_2 = nn.Linear(d_hid, d_in)  # position-wise
         self.layer_norm = nn.LayerNorm(d_in, eps=1e-6)
         self.dropout = nn.Dropout(dropout)
 
@@ -740,7 +855,8 @@ class PositionalEncoding(nn.Module):
         super(PositionalEncoding, self).__init__()
 
         # Not a parameter
-        self.register_buffer('pos_table', self._get_sinusoid_encoding_table(n_position, d_hid))
+        self.register_buffer(
+            'pos_table', self._get_sinusoid_encoding_table(n_position, d_hid))
 
     def _get_sinusoid_encoding_table(self, n_position, d_hid):
         ''' Sinusoid position encoding table '''
@@ -749,13 +865,14 @@ class PositionalEncoding(nn.Module):
         def get_position_angle_vec(position):
             return [position / np.power(10000, 2 * (hid_j // 2) / d_hid) for hid_j in range(d_hid)]
 
-        sinusoid_table = np.array([get_position_angle_vec(pos_i) for pos_i in range(n_position)])
+        sinusoid_table = np.array([get_position_angle_vec(pos_i)
+                                  for pos_i in range(n_position)])
         sinusoid_table[:, 0::2] = np.sin(sinusoid_table[:, 0::2])  # dim 2i
         sinusoid_table[:, 1::2] = np.cos(sinusoid_table[:, 1::2])  # dim 2i+1
 
         return torch.FloatTensor(sinusoid_table).unsqueeze(0)
 
-    def forward(self, enc_input,ranking):
+    def forward(self, enc_input, ranking):
         return enc_input + self.pos_table[:, ranking].clone().detach()
 
 
@@ -766,7 +883,8 @@ class GatherLayer(torch.autograd.Function):
     @staticmethod
     def forward(ctx, input):
         ctx.save_for_backward(input)
-        output = [torch.zeros_like(input) for _ in range(dist.get_world_size())] #TODO: what is a world size?
+        output = [torch.zeros_like(input) for _ in range(
+            dist.get_world_size())]  # TODO: what is a world size?
         dist.all_gather(output, input)
         return tuple(output)
 
@@ -776,7 +894,6 @@ class GatherLayer(torch.autograd.Function):
         grad_out = torch.zeros_like(input)
         grad_out[:] = grads[dist.get_rank()]
         return grad_out
-
 
 
 class MyContrastive(nn.Module):
@@ -808,11 +925,11 @@ class MyContrastive(nn.Module):
                 labels = torch.cat(GatherLayer.apply(labels), dim=0)
 
         if con_type == 'supervised':
-            loss = self.sup_con(x.unsqueeze(1),labels)
+            loss = self.sup_con(x.unsqueeze(1), labels)
         elif con_type == 'unsupervised':
             loss = self.sup_con(x)
         elif con_type == 'soft_contrast':
-            loss = self.unsupervised_loss(x,order_x,labels)
+            loss = self.unsupervised_loss(x, order_x, labels)
 
         return loss
 
@@ -820,6 +937,7 @@ class MyContrastive(nn.Module):
 class SupConLoss(nn.Module):
     """Supervised Contrastive Learning: https://arxiv.org/pdf/2004.11362.pdf.
     It also supports the unsupervised contrastive loss in SimCLR"""
+
     def __init__(self, temperature=1, contrast_mode='all',
                  base_temperature=1):
         super(SupConLoss, self).__init__()
@@ -857,7 +975,8 @@ class SupConLoss(nn.Module):
         elif labels is not None:
             labels = labels.contiguous().view(-1, 1)
             if labels.shape[0] != batch_size:
-                raise ValueError('Num of labels does not match num of features')
+                raise ValueError(
+                    'Num of labels does not match num of features')
             mask = torch.eq(labels, labels.T).float().to(device)
         else:
             mask = mask.float().to(device)
@@ -914,7 +1033,8 @@ def tacl_loss(z1, z2, contrastive_labels, eps=0.0):
     '''
     z1 = torch.cat(GatherLayer.apply(z1), dim=0)
     z2 = torch.cat(GatherLayer.apply(z2), dim=0)
-    contrastive_labels = torch.cat(GatherLayer.apply(contrastive_labels), dim=0)
+    contrastive_labels = torch.cat(
+        GatherLayer.apply(contrastive_labels), dim=0)
 
     # if self.sim == 'dot_product':
     contrastive_scores = torch.matmul(z1, z2.transpose(1, 2))
@@ -932,7 +1052,7 @@ def tacl_loss(z1, z2, contrastive_labels, eps=0.0):
     gold = gold.expand(bsz, seqlen).contiguous().view(-1)
     if contrastive_scores.is_cuda:
         gold = gold.cuda(contrastive_scores.get_device())
-    loss =  -logprobs.gather(dim=-1, index=gold.unsqueeze(1)).squeeze(1)
+    loss = -logprobs.gather(dim=-1, index=gold.unsqueeze(1)).squeeze(1)
     loss = loss.view(bsz, seqlen) * contrastive_labels
     loss = torch.sum(loss) / contrastive_labels.sum()
     return loss
@@ -949,7 +1069,8 @@ def taco_loss(z1, z2):
 
     z1 = z1 / z1.norm(dim=2, keepdim=True)
     z2 = z2 / z2.norm(dim=2, keepdim=True)
-    contrastive_scores = torch.matmul(z1,z2.transpose(1, 2)) # bsz x seqlen x seqlen
+    contrastive_scores = torch.matmul(
+        z1, z2.transpose(1, 2))  # bsz x seqlen x seqlen
 
     #
     bsz, seqlen, _ = contrastive_scores.size()
@@ -958,11 +1079,10 @@ def taco_loss(z1, z2):
     gold = gold.expand(bsz, seqlen).contiguous().view(-1)
     if contrastive_scores.is_cuda:
         gold = gold.cuda(contrastive_scores.get_device())
-    loss =  -logprobs.gather(dim=-1, index=gold.unsqueeze(1)).squeeze(1)
+    loss = -logprobs.gather(dim=-1, index=gold.unsqueeze(1)).squeeze(1)
     loss = loss.view(bsz, seqlen)
     loss = torch.sum(loss)
     return loss
-
 
 
 class DiffLoss(torch.nn.Module):
@@ -973,13 +1093,13 @@ class DiffLoss(torch.nn.Module):
         super(DiffLoss, self).__init__()
 
     def forward(self, D1, D2):
-        D1=D1.view(D1.size(0), -1)
-        D1_norm=torch.norm(D1, p=2, dim=1, keepdim=True).detach()
-        D1_norm=D1.div(D1_norm.expand_as(D1) + 1e-6)
+        D1 = D1.view(D1.size(0), -1)
+        D1_norm = torch.norm(D1, p=2, dim=1, keepdim=True).detach()
+        D1_norm = D1.div(D1_norm.expand_as(D1) + 1e-6)
 
-        D2=D2.view(D2.size(0), -1)
-        D2_norm=torch.norm(D2, p=2, dim=1, keepdim=True).detach()
-        D2_norm=D2.div(D2_norm.expand_as(D2) + 1e-6)
+        D2 = D2.view(D2.size(0), -1)
+        D2_norm = torch.norm(D2, p=2, dim=1, keepdim=True).detach()
+        D2_norm = D2.div(D2_norm.expand_as(D2) + 1e-6)
 
         # return torch.mean((D1_norm.mm(D2_norm.t()).pow(2)))
         return torch.mean((D1_norm.mm(D2_norm.t()).pow(2)))

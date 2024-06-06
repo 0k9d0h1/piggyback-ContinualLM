@@ -1,3 +1,5 @@
+from copy import deepcopy
+import utils
 import logging
 import torch
 from transformers import (
@@ -10,12 +12,12 @@ from transformers import (
 logger = logging.getLogger(__name__)
 MODEL_CONFIG_CLASSES = list(MODEL_MAPPING.keys())
 MODEL_TYPES = tuple(conf.model_type for conf in MODEL_CONFIG_CLASSES)
-import utils
-from copy import deepcopy
 
-def compute(self,model,batch,head_impt,intermediate_impt,output_impt,self_fisher,mask_pre,train_loader,step,accelerator):
 
-    self.args.s = (self.args.smax - 1 / self.args.smax) * step / len(train_loader) + 1 / self.args.smax # Only for HAT based model
+def compute(self, model, batch, head_impt, intermediate_impt, output_impt, self_fisher, mask_pre, train_loader, step, accelerator):
+
+    self.args.s = (self.args.smax - 1 / self.args.smax) * step / \
+        len(train_loader) + 1 / self.args.smax  # Only for HAT based model
 
     if 'ewc' in self.args.baseline:
         outputs = model(batch, self_fisher=self_fisher)
@@ -37,6 +39,8 @@ def compute(self,model,batch,head_impt,intermediate_impt,output_impt,self_fisher
                         head_mask=head_impt,
                         intermediate_mask=intermediate_impt,
                         output_mask=output_impt)
+    elif 'piggyback' in self.args.baseline or 'lora' in self.args.baseline:
+        outputs = model(batch, task_label=self.args.pt_task)
     else:
         outputs = model(batch)
     return self, model, outputs

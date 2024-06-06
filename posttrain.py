@@ -46,19 +46,19 @@ MODEL_CONFIG_CLASSES = list(MODEL_MAPPING.keys())
 MODEL_TYPES = tuple(conf.model_type for conf in MODEL_CONFIG_CLASSES)
 
 
-
 def main():
 
     args = parseing_posttrain()
 
-    args.device = torch.device("cuda" if torch.cuda.is_available() and not args.no_cuda else "cpu")
+    args.device = torch.device(
+        "cuda" if torch.cuda.is_available() and not args.no_cuda else "cpu")
     args = utils.model.prepare_sequence_posttrain(args)
     from approaches.posttrain import Appr
 
-
     # Initialize the accelerator. We will let the accelerator handle device placement for us in this example.
     ddp_kwargs = DistributedDataParallelKwargs(find_unused_parameters=True)
-    accelerator = Accelerator(fp16=args.fp16, kwargs_handlers=[ddp_kwargs])
+    accelerator = Accelerator(
+        mixed_precision=args.mixed_precision, kwargs_handlers=[ddp_kwargs])
     # Make one log on every process with the configuration for debugging.
     logging.basicConfig(
         format="%(asctime)s - %(levelname)s - %(name)s - %(message)s",
@@ -69,7 +69,8 @@ def main():
 
     # Setup logging, we only want one process per machine to log things on the screen.
     # accelerator.is_local_main_process is only True for one process per machine.
-    logger.setLevel(logging.INFO if accelerator.is_local_main_process else logging.ERROR)
+    logger.setLevel(
+        logging.INFO if accelerator.is_local_main_process else logging.ERROR)
     if accelerator.is_local_main_process:
         datasets.utils.logging.set_verbosity_warning()
         transformers.utils.logging.set_verbosity_info()
@@ -89,34 +90,38 @@ def main():
             os.makedirs(args.output_dir, exist_ok=True)
     accelerator.wait_for_everyone()
 
-
     # Load pretrained model and tokenizer
     #
     # In distributed training, the .from_pretrained methods guarantee that only one local process can concurrently
     # download model & vocab.
-    # tokenizer = AutoTokenizer.from_pretrained(args.model_name_or_path, use_fast=not args.use_slow_tokenizer)
+    # tokenizer = AutoTokenizer.from_pretrained(
+    #     args.model_name_or_path, use_fast=not args.use_slow_tokenizer)
     tokenizer = RobertaTokenizer.from_pretrained(args.model_name_or_path)
     args.tokenizer = tokenizer
 
     model = utils.model.lookfor_model_posttrain(args)
+    print(model)
     accelerator.wait_for_everyone()
 
     if 'comb' in args.baseline:
         for t in range(args.pt_task + 1):
             if t == 0:
-                raw_datasets = get_dataset(args.data[t], tokenizer=None,args=args)
+                raw_datasets = get_dataset(
+                    args.data[t], tokenizer=None, args=args)
 
             else:
-                cur_raw_datasets = get_dataset(args.data[t], tokenizer=None,args=args)
+                cur_raw_datasets = get_dataset(
+                    args.data[t], tokenizer=None, args=args)
                 train_dataset = cur_raw_datasets["train"]
 
-                raw_datasets["train"] = concatenate_datasets([raw_datasets["train"], train_dataset])
+                raw_datasets["train"] = concatenate_datasets(
+                    [raw_datasets["train"], train_dataset])
     else:
         # Get the dataset
         if args.dataset_name is not None:
             # Downloading and loading a dataset from the hub.
-            raw_datasets = get_dataset(args.dataset_name, tokenizer=None, args=args)
-
+            raw_datasets = get_dataset(
+                args.dataset_name, tokenizer=None, args=args)
 
     # See more about loading any type of standard or custom dataset (from files, python dict, pandas DataFrame, etc) at
     # https://huggingface.co/docs/datasets/loading_datasets.html.
@@ -142,10 +147,10 @@ def main():
             )
         max_seq_length = min(args.max_seq_length, tokenizer.model_max_length)
 
-
     # Otherwise, we tokenize every text, then concatenate them together before splitting them in smaller parts.
     # We use `return_special_tokens_mask=True` because DataCollatorForLanguageModeling (see below) is more
     # efficient when it receives the `special_tokens_mask`.
+
     def tokenize_function(examples):
         return tokenizer(examples[text_column_name], return_special_tokens_mask=True)
 
@@ -188,12 +193,14 @@ def main():
 
     # Data collator
     # This one will take care of randomly masking the tokens.
-    data_collator = utils.data.PTDataCollatorForLanguageModeling(tokenizer=tokenizer, mlm_probability=args.mlm_probability)
+    data_collator = utils.data.PTDataCollatorForLanguageModeling(
+        tokenizer=tokenizer, mlm_probability=args.mlm_probability)
 
     print('train_dataset: ', len(train_dataset))
     if args.max_train_samples is not None:
         # Number of samples might increase during Feature Creation, We select only specified max samples
-        train_dataset = train_dataset.select(range(int(args.max_train_samples)))
+        train_dataset = train_dataset.select(
+            range(int(args.max_train_samples)))
 
     # DataLoaders creation:
     train_dataloader = DataLoader(
@@ -209,7 +216,8 @@ def main():
     )
 
     appr = Appr(args)
-    appr.train(model,accelerator,train_dataset,train_dataloader,train_dataloader_subset,train_dataloader_subset_dataset)
+    appr.train(model, accelerator, train_dataset, train_dataloader,
+               train_dataloader_subset, train_dataloader_subset_dataset)
 
 
 if __name__ == "__main__":
