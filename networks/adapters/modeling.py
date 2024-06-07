@@ -5,8 +5,8 @@ from torch import nn
 
 from transformers.activations import get_activation
 
-from adapters.configuration import AdapterConfig, AdapterFusionConfig
-from adapters.context import ForwardContext
+from transformers.adapters.configuration import AdapterConfig, AdapterFusionConfig
+from transformers.adapters.context import ForwardContext
 from networks.plugin.plugin import Myplugin
 
 

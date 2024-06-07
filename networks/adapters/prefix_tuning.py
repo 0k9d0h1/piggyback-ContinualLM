@@ -3,9 +3,9 @@ from typing import List, Union
 import torch
 from torch import nn
 
-from adapters.composition import AdapterCompositionBlock
-from adapters.configuration import PrefixTuningConfig
-from adapters.context import AdapterSetup, ForwardContext
+from transformers.adapters.composition import AdapterCompositionBlock
+from transformers.adapters.configuration import PrefixTuningConfig
+from transformers.adapters.context import AdapterSetup, ForwardContext
 from .layer import AdapterLayerBase
 from .modeling import Activation_Function_Class
 

@@ -9,16 +9,16 @@ from typing import Iterable, List, Optional, Tuple, Union
 import torch
 from torch import nn
 
-from adapters.composition import AdapterCompositionBlock, Fuse, Stack, parse_composition
-from adapters.configuration import AdapterConfig, AdapterFusionConfig
-from adapters.utils import get_adapter_config_hash
-from adapters.context import AdapterSetup, ForwardContext
-from adapters.hub_mixin import PushAdapterToHubMixin
+from transformers.adapters.composition import AdapterCompositionBlock, Fuse, Stack, parse_composition
+from transformers.adapters.configuration import AdapterConfig, AdapterFusionConfig
+from transformers.adapters.utils import get_adapter_config_hash
+from transformers.adapters.context import AdapterSetup, ForwardContext
+from transformers.adapters.hub_mixin import PushAdapterToHubMixin
 from .layer import AdapterLayer, AdapterLayerBase
-from adapters.loading import AdapterFusionLoader, AdapterLoader, PredictionHeadLoader, WeightsLoader
+from transformers.adapters.loading import AdapterFusionLoader, AdapterLoader, PredictionHeadLoader, WeightsLoader
 from .modeling import Adapter, GLOWCouplingBlock, NICECouplingBlock
-from adapters.utils import EMBEDDING_FILE, TOKENIZER_PATH, inherit_doc
-from adapters.wrappers.configuration import wrap_config
+from transformers.adapters.utils import EMBEDDING_FILE, TOKENIZER_PATH, inherit_doc
+from transformers.adapters.wrappers.configuration import wrap_config
 from .prefix_tuning import PrefixTuningPool, PrefixTuningShim
 
 

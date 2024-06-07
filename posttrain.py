@@ -58,7 +58,7 @@ def main():
     # Initialize the accelerator. We will let the accelerator handle device placement for us in this example.
     ddp_kwargs = DistributedDataParallelKwargs(find_unused_parameters=True)
     accelerator = Accelerator(
-        mixed_precision=args.mixed_precision, kwargs_handlers=[ddp_kwargs])
+        fp16=args.fp16, kwargs_handlers=[ddp_kwargs])
     # Make one log on every process with the configuration for debugging.
     logging.basicConfig(
         format="%(asctime)s - %(levelname)s - %(name)s - %(message)s",

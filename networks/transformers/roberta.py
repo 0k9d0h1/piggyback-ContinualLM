@@ -46,8 +46,8 @@ import inspect
 
 from networks.adapters.model_mixin import InvertibleAdaptersMixin, ModelWithHeadsAdaptersMixin
 from networks.adapters.prefix_tuning import PrefixTuningShim
-from adapters.composition import adjust_tensors_for_parallel
-from adapters.context import ForwardContext
+from transformers.adapters.composition import adjust_tensors_for_parallel
+from transformers.adapters.context import ForwardContext
 from transformers.file_utils import (
     add_code_sample_docstrings,
     add_end_docstrings,

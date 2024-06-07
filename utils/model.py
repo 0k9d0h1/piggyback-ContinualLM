@@ -16,6 +16,7 @@ from networks.transformers.roberta_piggyback import PiggybackRobertaForSequenceC
 from networks.transformers.roberta_LoRA import LoRARobertaForSequenceClassification, LoRARobertaForMaskedLM
 from networks.prompt.tuning import MyRobertaForSequenceClassificationSoftPromptTunning, MyRobertaForMaskedLMSoftPromptTunning
 from networks.posttrain.model import MyModel
+from transformers.models.roberta.modeling_roberta import RobertaForSequenceClassification
 from .manage import copy_weights
 import utils
 from transformers import (
@@ -446,7 +447,7 @@ def _lookfor_model_piggyback(args, training_type):
     model_pretrained = RobertaModel.from_pretrained(
         args.base_model_name_or_path)
     if training_type == 'finetune':
-        config = RobertaConfig(max_position_embeddings=514)
+        config = RobertaConfig.from_pretrained(args.base_model_name_or_path)
         model = PiggybackRobertaForSequenceClassification(
             config, args, args.class_num)
 
@@ -461,7 +462,7 @@ def _lookfor_model_piggyback(args, training_type):
                 p.requires_grad = False
 
     elif training_type == 'posttrain':
-        config = RobertaConfig(max_position_embeddings=514)
+        config = RobertaConfig.from_pretrained(args.base_model_name_or_path)
         model = PiggybackRobertaForMaskedLM(
             config, args)
 

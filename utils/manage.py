@@ -142,11 +142,15 @@ def copy_weights(model, model_pretrained, data_idx=0):
     module_list = list(model_pretrained.modules())
     i = 0
 
-    for module in model.modules():
+    for module in model.roberta.modules():
         if 'Pooler' in str(type(module_list[i])):
             break
 
         if 'Linear' in str(type(module)):
+            while True:
+                i += 1
+                if 'Linear' in str(type(module_list[i])):
+                    break
             module.weight.data.copy_(module_list[i].weight.data)
             module.bias.data.copy_(module_list[i].bias.data)
             if 'LoRA' in str(type(module)) and 'LoRA' in str(type(module_list[i])):
@@ -156,17 +160,22 @@ def copy_weights(model, model_pretrained, data_idx=0):
                     module_list[i].lora_Bs[str(data_idx)].data)
 
         elif 'Embedding' in str(type(module)) and 'Roberta' not in str(type(module)):
+            while True:
+                i += 1
+                if 'Embedding' in str(type(module_list[i])) and 'Roberta' not in str(type(module_list[i])):
+                    break
+            print(str(type(module)), str(type(module_list[i])))
             module.weight.data.copy_(module_list[i].weight.data)
 
         elif 'LayerNorm' in str(type(module)):
+            while True:
+                i += 1
+                if 'LayerNorm' in str(type(module_list[i])):
+                    break
+            print(str(type(module)), str(type(module_list[i])))
             module.weight.data.copy_(module_list[i].weight.data)
             module.bias.data.copy_(module_list[i].bias.data)
             module.eval()
-
-        elif ('Identity' in str(type(module)) and 'Identity' not in str(type(module_list[i]))) or ('Dict' in str(type(module)) and 'Dict' not in str(type(module_list[i]))) or \
-                'RobertaForMaskedLM' in str(type(module)) or 'RobertaForSequenceClassification' in str(type(module)) or 'RobertaForLoRAEndtask' in str(type(module)):
-            continue
-        i += 1
 
 
 def check(model, pretrained):

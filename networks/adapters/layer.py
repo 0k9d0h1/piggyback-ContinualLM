@@ -4,9 +4,9 @@ from typing import List, Mapping, Union
 import torch
 from torch import nn
 
-from adapters.composition import AdapterCompositionBlock, BatchSplit, Fuse, Parallel, Split, Stack
-from adapters.configuration import AdapterConfig
-from adapters.context import AdapterSetup, ForwardContext
+from transformers.adapters.composition import AdapterCompositionBlock, BatchSplit, Fuse, Parallel, Split, Stack
+from transformers.adapters.configuration import AdapterConfig
+from transformers.adapters.context import AdapterSetup, ForwardContext
 from .modeling import Adapter, BertFusion, ParallelAdapter
 
 

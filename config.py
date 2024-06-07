@@ -156,8 +156,7 @@ def parseing_posttrain():
     )
     parser.add_argument("--hub_token", type=str,
                         help="The token to use to push to the Model Hub.")
-    parser.add_argument('--mixed_precision', type=str,
-                        default=None, choices=[None, 'no', 'fp16', 'bf16', 'fp8'])
+    parser.add_argument('--fp16', action='store_true')
     parser.add_argument('--precision', type=torch.dtype, default=torch.float32)
     parser.add_argument("--baseline",
                         type=str,
