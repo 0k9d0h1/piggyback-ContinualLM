@@ -420,7 +420,7 @@ class LoRAPiggybackLinear(LoRALinear):
 
     def adaptation(self, num_class, task_label):
         super().adaptation(num_class, task_label)
-        if self.training_type == 'finetune' and str(task_label) not in self.masks:
+        if self.training_type == 'finetune' and str(task_label) not in self.masks_A:
             self.masks_A[str(task_label)] = self.make_mask('A')
             self.masks_B[str(task_label)] = self.make_mask('B')
 

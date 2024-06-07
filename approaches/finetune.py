@@ -1,4 +1,6 @@
 
+from utils import utils
+from sklearn.metrics import f1_score
 import logging
 import math
 import os
@@ -22,33 +24,32 @@ import numpy as np
 logger = logging.getLogger(__name__)
 MODEL_CONFIG_CLASSES = list(MODEL_MAPPING.keys())
 MODEL_TYPES = tuple(conf.model_type for conf in MODEL_CONFIG_CLASSES)
-from sklearn.metrics import f1_score
-from tensorboardX import SummaryWriter
-from utils import utils
+
 
 class Appr(object):
 
-    def __init__(self,args):
+    def __init__(self, args):
         super().__init__()
-        self.args=args
+        self.args = args
         self.tanh = torch.nn.Tanh()
         self.sigmoid = torch.nn.Sigmoid()
         return
 
-
     # TODO: Multiple-GPU supprt
 
-    def train(self,model,accelerator,train_loader, test_loader):
+    def train(self, model, accelerator, train_loader, test_loader):
 
         # Set the optimizer
         optimizer = AdamW(filter(lambda p: p.requires_grad, model.parameters()), lr=self.args.lr,
                           weight_decay=self.args.weight_decay)
 
-        num_update_steps_per_epoch = math.ceil(len(train_loader) / self.args.gradient_accumulation_steps)
+        num_update_steps_per_epoch = math.ceil(
+            len(train_loader) / self.args.gradient_accumulation_steps)
         if self.args.max_train_steps is None:
             self.args.max_train_steps = self.args.epoch * num_update_steps_per_epoch
         else:
-            self.args.epoch = math.ceil(self.args.max_train_steps / num_update_steps_per_epoch)
+            self.args.epoch = math.ceil(
+                self.args.max_train_steps / num_update_steps_per_epoch)
 
         lr_scheduler = get_scheduler(
             name=self.args.lr_scheduler_type,
@@ -58,20 +59,25 @@ class Appr(object):
         )
 
         # Prepare everything with the accelerator
-        model, optimizer, train_loader, test_loader = accelerator.prepare(model, optimizer, train_loader, test_loader)
+        model, optimizer, train_loader, test_loader = accelerator.prepare(
+            model, optimizer, train_loader, test_loader)
 
         logger.info("***** Running training *****")
-        logger.info( f"Pretrained Model = {self.args.model_name_or_path},  Dataset name = {self.args.dataset_name}, seed = {self.args.seed}")
+        logger.info(
+            f"Pretrained Model = {self.args.model_name_or_path},  Dataset name = {self.args.dataset_name}, seed = {self.args.seed}")
 
         summary_path = f'{self.args.output_dir}../{self.args.dataset_name}_finetune_summary'
         print(f'summary_path: {summary_path}')
 
         for epoch in range(self.args.epoch):
             print("Epoch {} started".format(epoch))
-            train_acc, training_loss = self.train_epoch(model, optimizer, train_loader, accelerator, lr_scheduler)
-            print("train acc = {:.4f}, training loss = {:.4f}".format(train_acc, training_loss))
+            train_acc, training_loss = self.train_epoch(
+                model, optimizer, train_loader, accelerator, lr_scheduler)
+            print("train acc = {:.4f}, training loss = {:.4f}".format(
+                train_acc, training_loss))
 
-        micro_f1, macro_f1, acc, test_loss = self.eval(model, test_loader, accelerator)
+        micro_f1, macro_f1, acc, test_loss = self.eval(
+            model, test_loader, accelerator)
 
         if self.args.dataset_name in ['chemprot_sup', 'rct_sample_sup']:
             macro_f1 = micro_f1  # we report micro instead
@@ -94,8 +100,10 @@ class Appr(object):
                 accs = np.loadtxt(progressive_acc_path)
 
             else:
-                f1s = np.zeros((self.args.ntasks, self.args.ntasks), dtype=np.float32)
-                accs = np.zeros((self.args.ntasks, self.args.ntasks), dtype=np.float32)
+                f1s = np.zeros(
+                    (self.args.ntasks, self.args.ntasks), dtype=np.float32)
+                accs = np.zeros(
+                    (self.args.ntasks, self.args.ntasks), dtype=np.float32)
 
             f1s[self.args.pt_task][self.args.ft_task] = macro_f1
             np.savetxt(progressive_f1_path, f1s, '%.4f', delimiter='\t')
@@ -130,10 +138,10 @@ class Appr(object):
                             file.writelines(str(accs[j][j]) + '\n')
                             f1_file.writelines(str(f1s[j][j]) + '\n')
 
-
-    def train_epoch(self,model, optimizer, dataloader, accelerator, lr_scheduler):
+    def train_epoch(self, model, optimizer, dataloader, accelerator, lr_scheduler):
         # Only show the progress bar once on each machine.
-        progress_bar = tqdm(range(len(dataloader)), disable=not accelerator.is_local_main_process)
+        progress_bar = tqdm(range(len(dataloader)),
+                            disable=not accelerator.is_local_main_process)
         model.train()
         train_acc = 0.0
         training_loss = 0.0
@@ -143,19 +151,22 @@ class Appr(object):
                 model_ori = accelerator.unwrap_model(model)
                 head_importance, intermediate_importance, output_importance = model_ori.transformer_mask()
                 res = model.model(**inputs, head_mask=head_importance, intermediate_mask=intermediate_importance,
-                                output_mask=output_importance)
-
+                                  output_mask=output_importance)
+            elif 'piggyback' in self.args.baseline or 'lora' in self.args.baseline:
+                res = model.model(
+                    **inputs, task_label=self.args.ft_task, return_dict=True)
             else:
-                res = model.model(**inputs)
+                res = model.model(**inputs, return_dict=True)
 
             outp = res.logits
             loss = res.loss
             optimizer.zero_grad()
             accelerator.backward(loss)
 
-            # for n,p in accelerator.unwrap_model(model).named_parameters():
-            #     if p.grad is not None:
-            #         print('n,p： ',n)
+            # if batch == 0:
+            #     for n, p in accelerator.unwrap_model(model).named_parameters():
+            #         if p.grad is not None:
+            #             print('n,p： ', n)
 
             optimizer.step()
             lr_scheduler.step()
@@ -165,7 +176,6 @@ class Appr(object):
             predictions = accelerator.gather(pred)
             references = accelerator.gather(inputs['labels'])
 
-
             train_acc += (references == predictions).sum().item()
             training_loss += loss.item()
             total_num += references.size(0)
@@ -174,21 +184,25 @@ class Appr(object):
             # break
         return train_acc / total_num, training_loss / total_num
 
-    def eval(self,model, dataloader, accelerator):
+    def eval(self, model, dataloader, accelerator):
         model.eval()
         label_list = []
         prediction_list = []
-        total_loss=0
-        total_num=0
+        total_loss = 0
+        total_num = 0
         # Only show the progress bar once on each machine.
-        progress_bar = tqdm(range(len(dataloader)), disable=not accelerator.is_local_main_process)
+        progress_bar = tqdm(range(len(dataloader)),
+                            disable=not accelerator.is_local_main_process)
         with torch.no_grad():
             for batch, inputs in enumerate(dataloader):
                 input_ids = inputs['input_ids']
+                if 'piggyback' in self.args.baseline or 'lora' in self.args.baseline:
+                    res = model.model(
+                        **inputs, task_label=self.args.ft_task, return_dict=True)
+                else:
+                    res = model.model(**inputs, return_dict=True)
 
-                res = model.model(**inputs, return_dict=True)
-
-                real_b=input_ids.size(0)
+                real_b = input_ids.size(0)
                 loss = res.loss
                 outp = res.logits
                 if self.args.problem_type != 'multi_label_classification':
@@ -196,21 +210,20 @@ class Appr(object):
                 else:
                     pred = outp.sigmoid() > 0.5
 
-                total_loss+=loss.data.cpu().numpy().item()*real_b
-                total_num+=real_b
+                total_loss += loss.data.cpu().numpy().item()*real_b
+                total_num += real_b
 
                 predictions = accelerator.gather(pred)
                 references = accelerator.gather(inputs['labels'])
 
-                label_list += references.cpu().numpy().tolist() # we may use multi-node
+                label_list += references.cpu().numpy().tolist()  # we may use multi-node
                 prediction_list += predictions.cpu().numpy().tolist()
                 progress_bar.update(1)
                 # break
 
         micro_f1 = f1_score(label_list, prediction_list, average='micro')
         macro_f1 = f1_score(label_list, prediction_list, average='macro')
-        accuracy = sum([float(label_list[i] == prediction_list[i]) for i in range(len(label_list))]) * 1.0 / len(prediction_list)
+        accuracy = sum([float(label_list[i] == prediction_list[i])
+                       for i in range(len(label_list))]) * 1.0 / len(prediction_list)
 
-
-        return micro_f1, macro_f1, accuracy,total_loss/total_num
-
+        return micro_f1, macro_f1, accuracy, total_loss/total_num

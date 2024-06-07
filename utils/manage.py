@@ -164,7 +164,6 @@ def copy_weights(model, model_pretrained, data_idx=0):
                 i += 1
                 if 'Embedding' in str(type(module_list[i])) and 'Roberta' not in str(type(module_list[i])):
                     break
-            print(str(type(module)), str(type(module_list[i])))
             module.weight.data.copy_(module_list[i].weight.data)
 
         elif 'LayerNorm' in str(type(module)):
@@ -172,7 +171,6 @@ def copy_weights(model, model_pretrained, data_idx=0):
                 i += 1
                 if 'LayerNorm' in str(type(module_list[i])):
                     break
-            print(str(type(module)), str(type(module_list[i])))
             module.weight.data.copy_(module_list[i].weight.data)
             module.bias.data.copy_(module_list[i].bias.data)
             module.eval()
