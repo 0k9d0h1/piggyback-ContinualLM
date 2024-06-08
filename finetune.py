@@ -19,6 +19,8 @@ on a text file or a dataset without using HuggingFace Trainer.
 Here is the full list of checkpoints on the hub that can be fine-tuned by this script:
 https://huggingface.co/models?filter=masked-lm
 """
+from approaches.finetune import Appr
+from config import parseing_finetune
 from utils import utils
 import logging
 import os
@@ -26,7 +28,7 @@ import torch
 from accelerate import Accelerator
 from torch.utils.data import DataLoader
 from transformers import RobertaTokenizer, set_seed, AdamW
-from dataloader.data import get_dataset,dataset_class_num
+from dataloader.data import get_dataset, dataset_class_num
 import random
 from transformers import (
     MODEL_MAPPING,
@@ -39,15 +41,13 @@ from transformers import (
 )
 # Set up logger
 logger = logging.getLogger(__name__)
-from config import parseing_finetune
-from approaches.finetune import Appr
 
 
 def main():
     args = parseing_finetune()
     args = utils.model.prepare_sequence_finetune(args)
-    args.device = torch.device("cuda" if torch.cuda.is_available() and not args.no_cuda else "cpu")
-
+    args.device = torch.device(
+        "cuda" if torch.cuda.is_available() and not args.no_cuda else "cpu")
 
     # Initialize the accelerator. We will let the accelerator handle device placement for us in this example.
     accelerator = Accelerator()
@@ -58,7 +58,8 @@ def main():
         level=logging.INFO,
     )
     logger.info(accelerator.state)
-    logger.setLevel(logging.INFO if accelerator.is_local_main_process else logging.ERROR)
+    logger.setLevel(
+        logging.INFO if accelerator.is_local_main_process else logging.ERROR)
 
     if args.log_dir is not None:
         handler = logging.FileHandler(args.log_dir)
@@ -91,7 +92,7 @@ def main():
 
     logger.info('==> Preparing data..')
 
-    datasets = get_dataset(args.dataset_name, tokenizer=tokenizer,args=args)
+    datasets = get_dataset(args.dataset_name, tokenizer=tokenizer, args=args)
     print(f'Dataset: {args.dataset_name}')
 
     print(f'Size of training set: {len(datasets["train"])}')
@@ -100,36 +101,35 @@ def main():
     train_dataset = datasets['train']
     test_dataset = datasets['test']
 
-
     test_dataset = test_dataset.map(
         lambda e: tokenizer(e['text'], truncation=True, padding='max_length', max_length=max_length), batched=True)
-    test_dataset.set_format(type='torch', columns=['input_ids', 'attention_mask', 'labels'])
+    test_dataset.set_format(type='torch', columns=[
+                            'input_ids', 'attention_mask', 'labels'])
     test_loader = DataLoader(test_dataset, batch_size=args.batch_size, shuffle=False, drop_last=False,
                              num_workers=8)
 
-
-
     train_dataset = train_dataset.map(
         lambda e: tokenizer(e['text'], truncation=True, padding='max_length', max_length=max_length), batched=True)
-    train_dataset.set_format(type='torch', columns=['input_ids', 'attention_mask', 'labels'])
+    train_dataset.set_format(type='torch', columns=[
+                             'input_ids', 'attention_mask', 'labels'])
     train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True, drop_last=False,
-                              num_workers=8) #consider batch size
-
+                              num_workers=8)  # consider batch size
 
     for index in random.sample(range(len(train_dataset)), 1):
-        logger.info(f"Sample {index} of the training set: {train_dataset[index]}. Decode to: {tokenizer.decode(train_dataset[index]['input_ids'])}")
+        logger.info(
+            f"Sample {index} of the training set: {train_dataset[index]}. Decode to: {tokenizer.decode(train_dataset[index]['input_ids'])}")
 
     if args.class_num is None:
         args.class_num = dataset_class_num[args.dataset_name]
-
 
     # Declare the model and set the training parameters.
     logger.info('==> Building model..')
 
     model = utils.model.lookfor_model_finetune(args)
+    print(model)
 
     appr = Appr(args)
-    appr.train(model,accelerator,train_loader,test_loader)
+    appr.train(model, accelerator, train_loader, test_loader)
 
 
 if __name__ == '__main__':

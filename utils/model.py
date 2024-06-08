@@ -454,7 +454,7 @@ def _lookfor_model_piggyback(args, training_type):
             model.adaptation(args.class_num, i)
 
         model_state = torch.load(os.path.join(
-            args.model_name_or_path, 'model.pt'))
+            args.model_name_or_path, 'model.pt'), map_location='cpu')
         model.roberta.load_state_dict(model_state, strict=False)
 
         for n, p in model.named_parameters():
@@ -473,7 +473,7 @@ def _lookfor_model_piggyback(args, training_type):
                 model.adaptation(0, i)
 
             model_state = torch.load(os.path.join(
-                args.model_name_or_path, 'model.pt'))
+                args.model_name_or_path, 'model.pt'), map_location='cpu')
             model.roberta.load_state_dict(model_state, strict=False)
 
         for n, p in model.roberta.named_parameters():
