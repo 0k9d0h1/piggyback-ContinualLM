@@ -81,7 +81,7 @@ def compute(self, model, head_impt, intermediate_impt, output_impt, batch, loss,
         softmask.soft_mask_gradient(model, head_impt, intermediate_impt, output_impt, accelerator, epoch, step,
                                     self.args)
 
-    if 'piggyback' in self.args.baseline:
+    if 'piggyback' == self.args.baseline:
         for module in model.modules():
             if 'ElementWise' in str(type(module)):
                 abs_weights = module.weight.data.abs()

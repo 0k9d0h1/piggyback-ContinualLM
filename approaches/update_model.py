@@ -14,7 +14,8 @@ import utils
 
 def update(self,model,optimizer,outputs,loss,writer,lr_scheduler,progress_bar,global_step,completed_steps,accelerator):
     optimizer.step()
-    lr_scheduler.step()
+    if lr_scheduler:
+        lr_scheduler.step()
 
     optimizer.zero_grad()
     progress_bar.update(1)

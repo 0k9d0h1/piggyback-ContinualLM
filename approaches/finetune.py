@@ -144,9 +144,10 @@ class Appr(object):
                 head_importance, intermediate_importance, output_importance = model_ori.transformer_mask()
                 res = model.model(**inputs, head_mask=head_importance, intermediate_mask=intermediate_importance,
                                 output_mask=output_importance)
-
+            elif 'piggyback' in self.args.baseline or 'lora' in self.args.baseline:
+                res = model.model(**inputs, task_label=self.args.ft_task, return_dict=True)
             else:
-                res = model.model(**inputs)
+                res = model.model(**inputs, return_dict=True)
 
             outp = res.logits
             loss = res.loss
@@ -185,8 +186,10 @@ class Appr(object):
         with torch.no_grad():
             for batch, inputs in enumerate(dataloader):
                 input_ids = inputs['input_ids']
-
-                res = model.model(**inputs, return_dict=True)
+                if 'piggyback' in self.args.baseline or 'lora' in self.args.baseline:
+                    res = model.model(**inputs, task_label=self.args.ft_task, return_dict=True)
+                else:
+                    res = model.model(**inputs, return_dict=True)
 
                 real_b=input_ids.size(0)
                 loss = res.loss

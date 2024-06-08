@@ -11,11 +11,11 @@ max_samples=640000
 
 seed=(2021 111 222 333 444 555 666 777 888 999)
 
-for round in 0;
+for round in 0 1 2 3 4;
 do
   for idrandom in 0;
   do
-  for pt_task in 0
+  for pt_task in 0 1 2 3 4 5;
     do
       for ft_task in $(seq 0 ${pt_task});
         do
@@ -27,7 +27,8 @@ do
           --ntasks 6 \
           --max_samples ${max_samples} \
           --seed ${seed[$round]} \
-        --baseline 'piggyback'
+          --baseline 'piggyback' \
+          --weight_decay 0
       done
     done
   done

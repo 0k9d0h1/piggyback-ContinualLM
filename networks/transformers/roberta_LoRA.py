@@ -863,6 +863,7 @@ class LoRARobertaForSequenceClassification(am.MultiTaskModule):
     def __init__(self, config, args, initial_out_features):
         super().__init__()
         self.config = config
+        self.num_labels = args.class_num
 
         self.roberta = LoRARobertaModel(
             config, args, add_pooling_layer=False)

@@ -874,9 +874,10 @@ class PiggybackRobertaLMHead(am.MultiTaskModule):
 
 
 class PiggybackRobertaForSequenceClassification(am.MultiTaskModule):
-    def __init__(self, config, args, initial_out_features, zero_out=True, train_str='mask'):
+    def __init__(self, config, args, initial_out_features, zero_out=True, train_str='weight'):
         super().__init__()
         self.config = config
+        self.num_labels = args.class_num
 
         self.roberta = PiggybackRobertaModel(
             config, args, mask_embedding=False, train_str=train_str, add_pooling_layer=False, zero_out=zero_out)

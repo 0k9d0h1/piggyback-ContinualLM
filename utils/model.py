@@ -450,6 +450,8 @@ def _lookfor_model_piggyback(args, training_type):
         config = RobertaConfig.from_pretrained(args.base_model_name_or_path)
         model = PiggybackRobertaForSequenceClassification(
             config, args, args.class_num)
+        for i in range(args.ft_task + 1):
+            model.adaptation(args.class_num, i)
 
         model_state = torch.load(os.path.join(
             args.model_name_or_path, 'model.pt'))
@@ -486,35 +488,51 @@ def _lookfor_model_piggyback(args, training_type):
     return model
 
 
+
 def _lookfor_model_lora(args, training_type):
 
     model_pretrained = RobertaModel.from_pretrained(
         args.base_model_name_or_path)
     if training_type == 'finetune':
-        config = RobertaConfig(max_position_embeddings=514,
-                               lora_r=args.lora_r, lora_alpha=args.lora_alpha, training_type='finetune', baseline=args.baseline)
+        config = RobertaConfig.from_pretrained(args.base_model_name_or_path)
+        config.lora_r = args.lora_r
+        config.lora_alpha = args.lora_alpha
+        config.training_type = 'finetune'
+        config.baseline = args.baseline
+
         model = LoRARobertaForSequenceClassification(
             config, args, args.class_num)
+        for i in range(args.ft_task + 1):
+            model.adaptation(args.class_num, i)
 
         model_state = torch.load(os.path.join(
-            args.model_name_or_path, 'model.pt'))
+            args.model_name_or_path, 'model.pt'), map_location='cpu')
         model.roberta.load_state_dict(model_state, strict=False)
 
-        for p in model.parameters():
-            p.requires_grad = True
+        if args.baseline == 'lora':
+            for p in model.parameters():
+                p.requires_grad = True
+        elif args.baseline == 'lora_piggyback':
+            for n, p in model.roberta.named_parameters():
+                if 'mask' in n:
+                    p.requires_grad = True
+                else:
+                    p.requires_grad = False
 
     elif training_type == 'posttrain':
-        config = RobertaConfig(max_position_embeddings=514,
-                               lora_r=args.lora_r, lora_alpha=args.lora_alpha, training_type='posttrain', baseline=args.baseline)
-        model = LoRARobertaForMaskedLM(
-            config, args)
+        config = RobertaConfig.from_pretrained(args.base_model_name_or_path)
+        config.lora_r = args.lora_r
+        config.lora_alpha = args.lora_alpha
+        config.training_type = 'posttrain'
+        config.baseline = args.baseline
+        model = LoRARobertaForMaskedLM(config, args)
 
         if "lora" in args.model_name_or_path:
             for i in range(args.pt_task + 1):
                 model.adaptation(0, i)
 
             model_state = torch.load(os.path.join(
-                args.model_name_or_path, 'model.pt'))
+                args.model_name_or_path, 'model.pt'), map_location='cpu')
             model.roberta.load_state_dict(model_state, strict=False)
 
             for module in model.modules():
@@ -531,6 +549,7 @@ def _lookfor_model_lora(args, training_type):
     model = MyModel(model, teacher=None, args=args)
 
     return model
+
 
 
 def _lookfor_model_others(args, training_type):
@@ -572,7 +591,7 @@ def lookfor_model_posttrain(args):
             model = _lookfor_model_prompt(args, 'posttrain')
             return model
 
-        elif 'piggyback' in args.baseline:
+        elif 'piggyback' == args.baseline:
             model = _lookfor_model_piggyback(args, 'posttrain')
             return model
 
@@ -597,6 +616,14 @@ def lookfor_model_finetune(args):
 
         elif 'prompt' in args.baseline:
             model = _lookfor_model_prompt(args, 'finetune')
+            return model
+
+        elif 'piggyback' == args.baseline:
+            model = _lookfor_model_piggyback(args, 'finetune')
+            return model
+
+        elif 'lora' in args.baseline:
+            model = _lookfor_model_lora(args, 'finetune')
             return model
 
         else:
