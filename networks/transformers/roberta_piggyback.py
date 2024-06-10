@@ -3,7 +3,7 @@ import torch
 import math
 import avalanche.models as am
 
-from .layers import ElementWiseLinear, ElementWiseEmbedding, MultiTaskClassifier, PretrainingMultiTaskClassifier
+from .layers import ElementWiseLinear, MultiTaskClassifier, PretrainingMultiTaskClassifier
 from transformers.modeling_outputs import BaseModelOutputWithPastAndCrossAttentions, BaseModelOutputWithPoolingAndCrossAttentions, MaskedLMOutput, SequenceClassifierOutput
 from transformers.modeling_utils import ModuleUtilsMixin
 from typing import List, Optional, Tuple, Union
@@ -18,23 +18,14 @@ class PiggybackRobertaEmbeddings(am.MultiTaskModule):
     """
 
     # Copied from transformers.models.bert.modeling_bert.BertEmbeddings.__init__
-    def __init__(self, config, mask_embedding):
-        super().__init__()
-        self.mask_embedding = mask_embedding
-        if self.mask_embedding:
-            self.word_embeddings = ElementWiseEmbedding(
-                config.vocab_size, config.hidden_size, padding_idx=config.pad_token_id)
-            self.position_embeddings = ElementWiseEmbedding(
-                config.max_position_embeddings, config.hidden_size)
-            self.token_type_embeddings = ElementWiseEmbedding(
-                config.type_vocab_size, config.hidden_size)
-        else:
-            self.word_embeddings = nn.Embedding(
-                config.vocab_size, config.hidden_size, padding_idx=config.pad_token_id)
-            self.position_embeddings = nn.Embedding(
-                config.max_position_embeddings, config.hidden_size)
-            self.token_type_embeddings = nn.Embedding(
-                config.type_vocab_size, config.hidden_size)
+    def __init__(self, config):
+        super().__init__()        
+        self.word_embeddings = nn.Embedding(
+            config.vocab_size, config.hidden_size, padding_idx=config.pad_token_id)
+        self.position_embeddings = nn.Embedding(
+            config.max_position_embeddings, config.hidden_size)
+        self.token_type_embeddings = nn.Embedding(
+            config.type_vocab_size, config.hidden_size)
 
         # self.LayerNorm is not snake-cased to stick with TensorFlow model variable name and be able to load
         # any TensorFlow checkpoint file
@@ -105,26 +96,14 @@ class PiggybackRobertaEmbeddings(am.MultiTaskModule):
                 token_type_ids = torch.zeros(
                     input_shape, dtype=torch.long, device=self.position_ids.device)
 
-        if self.mask_embedding:
-            if inputs_embeds is None:
-                inputs_embeds = self.word_embeddings(input_ids, task_label)
-            token_type_embeddings = self.token_type_embeddings(
-                token_type_ids, task_label)
+        if inputs_embeds is None:
+            inputs_embeds = self.word_embeddings(input_ids)
+        token_type_embeddings = self.token_type_embeddings(token_type_ids)
 
-            embeddings = inputs_embeds + token_type_embeddings
-            if self.position_embedding_type == "absolute":
-                position_embeddings = self.position_embeddings(
-                    position_ids, task_label)
-                embeddings += position_embeddings
-        else:
-            if inputs_embeds is None:
-                inputs_embeds = self.word_embeddings(input_ids)
-            token_type_embeddings = self.token_type_embeddings(token_type_ids)
-
-            embeddings = inputs_embeds + token_type_embeddings
-            if self.position_embedding_type == "absolute":
-                position_embeddings = self.position_embeddings(position_ids)
-                embeddings += position_embeddings
+        embeddings = inputs_embeds + token_type_embeddings
+        if self.position_embedding_type == "absolute":
+            position_embeddings = self.position_embeddings(position_ids)
+            embeddings += position_embeddings
 
         embeddings = self.LayerNorm(embeddings)
         embeddings = self.dropout(embeddings)
@@ -163,11 +142,11 @@ class PiggybackRobertaSelfAttention(am.MultiTaskModule):
         self.all_head_size = self.num_attention_heads * self.attention_head_size
 
         self.query = ElementWiseLinear(
-            config.hidden_size, self.all_head_size, train_str, zero_out)
+            config.hidden_size, self.all_head_size, train_str, zero_out, config=config)
         self.key = ElementWiseLinear(
-            config.hidden_size, self.all_head_size, train_str, zero_out)
+            config.hidden_size, self.all_head_size, train_str, zero_out, config=config)
         self.value = ElementWiseLinear(
-            config.hidden_size, self.all_head_size, train_str, zero_out)
+            config.hidden_size, self.all_head_size, train_str, zero_out, config=config)
 
         self.dropout = nn.Dropout(config.attention_probs_dropout_prob)
         self.position_embedding_type = position_embedding_type or getattr(
@@ -284,7 +263,7 @@ class PiggybackRobertaSelfOutput(am.MultiTaskModule):
     def __init__(self, config, train_str, zero_out):
         super().__init__()
         self.dense = ElementWiseLinear(
-            config.hidden_size, config.hidden_size, train_str, zero_out)
+            config.hidden_size, config.hidden_size, train_str, zero_out, config=config)
         self.LayerNorm = nn.LayerNorm(
             config.hidden_size, eps=config.layer_norm_eps)
         self.dropout = nn.Dropout(config.hidden_dropout_prob)
@@ -362,7 +341,7 @@ class PiggybackRobertaIntermediate(am.MultiTaskModule):
     def __init__(self, config, train_str, zero_out):
         super().__init__()
         self.dense = ElementWiseLinear(
-            config.hidden_size, config.intermediate_size, train_str, zero_out)
+            config.hidden_size, config.intermediate_size, train_str, zero_out, config=config)
         self.intermediate_act_fn = nn.GELU()
 
     def adaptation(self, num_class, task_label):
@@ -380,7 +359,7 @@ class PiggybackRobertaOutput(am.MultiTaskModule):
     def __init__(self, config, train_str, zero_out):
         super().__init__()
         self.dense = ElementWiseLinear(
-            config.intermediate_size, config.hidden_size, train_str, zero_out)
+            config.intermediate_size, config.hidden_size, train_str, zero_out, config=config)
         self.LayerNorm = nn.LayerNorm(
             config.hidden_size, eps=config.layer_norm_eps)
         self.dropout = nn.Dropout(config.hidden_dropout_prob)
@@ -566,7 +545,7 @@ class PiggybackRobertaPooler(am.MultiTaskModule):
     def __init__(self, config, train_str, zero_out):
         super().__init__()
         self.dense = ElementWiseLinear(
-            config.hidden_size, config.hidden_size, train_str, zero_out)
+            config.hidden_size, config.hidden_size, train_str, zero_out, config=config)
         self.activation = nn.Tanh()
 
     def adaptation(self, num_class, task_label):
@@ -586,12 +565,12 @@ class PiggybackRobertaPooler(am.MultiTaskModule):
 class PiggybackRobertaModel(am.MultiTaskModule):
 
     # Copied from transformers.models.bert.modeling_bert.BertModel.__init__ with Bert->PiggybackRoberta
-    def __init__(self, config, args, mask_embedding, add_pooling_layer=True, train_str='mask', zero_out=True):
+    def __init__(self, config, args, add_pooling_layer=True, train_str='mask', zero_out=True):
         super().__init__()
         self.config = config
         self.args = args
 
-        self.embeddings = PiggybackRobertaEmbeddings(config, mask_embedding)
+        self.embeddings = PiggybackRobertaEmbeddings(config)
         self.encoder = PiggybackRobertaEncoder(config, train_str, zero_out)
 
         self.pooler = PiggybackRobertaPooler(
@@ -755,11 +734,11 @@ class PiggybackRobertaModel(am.MultiTaskModule):
 class PiggybackRobertaForMaskedLM(am.MultiTaskModule):
     _tied_weights_keys = ["lm_head.decoder.weight", "lm_head.decoder.bias"]
 
-    def __init__(self, config, args, mask_embedding=False):
+    def __init__(self, config, args):
         super().__init__()
         self.config = config
         self.roberta = PiggybackRobertaModel(
-            config, args, mask_embedding, add_pooling_layer=False)
+            config, args, add_pooling_layer=False)
         self.lm_head = PiggybackRobertaLMHead(config)
 
     def adaptation(self, num_class, task_label):
@@ -880,7 +859,7 @@ class PiggybackRobertaForSequenceClassification(am.MultiTaskModule):
         self.num_labels = args.class_num
 
         self.roberta = PiggybackRobertaModel(
-            config, args, mask_embedding=False, train_str=train_str, add_pooling_layer=False, zero_out=zero_out)
+            config, args, train_str=train_str, add_pooling_layer=False, zero_out=zero_out)
         self.classifier = PiggybackRobertaClassificationHead(
             config, initial_out_features)
 
@@ -971,12 +950,12 @@ class PiggybackRobertaForSequenceClassification(am.MultiTaskModule):
 
 
 class PiggybackRobertaForLoRAEndtask(am.MultiTaskModule):
-    def __init__(self, config, args, initial_out_features, mask_embedding=False, zero_out=True):
+    def __init__(self, config, args, initial_out_features, zero_out=True):
         super().__init__()
         self.config = config
 
         self.roberta = PiggybackRobertaModel(
-            config, args, mask_embedding=mask_embedding, train_str='mask', add_pooling_layer=False, zero_out=zero_out)
+            config, args, train_str='mask', add_pooling_layer=False, zero_out=zero_out)
         self.classifier = PiggybackRobertaClassificationHead(
             config, initial_out_features)
 

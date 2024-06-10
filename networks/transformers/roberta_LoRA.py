@@ -146,17 +146,18 @@ class LoRARobertaSelfAttention(am.MultiTaskModule):
                 config.hidden_size, self.all_head_size, config.lora_r, lora_alpha=config.lora_alpha)
             self.value = LoRALinear(
                 config.hidden_size, self.all_head_size, config.lora_r, lora_alpha=config.lora_alpha)
+            self.key = LoRALinear(
+                config.hidden_size, self.all_head_size, config.lora_r, lora_alpha=config.lora_alpha)
         elif config.baseline == 'lora_piggyback':
             self.query = LoRAPiggybackLinear(
                 config.hidden_size, self.all_head_size, config.lora_r, lora_alpha=config.lora_alpha, training_type=config.training_type)
             self.value = LoRAPiggybackLinear(
                 config.hidden_size, self.all_head_size, config.lora_r, lora_alpha=config.lora_alpha, training_type=config.training_type)
+            self.key = LoRAPiggybackLinear(
+                config.hidden_size, self.all_head_size, config.lora_r, lora_alpha=config.lora_alpha, training_type=config.training_type)
         else:
             raise ValueError(
                 f"Baseline {config.baseline} not supported for LoRARobertaSelfAttention")
-
-        self.key = nn.Linear(
-            config.hidden_size, self.all_head_size)
 
         self.dropout = nn.Dropout(config.attention_probs_dropout_prob)
         self.position_embedding_type = position_embedding_type or getattr(
@@ -213,20 +214,20 @@ class LoRARobertaSelfAttention(am.MultiTaskModule):
             attention_mask = encoder_attention_mask
         elif is_cross_attention:
             key_layer = self.transpose_for_scores(
-                self.key(encoder_hidden_states))
+                self.key(encoder_hidden_states, task_label))
             value_layer = self.transpose_for_scores(
                 self.value(encoder_hidden_states, task_label))
             attention_mask = encoder_attention_mask
         elif past_key_value is not None:
             key_layer = self.transpose_for_scores(
-                self.key(hidden_states))
+                self.key(hidden_states, task_label))
             value_layer = self.transpose_for_scores(
                 self.value(hidden_states, task_label))
             key_layer = torch.cat([past_key_value[0], key_layer], dim=2)
             value_layer = torch.cat([past_key_value[1], value_layer], dim=2)
         else:
             key_layer = self.transpose_for_scores(
-                self.key(hidden_states))
+                self.key(hidden_states, task_label))
             value_layer = self.transpose_for_scores(
                 self.value(hidden_states, task_label))
 
@@ -272,8 +273,12 @@ class LoRARobertaSelfAttention(am.MultiTaskModule):
 class LoRARobertaSelfOutput(am.MultiTaskModule):
     def __init__(self, config):
         super().__init__()
-        self.dense = nn.Linear(
-            config.hidden_size, config.hidden_size)
+        if config.baseline == 'lora':
+            self.dense = LoRALinear(
+                config.hidden_size, config.hidden_size, config.lora_r, lora_alpha=config.lora_alpha)
+        elif config.baseline == 'lora_piggyback':
+            self.dense = LoRAPiggybackLinear(
+                config.hidden_size, config.hidden_size, config.lora_r, lora_alpha=config.lora_alpha, training_type=config.training_type)
         self.LayerNorm = nn.LayerNorm(
             config.hidden_size, eps=config.layer_norm_eps)
         self.dropout = nn.Dropout(config.hidden_dropout_prob)
@@ -287,7 +292,7 @@ class LoRARobertaSelfOutput(am.MultiTaskModule):
         return self.forward_single_task(hidden_states, input_tensor, task_label)
 
     def forward_single_task(self, hidden_states: torch.Tensor, input_tensor: torch.Tensor, task_label) -> torch.Tensor:
-        hidden_states = self.dense(hidden_states)
+        hidden_states = self.dense(hidden_states, task_label)
         hidden_states = self.dropout(hidden_states)
         hidden_states = self.LayerNorm(hidden_states + input_tensor)
         return hidden_states
@@ -349,8 +354,12 @@ class LoRARobertaAttention(am.MultiTaskModule):
 class LoRARobertaIntermediate(am.MultiTaskModule):
     def __init__(self, config):
         super().__init__()
-        self.dense = nn.Linear(
-            config.hidden_size, config.intermediate_size)
+        if config.baseline == 'lora':
+            self.dense = LoRALinear(
+                config.hidden_size, config.intermediate_size, config.lora_r, lora_alpha=config.lora_alpha)
+        elif config.baseline == 'lora_piggyback':
+            self.dense = LoRAPiggybackLinear(
+                config.hidden_size, config.intermediate_size, config.lora_r, lora_alpha=config.lora_alpha, training_type=config.training_type)
         self.intermediate_act_fn = nn.GELU()
 
     def adaptation(self, num_class, task_label):
@@ -359,7 +368,7 @@ class LoRARobertaIntermediate(am.MultiTaskModule):
                 module.adaptation(num_class, task_label)
 
     def forward_single_task(self, hidden_states: torch.Tensor, task_label) -> torch.Tensor:
-        hidden_states = self.dense(hidden_states)
+        hidden_states = self.dense(hidden_states, task_label)
         hidden_states = self.intermediate_act_fn(hidden_states)
         return hidden_states
 
@@ -367,8 +376,12 @@ class LoRARobertaIntermediate(am.MultiTaskModule):
 class LoRARobertaOutput(am.MultiTaskModule):
     def __init__(self, config):
         super().__init__()
-        self.dense = nn.Linear(
-            config.intermediate_size, config.hidden_size)
+        if config.baseline == 'lora':
+            self.dense = LoRALinear(
+                config.intermediate_size, config.hidden_size, config.lora_r, lora_alpha=config.lora_alpha)
+        elif config.baseline == 'lora_piggyback':
+            self.dense = LoRAPiggybackLinear(
+                config.intermediate_size, config.hidden_size, config.lora_r, lora_alpha=config.lora_alpha, training_type=config.training_type)
         self.LayerNorm = nn.LayerNorm(
             config.hidden_size, eps=config.layer_norm_eps)
         self.dropout = nn.Dropout(config.hidden_dropout_prob)
@@ -382,7 +395,7 @@ class LoRARobertaOutput(am.MultiTaskModule):
         return self.forward_single_task(hidden_states, input_tensor, task_label)
 
     def forward_single_task(self, hidden_states: torch.Tensor, input_tensor: torch.Tensor, task_label) -> torch.Tensor:
-        hidden_states = self.dense(hidden_states)
+        hidden_states = self.dense(hidden_states, task_label)
         hidden_states = self.dropout(hidden_states)
         hidden_states = self.LayerNorm(hidden_states + input_tensor)
         return hidden_states

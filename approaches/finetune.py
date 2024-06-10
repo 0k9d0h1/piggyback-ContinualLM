@@ -151,16 +151,9 @@ class Appr(object):
                 model_ori = accelerator.unwrap_model(model)
                 head_importance, intermediate_importance, output_importance = model_ori.transformer_mask()
                 res = model.model(**inputs, head_mask=head_importance, intermediate_mask=intermediate_importance,
-<<<<<<< HEAD
                                 output_mask=output_importance)
             elif 'piggyback' in self.args.baseline or 'lora' in self.args.baseline:
                 res = model.model(**inputs, task_label=self.args.ft_task, return_dict=True)
-=======
-                                  output_mask=output_importance)
-            elif 'piggyback' in self.args.baseline or 'lora' in self.args.baseline:
-                res = model.model(
-                    **inputs, task_label=self.args.ft_task, return_dict=True)
->>>>>>> 94e163a031f9eba303dee17a6ab8d4c6eeeb60e5
             else:
                 res = model.model(**inputs, return_dict=True)
 
@@ -168,11 +161,21 @@ class Appr(object):
             loss = res.loss
             optimizer.zero_grad()
             accelerator.backward(loss)
+            
+            if 'lora_piggyback' == self.args.baseline:
+                for module in model.model.modules():
+                    if 'Piggyback' in str(type(module)):
+                        abs_weights_A = module.lora_As[str(self.args.ft_task)].data.abs()
+                        abs_weights_B = module.lora_Bs[str(self.args.ft_task)].data.abs()
+                        module.masks_A[str(self.args.ft_task)].grad.data.div_(
+                            abs_weights_A.mean())
+                        module.masks_B[str(self.args.ft_task)].grad.data.div_(
+                            abs_weights_B.mean())
 
-            # if batch == 0:
-            #     for n, p in accelerator.unwrap_model(model).named_parameters():
-            #         if p.grad is not None:
-            #             print('n,p： ', n)
+            if batch == 0:
+                for n, p in accelerator.unwrap_model(model).named_parameters():
+                    if p.grad is not None:
+                        print('n,p： ', n)
 
             optimizer.step()
             lr_scheduler.step()
@@ -203,20 +206,11 @@ class Appr(object):
             for batch, inputs in enumerate(dataloader):
                 input_ids = inputs['input_ids']
                 if 'piggyback' in self.args.baseline or 'lora' in self.args.baseline:
-<<<<<<< HEAD
                     res = model.model(**inputs, task_label=self.args.ft_task, return_dict=True)
                 else:
                     res = model.model(**inputs, return_dict=True)
 
                 real_b=input_ids.size(0)
-=======
-                    res = model.model(
-                        **inputs, task_label=self.args.ft_task, return_dict=True)
-                else:
-                    res = model.model(**inputs, return_dict=True)
-
-                real_b = input_ids.size(0)
->>>>>>> 94e163a031f9eba303dee17a6ab8d4c6eeeb60e5
                 loss = res.loss
                 outp = res.logits
                 if self.args.problem_type != 'multi_label_classification':

@@ -20,32 +20,15 @@ class Binarizer(torch.autograd.Function):
     def __init__(self):
         super().__init__()
 
-    def forward(self, inputs, threshold=DEFAULT_THRESHOLD):
+    def forward(self, inputs, threshold, le):
         outputs = inputs.clone()
-        outputs[inputs.le(threshold)] = 0
+        outputs[inputs.le(threshold)] = le
         outputs[inputs.gt(threshold)] = 1
         return outputs
 
     def backward(self, gradOutput):
-        return gradOutput
-
-
-class Ternarizer(torch.autograd.Function):
-    """Ternarizes {-1, 0, 1} a real valued tensor."""
-
-    def __init__(self):
-        super().__init__()
-
-    def forward(self, inputs, threshold=DEFAULT_THRESHOLD):
-        outputs = inputs.clone()
-        outputs.fill_(0)
-        outputs[inputs < 0] = -1
-        outputs[inputs > threshold] = 1
-        return outputs
-
-    def backward(self, gradOutput):
-        return gradOutput
-
+        return gradOutput, None, None
+    
 
 class PretrainingMultiTaskClassifier(am.MultiTaskModule):
 
@@ -89,7 +72,7 @@ class ElementWiseLinear(am.MultiTaskModule):
 
     def __init__(self, in_features, out_features, train_str='mask', zero_out=True, bias=True,
                  mask_init='1s', mask_scale=1e-2,
-                 threshold_fn='binarizer', threshold=None):
+                 threshold_fn='binarizer', threshold=None, config=None):
         super().__init__()
         self.in_features = in_features
         self.out_features = out_features
@@ -97,6 +80,7 @@ class ElementWiseLinear(am.MultiTaskModule):
         self.mask_scale = mask_scale
         self.mask_init = mask_init
         self.zero_out = zero_out
+        self.config = config
 
         if threshold is None:
             threshold = DEFAULT_THRESHOLD
@@ -151,12 +135,12 @@ class ElementWiseLinear(am.MultiTaskModule):
 
     def get_weight(self, task_label):
         # For multi-head attention module
-        if self.threshold_fn == 'binarizer':
+        if self.config.baseline == 'piggyback':
             self.mask_thresholded = Binarizer.apply(
-                self.masks[str(task_label)])
-        elif self.threshold_fn == 'ternarizer':
-            self.mask_thresholded = Ternarizer.apply(
-                self.masks[str(task_label)])
+                self.masks[str(task_label)], 5e-3, 0)
+        elif self.config.baseline == 'piggyback_minus_one':
+            self.mask_thresholded = Binarizer.apply(
+                self.masks[str(task_label)], 0, -1)
 
         weight_thresholded = self.mask_thresholded * self.weight
 
@@ -185,106 +169,6 @@ class ElementWiseLinear(am.MultiTaskModule):
 
         self.weight.data = fn(self.weight.data)
         self.bias.data = fn(self.bias.data)
-
-
-class ElementWiseEmbedding(am.MultiTaskModule):
-    __constants__ = ['num_embeddings', 'embedding_dim', 'padding_idx', 'max_norm',
-                     'norm_type', 'scale_grad_by_freq', 'sparse']
-
-    num_embeddings: int
-    embedding_dim: int
-    padding_idx: Optional[int]
-    max_norm: Optional[float]
-    norm_type: float
-    scale_grad_by_freq: bool
-    weight: Tensor
-    freeze: bool
-    sparse: bool
-
-    def __init__(self, num_embeddings: int, embedding_dim: int, padding_idx: Optional[int] = None,
-                 max_norm: Optional[float] = None, norm_type: float = 2., scale_grad_by_freq: bool = False,
-                 sparse: bool = False, _weight: Optional[Tensor] = None, _freeze: bool = False,
-                 device=None, dtype=None,
-                 mask_init='1s', mask_scale=1e-2,
-                 threshold_fn='binarizer', threshold=None) -> None:
-        factory_kwargs = {'device': device, 'dtype': dtype}
-        super().__init__()
-        self.num_embeddings = num_embeddings
-        self.embedding_dim = embedding_dim
-        if padding_idx is not None:
-            if padding_idx > 0:
-                assert padding_idx < self.num_embeddings, 'Padding_idx must be within num_embeddings'
-            elif padding_idx < 0:
-                assert padding_idx >= -self.num_embeddings, 'Padding_idx must be within num_embeddings'
-                padding_idx = self.num_embeddings + padding_idx
-        self.padding_idx = padding_idx
-        self.max_norm = max_norm
-        self.norm_type = norm_type
-        self.scale_grad_by_freq = scale_grad_by_freq
-        self.threshold_fn = threshold_fn
-        self.mask_scale = mask_scale
-        self.mask_init = mask_init
-
-        # Weight and bias are no longer Parameters.
-        self.weight = Variable(torch.Tensor(
-            num_embeddings, embedding_dim), requires_grad=False)
-        self.masks = nn.ParameterDict({'0': self.make_mask()})
-
-        self.sparse = sparse
-
-    def make_mask(self):
-        # Initialize real-valued mask weights.
-        mask_real = self.weight.data.new(self.weight.size())
-        if self.mask_init == '1s':
-            mask_real.fill_(self.mask_scale)
-        elif self.mask_init == 'uniform':
-            mask_real.uniform_(-1 * self.mask_scale, self.mask_scale)
-        # mask_real is now a trainable parameter.
-        return Parameter(mask_real)
-
-    def adaptation(self, num_class, task_label):
-        if str(task_label) not in self.masks:
-            self.masks[str(task_label)] = self.make_mask()
-
-    def get_weight(self, task_label):
-        # For multi-head attention module
-        if self.threshold_fn == 'binarizer':
-            mask_thresholded = Binarizer.apply(self.masks[str(task_label)])
-        elif self.threshold_fn == 'ternarizer':
-            mask_thresholded = Ternarizer.apply(self.masks[str(task_label)])
-
-        weight_thresholded = mask_thresholded * self.weight
-
-        return weight_thresholded
-
-    def reset_parameters(self) -> None:
-        init.normal_(self.weight)
-        self._fill_padding_idx_with_zero()
-
-    def _fill_padding_idx_with_zero(self) -> None:
-        if self.padding_idx is not None:
-            with torch.no_grad():
-                self.weight[self.padding_idx].fill_(0)
-
-    def forward_single_task(self, x: Tensor, task_label: int) -> Tensor:
-        weight_thresholded = self.get_weight(task_label)
-        return F.embedding(
-            x, weight_thresholded, self.padding_idx, self.max_norm,
-            self.norm_type, self.scale_grad_by_freq, self.sparse)
-
-    def extra_repr(self) -> str:
-        s = '{num_embeddings}, {embedding_dim}'
-        if self.padding_idx is not None:
-            s += ', padding_idx={padding_idx}'
-        if self.max_norm is not None:
-            s += ', max_norm={max_norm}'
-        if self.norm_type != 2:
-            s += ', norm_type={norm_type}'
-        if self.scale_grad_by_freq is not False:
-            s += ', scale_grad_by_freq={scale_grad_by_freq}'
-        if self.sparse is not False:
-            s += ', sparse=True'
-        return s.format(**self.__dict__)
 
 
 class LoRALinear(am.MultiTaskModule):
@@ -334,12 +218,16 @@ class LoRALinear(am.MultiTaskModule):
         else:
             self.lora_As = {}
             self.lora_Bs = {}
-        self.reset_parameters('0')
+        self.init_lora('0')
         if fan_in_fan_out:
             self.weight.data = self.weight.data.transpose(0, 1)
 
     def reset_parameters(self, task_label):
-        if hasattr(self, 'lora_A'):
+        nn.Linear.reset_parameters(self)
+        self.init_lora(task_label)
+
+    def init_lora(self, task_label):
+        if hasattr(self, 'lora_As'):
             # initialize A the same way as the default for nn.Linear and B to zero
             nn.init.kaiming_uniform_(self.lora_As[task_label], a=math.sqrt(5))
             nn.init.zeros_(self.lora_Bs[task_label])
@@ -371,15 +259,17 @@ class LoRALinear(am.MultiTaskModule):
                 self.weight.new_zeros((self.r, self.in_features)))
             self.lora_Bs[str(task_label)] = nn.Parameter(
                 self.weight.new_zeros((self.out_features, self.r)))
-            self.reset_parameters(str(task_label))
+            self.init_lora(str(task_label))
 
     def forward_single_task(self, x: torch.Tensor, task_label: int) -> torch.Tensor:
         def T(w):
             return w.transpose(0, 1) if self.fan_in_fan_out else w
         if self.r > 0 and not self.merged:
             result = F.linear(x, T(self.weight), bias=self.bias)
-            result += (self.lora_dropout(x) @ self.lora_As[str(task_label)].transpose(0, 1)
+            result = result + (self.lora_dropout(x) @ self.lora_As[str(task_label)].transpose(0, 1)
                        @ self.lora_Bs[str(task_label)].transpose(0, 1)) * self.scaling
+            print(self.lora_As[str(task_label)].abs().sum().data.item(), self.lora_Bs[str(task_label)].abs().sum().data.item(), (self.lora_As[str(task_label)].transpose(0, 1)
+                       @ self.lora_Bs[str(task_label)].transpose(0, 1)).abs().sum().data.item(), self.lora_dropout(x).abs().sum().data.item())
             return result
         else:
             return F.linear(x, T(self.weight), bias=self.bias)

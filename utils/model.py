@@ -352,15 +352,41 @@ def prepare_sequence_finetune(args):
     print(f'Output directory: {args.output_dir}')
     print(f'Dataset: {args.dataset_name}')
     print(f'Pretrained model: {args.model_name_or_path}')
-
-    if args.dataset_name in ['aclarc_sup']:
-        args.epoch = 10
-    elif args.dataset_name in ["hoc_multi", "scierc_sup", "covidintent_sup", 'restaurant_sup', "laptop_sup"]:
-        args.epoch = 5
-    elif args.dataset_name in ['phone_sup', "camera_sup"]:
-        args.epoch = 15
-    elif args.dataset_name in ['chemprot_sup', 'rct_sample_sup', 'electric_sup', 'hyperpartisan_sup']:
-        args.epoch = 10
+    
+    if args.baseline == 'piggyback' or args.baselien == 'piggyback_minus_one':
+        if args.dataset_name == 'aclarc_sup':
+            args.epoch = 20
+            args.lr = 3.5e-5
+            args.weight_decay = 0
+        elif args.dataset_name == 'restaurant_sup':
+            args.epoch = 15
+            args.lr = 3e-5
+            args.weight_decay = 0
+        elif args.dataset_name == 'phone_sup':
+            args.epoch = 30
+            args.lr = 1.5e-5
+            args.weight_decay = 0.003
+        elif args.dataset_name == 'scierc_sup':
+            args.epoch = 25
+            args.lr = 4e-5
+            args.weight_decay = 0
+        elif args.dataset_name == 'chemprot_sup':
+            args.epoch = 25
+            args.lr = 4e-5
+            args.weight_decay = 0
+        elif args.dataset_name == 'camera_sup':
+            args.epoch = 30
+            args.lr = 1.5e-5
+            args.weight_decay = 0.003
+    else:
+        if args.dataset_name in ['aclarc_sup']:
+            args.epoch = 10
+        elif args.dataset_name in ["hoc_multi", "scierc_sup", "covidintent_sup", 'restaurant_sup', "laptop_sup"]:
+            args.epoch = 5
+        elif args.dataset_name in ['phone_sup', "camera_sup"]:
+            args.epoch = 15
+        elif args.dataset_name in ['chemprot_sup', 'rct_sample_sup', 'electric_sup', 'hyperpartisan_sup']:
+            args.epoch = 10
 
     args.s = args.smax
 
@@ -448,6 +474,12 @@ def _lookfor_model_piggyback(args, training_type):
         args.base_model_name_or_path)
     if training_type == 'finetune':
         config = RobertaConfig.from_pretrained(args.base_model_name_or_path)
+        config.baseline = args.baseline
+        if config.baseline == 'piggyback':
+            config.mask_scale = 1e-2
+        elif config.baseline == 'piggyback_minus_one':
+            config.mask_sclae = 5e-2
+            
         model = PiggybackRobertaForSequenceClassification(
             config, args, args.class_num)
         for i in range(args.ft_task + 1):
@@ -465,6 +497,12 @@ def _lookfor_model_piggyback(args, training_type):
 
     elif training_type == 'posttrain':
         config = RobertaConfig.from_pretrained(args.base_model_name_or_path)
+        config.baseline = args.baseline
+        if config.baseline == 'piggyback':
+            config.mask_scale = 1e-2
+        elif config.baseline == 'piggyback_minus_one':
+            config.mask_sclae = 5e-2
+            
         model = PiggybackRobertaForMaskedLM(
             config, args)
 
@@ -591,7 +629,7 @@ def lookfor_model_posttrain(args):
             model = _lookfor_model_prompt(args, 'posttrain')
             return model
 
-        elif 'piggyback' == args.baseline:
+        elif 'piggyback' == args.baseline or 'piggyback_minus_one' == args.baseline:
             model = _lookfor_model_piggyback(args, 'posttrain')
             return model
 
@@ -618,7 +656,7 @@ def lookfor_model_finetune(args):
             model = _lookfor_model_prompt(args, 'finetune')
             return model
 
-        elif 'piggyback' == args.baseline:
+        elif 'piggyback' == args.baseline or 'piggyback_minus_one' == args.baseline:
             model = _lookfor_model_piggyback(args, 'finetune')
             return model
 

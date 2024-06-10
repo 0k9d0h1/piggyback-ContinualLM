@@ -153,11 +153,6 @@ def copy_weights(model, model_pretrained, data_idx=0):
                     break
             module.weight.data.copy_(module_list[i].weight.data)
             module.bias.data.copy_(module_list[i].bias.data)
-            if 'LoRA' in str(type(module)) and 'LoRA' in str(type(module_list[i])):
-                module.lora_As[str(data_idx)].data.copy_(
-                    module_list[i].lora_As[str(data_idx)].data)
-                module.lora_Bs[str(data_idx)].data.copy_(
-                    module_list[i].lora_Bs[str(data_idx)].data)
 
         elif 'Embedding' in str(type(module)) and 'Roberta' not in str(type(module)):
             while True:

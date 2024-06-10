@@ -4,8 +4,8 @@
 #SBATCH -o posttrain_procy_qa-%j.out
 #SBATCH --gres gpu:2
 
-export HF_DATASETS_CACHE='/home/eecomp_test/piggyback/dataset_cache'
-export TRANSFORMERS_CACHE='/home/eecomp_test/piggyback/model_cache'
+export HF_DATASETS_CACHE='/home/0k9d0h1/piggyback/dataset_cache'
+export TRANSFORMERS_CACHE='/home/0k9d0h1/piggyback/model_cache'
 
 max_samples=640000
 
@@ -27,7 +27,7 @@ do
           --ntasks 6 \
           --max_samples ${max_samples} \
           --seed ${seed[$round]} \
-        --baseline 'piggyback'
+          --baseline 'piggyback'
       done
     done
   done
