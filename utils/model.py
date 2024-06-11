@@ -378,7 +378,7 @@ def prepare_sequence_finetune(args):
             args.epoch = 30
             args.lr = 1.5e-5
             args.weight_decay = 0.003
-    elif args.baselien == 'piggyback_minus_one':
+    elif args.baseline == 'piggyback_minus_one':
         if args.dataset_name == 'aclarc_sup':
             args.epoch = 8
             args.lr = 1.2e-5
