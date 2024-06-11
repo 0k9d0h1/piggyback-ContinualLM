@@ -353,7 +353,7 @@ def prepare_sequence_finetune(args):
     print(f'Dataset: {args.dataset_name}')
     print(f'Pretrained model: {args.model_name_or_path}')
     
-    if args.baseline == 'piggyback' or args.baselien == 'piggyback_minus_one':
+    if args.baseline == 'piggyback':
         if args.dataset_name == 'aclarc_sup':
             args.epoch = 20
             args.lr = 3.5e-5
@@ -377,6 +377,31 @@ def prepare_sequence_finetune(args):
         elif args.dataset_name == 'camera_sup':
             args.epoch = 30
             args.lr = 1.5e-5
+            args.weight_decay = 0.003
+    elif args.baselien == 'piggyback_minus_one':
+        if args.dataset_name == 'aclarc_sup':
+            args.epoch = 8
+            args.lr = 1.2e-5
+            args.weight_decay = 0
+        elif args.dataset_name == 'restaurant_sup':
+            args.epoch = 15
+            args.lr = 3e-5
+            args.weight_decay = 0
+        elif args.dataset_name == 'phone_sup':
+            args.epoch = 15
+            args.lr = 3e-5
+            args.weight_decay = 0.003
+        elif args.dataset_name == 'scierc_sup':
+            args.epoch = 10
+            args.lr = 3e-5
+            args.weight_decay = 0
+        elif args.dataset_name == 'chemprot_sup':
+            args.epoch = 8
+            args.lr = 2.3e-5
+            args.weight_decay = 0
+        elif args.dataset_name == 'camera_sup':
+            args.epoch = 15
+            args.lr = 3e-5
             args.weight_decay = 0.003
     else:
         if args.dataset_name in ['aclarc_sup']:
