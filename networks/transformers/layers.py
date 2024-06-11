@@ -71,13 +71,13 @@ class ElementWiseLinear(am.MultiTaskModule):
     """Modified linear layer."""
 
     def __init__(self, in_features, out_features, train_str='mask', zero_out=True, bias=True,
-                 mask_init='1s', mask_scale=1e-2,
+                 mask_init='1s', 
                  threshold_fn='binarizer', threshold=None, config=None):
         super().__init__()
         self.in_features = in_features
         self.out_features = out_features
         self.threshold_fn = threshold_fn
-        self.mask_scale = mask_scale
+        self.mask_scale = config.mask_scale
         self.mask_init = mask_init
         self.zero_out = zero_out
         self.config = config

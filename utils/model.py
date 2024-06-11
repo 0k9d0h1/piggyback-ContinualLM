@@ -526,7 +526,7 @@ def _lookfor_model_piggyback(args, training_type):
         if config.baseline == 'piggyback':
             config.mask_scale = 1e-2
         elif config.baseline == 'piggyback_minus_one':
-            config.mask_sclae = 5e-2
+            config.mask_scale = 5e-2
             
         model = PiggybackRobertaForMaskedLM(
             config, args)
