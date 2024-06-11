@@ -378,7 +378,7 @@ def prepare_sequence_finetune(args):
             args.epoch = 30
             args.lr = 1.5e-5
             args.weight_decay = 0.003
-    elif args.baseline == 'piggyback_minus_one':
+    elif args.baseline == 'piggyback_nonzero':
         if args.dataset_name == 'aclarc_sup':
             args.epoch = 8
             args.lr = 1.2e-5
@@ -502,7 +502,7 @@ def _lookfor_model_piggyback(args, training_type):
         config.baseline = args.baseline
         if config.baseline == 'piggyback':
             config.mask_scale = 1e-2
-        elif config.baseline == 'piggyback_minus_one':
+        elif config.baseline == 'piggyback_nonzero':
             config.mask_scale = 5e-2
             
         model = PiggybackRobertaForSequenceClassification(
@@ -525,12 +525,12 @@ def _lookfor_model_piggyback(args, training_type):
         config.baseline = args.baseline
         if config.baseline == 'piggyback':
             config.mask_scale = 1e-2
-        elif config.baseline == 'piggyback_minus_one':
+        elif config.baseline == 'piggyback_nonzero':
             config.mask_scale = 5e-2
             
         model = PiggybackRobertaForMaskedLM(
             config, args)
-
+        print(args.model_name_or_path, "\n\n\n\n")
         if "piggyback" in args.model_name_or_path:
             for i in range(args.pt_task + 1):
                 model.adaptation(0, i)
@@ -654,7 +654,7 @@ def lookfor_model_posttrain(args):
             model = _lookfor_model_prompt(args, 'posttrain')
             return model
 
-        elif 'piggyback' == args.baseline or 'piggyback_minus_one' == args.baseline:
+        elif 'piggyback' == args.baseline or 'piggyback_nonzero' == args.baseline:
             model = _lookfor_model_piggyback(args, 'posttrain')
             return model
 
@@ -681,7 +681,7 @@ def lookfor_model_finetune(args):
             model = _lookfor_model_prompt(args, 'finetune')
             return model
 
-        elif 'piggyback' == args.baseline or 'piggyback_minus_one' == args.baseline:
+        elif 'piggyback' == args.baseline or 'piggyback_nonzero' == args.baseline:
             model = _lookfor_model_piggyback(args, 'finetune')
             return model
 

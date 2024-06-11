@@ -138,7 +138,7 @@ class ElementWiseLinear(am.MultiTaskModule):
         if self.config.baseline == 'piggyback':
             self.mask_thresholded = Binarizer.apply(
                 self.masks[str(task_label)], 5e-3, 0)
-        elif self.config.baseline == 'piggyback_minus_one':
+        elif self.config.baseline == 'piggyback_nonzero':
             self.mask_thresholded = Binarizer.apply(
                 self.masks[str(task_label)], 0, -1)
 

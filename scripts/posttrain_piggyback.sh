@@ -19,7 +19,7 @@ do
     --idrandom ${idrandom} \
     --ntasks 6 \
     --pt_task ${pt_task} \
-    --baseline 'piggyback_minus_one'
+    --baseline 'piggyback_nonzero'
   done
 done
 
