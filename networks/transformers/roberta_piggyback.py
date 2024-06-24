@@ -128,7 +128,7 @@ class PiggybackRobertaEmbeddings(am.MultiTaskModule):
 
 
 class PiggybackRobertaSelfAttention(am.MultiTaskModule):
-    def __init__(self, config, train_str, zero_out, position_embedding_type=None):
+    def __init__(self, config, zero_out, position_embedding_type=None):
         super().__init__()
         if config.hidden_size % config.num_attention_heads != 0 and not hasattr(config, "embedding_size"):
             raise ValueError(
@@ -142,11 +142,11 @@ class PiggybackRobertaSelfAttention(am.MultiTaskModule):
         self.all_head_size = self.num_attention_heads * self.attention_head_size
 
         self.query = ElementWiseLinear(
-            config.hidden_size, self.all_head_size, train_str, zero_out, config=config)
+            config.hidden_size, self.all_head_size, zero_out, config=config)
         self.key = ElementWiseLinear(
-            config.hidden_size, self.all_head_size, train_str, zero_out, config=config)
+            config.hidden_size, self.all_head_size, zero_out, config=config)
         self.value = ElementWiseLinear(
-            config.hidden_size, self.all_head_size, train_str, zero_out, config=config)
+            config.hidden_size, self.all_head_size, zero_out, config=config)
 
         self.dropout = nn.Dropout(config.attention_probs_dropout_prob)
         self.position_embedding_type = position_embedding_type or getattr(
@@ -260,10 +260,10 @@ class PiggybackRobertaSelfAttention(am.MultiTaskModule):
 
 
 class PiggybackRobertaSelfOutput(am.MultiTaskModule):
-    def __init__(self, config, train_str, zero_out):
+    def __init__(self, config, zero_out):
         super().__init__()
         self.dense = ElementWiseLinear(
-            config.hidden_size, config.hidden_size, train_str, zero_out, config=config)
+            config.hidden_size, config.hidden_size, zero_out, config=config)
         self.LayerNorm = nn.LayerNorm(
             config.hidden_size, eps=config.layer_norm_eps)
         self.dropout = nn.Dropout(config.hidden_dropout_prob)
@@ -284,11 +284,11 @@ class PiggybackRobertaSelfOutput(am.MultiTaskModule):
 
 
 class PiggybackRobertaAttention(am.MultiTaskModule):
-    def __init__(self, config, train_str, zero_out, position_embedding_type=None):
+    def __init__(self, config, zero_out, position_embedding_type=None):
         super().__init__()
         self.self = PiggybackRobertaSelfAttention(
-            config, position_embedding_type=position_embedding_type, train_str=train_str, zero_out=zero_out)
-        self.output = PiggybackRobertaSelfOutput(config, train_str, zero_out)
+            config, position_embedding_type=position_embedding_type, zero_out=zero_out)
+        self.output = PiggybackRobertaSelfOutput(config, zero_out)
 
     def adaptation(self, num_class, task_label):
 
@@ -338,10 +338,10 @@ class PiggybackRobertaAttention(am.MultiTaskModule):
 
 
 class PiggybackRobertaIntermediate(am.MultiTaskModule):
-    def __init__(self, config, train_str, zero_out):
+    def __init__(self, config, zero_out):
         super().__init__()
         self.dense = ElementWiseLinear(
-            config.hidden_size, config.intermediate_size, train_str, zero_out, config=config)
+            config.hidden_size, config.intermediate_size, zero_out, config=config)
         self.intermediate_act_fn = nn.GELU()
 
     def adaptation(self, num_class, task_label):
@@ -356,10 +356,10 @@ class PiggybackRobertaIntermediate(am.MultiTaskModule):
 
 
 class PiggybackRobertaOutput(am.MultiTaskModule):
-    def __init__(self, config, train_str, zero_out):
+    def __init__(self, config, zero_out):
         super().__init__()
         self.dense = ElementWiseLinear(
-            config.intermediate_size, config.hidden_size, train_str, zero_out, config=config)
+            config.intermediate_size, config.hidden_size, zero_out, config=config)
         self.LayerNorm = nn.LayerNorm(
             config.hidden_size, eps=config.layer_norm_eps)
         self.dropout = nn.Dropout(config.hidden_dropout_prob)
@@ -380,14 +380,14 @@ class PiggybackRobertaOutput(am.MultiTaskModule):
 
 
 class PiggybackRobertaLayer(am.MultiTaskModule):
-    def __init__(self, config, train_str, zero_out):
+    def __init__(self, config, zero_out):
         super().__init__()
         self.chunk_size_feed_forward = config.chunk_size_feed_forward
         self.seq_len_dim = 1
-        self.attention = PiggybackRobertaAttention(config, train_str, zero_out)
+        self.attention = PiggybackRobertaAttention(config, zero_out)
         self.intermediate = PiggybackRobertaIntermediate(
-            config, train_str, zero_out)
-        self.output = PiggybackRobertaOutput(config, train_str, zero_out)
+            config, zero_out)
+        self.output = PiggybackRobertaOutput(config, zero_out)
 
     def adaptation(self, num_class, task_label):
         for module in self.modules():
@@ -444,10 +444,10 @@ class PiggybackRobertaLayer(am.MultiTaskModule):
 
 
 class PiggybackRobertaEncoder(am.MultiTaskModule):
-    def __init__(self, config, train_str, zero_out):
+    def __init__(self, config, zero_out):
         super().__init__()
         self.config = config
-        self.layer = nn.ModuleList([PiggybackRobertaLayer(config, train_str, zero_out)
+        self.layer = nn.ModuleList([PiggybackRobertaLayer(config, zero_out)
                                    for _ in range(config.num_hidden_layers)])
         self.gradient_checkpointing = False
 
@@ -542,10 +542,10 @@ class PiggybackRobertaEncoder(am.MultiTaskModule):
 
 
 class PiggybackRobertaPooler(am.MultiTaskModule):
-    def __init__(self, config, train_str, zero_out):
+    def __init__(self, config, zero_out):
         super().__init__()
         self.dense = ElementWiseLinear(
-            config.hidden_size, config.hidden_size, train_str, zero_out, config=config)
+            config.hidden_size, config.hidden_size, zero_out, config=config)
         self.activation = nn.Tanh()
 
     def adaptation(self, num_class, task_label):
@@ -565,13 +565,13 @@ class PiggybackRobertaPooler(am.MultiTaskModule):
 class PiggybackRobertaModel(am.MultiTaskModule):
 
     # Copied from transformers.models.bert.modeling_bert.BertModel.__init__ with Bert->PiggybackRoberta
-    def __init__(self, config, args, add_pooling_layer=True, train_str='mask', zero_out=True):
+    def __init__(self, config, args, add_pooling_layer=True, zero_out=True):
         super().__init__()
         self.config = config
         self.args = args
 
         self.embeddings = PiggybackRobertaEmbeddings(config)
-        self.encoder = PiggybackRobertaEncoder(config, train_str, zero_out)
+        self.encoder = PiggybackRobertaEncoder(config, zero_out)
 
         self.pooler = PiggybackRobertaPooler(
             config) if add_pooling_layer else None
@@ -853,13 +853,13 @@ class PiggybackRobertaLMHead(am.MultiTaskModule):
 
 
 class PiggybackRobertaForSequenceClassification(am.MultiTaskModule):
-    def __init__(self, config, args, initial_out_features, zero_out=True, train_str='weight'):
+    def __init__(self, config, args, initial_out_features, zero_out=True):
         super().__init__()
         self.config = config
         self.num_labels = args.class_num
 
         self.roberta = PiggybackRobertaModel(
-            config, args, train_str=train_str, add_pooling_layer=False, zero_out=zero_out)
+            config, args, add_pooling_layer=False, zero_out=zero_out)
         self.classifier = PiggybackRobertaClassificationHead(
             config, initial_out_features)
 
@@ -955,7 +955,7 @@ class PiggybackRobertaForLoRAEndtask(am.MultiTaskModule):
         self.config = config
 
         self.roberta = PiggybackRobertaModel(
-            config, args, train_str='mask', add_pooling_layer=False, zero_out=zero_out)
+            config, args, add_pooling_layer=False, zero_out=zero_out)
         self.classifier = PiggybackRobertaClassificationHead(
             config, initial_out_features)
 

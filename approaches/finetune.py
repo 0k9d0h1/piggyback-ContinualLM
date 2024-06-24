@@ -165,17 +165,20 @@ class Appr(object):
             if 'lora_piggyback' == self.args.baseline:
                 for module in model.model.modules():
                     if 'Piggyback' in str(type(module)):
-                        abs_weights_A = module.lora_As[str(self.args.ft_task)].data.abs()
-                        abs_weights_B = module.lora_Bs[str(self.args.ft_task)].data.abs()
-                        module.masks_A[str(self.args.ft_task)].grad.data.div_(
-                            abs_weights_A.mean())
-                        module.masks_B[str(self.args.ft_task)].grad.data.div_(
-                            abs_weights_B.mean())
+                        # abs_weights_A = module.lora_As[str(self.args.ft_task)].data.abs()
+                        # abs_weights_B = module.lora_Bs[str(self.args.ft_task)].data.abs()
+                        # module.masks_A[str(self.args.ft_task)].grad.data.div_(
+                        #     abs_weights_A.mean())
+                        # module.masks_B[str(self.args.ft_task)].grad.data.div_(
+                        #     abs_weights_B.mean())
+                        abs_lora = module.lora_weight.data.abs()
+                        module.masks[str(self.args.ft_task)].grad.data.div_(
+                            abs_lora.mean())
 
-            if batch == 0:
-                for n, p in accelerator.unwrap_model(model).named_parameters():
-                    if p.grad is not None:
-                        print('n,p： ', n)
+            # if batch == 0:
+            #     for n, p in accelerator.unwrap_model(model).named_parameters():
+            #         if p.grad is not None:
+            #             print('n,p： ', n)
 
             optimizer.step()
             lr_scheduler.step()

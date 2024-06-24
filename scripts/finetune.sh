@@ -27,7 +27,8 @@ do
           --ntasks 6 \
           --max_samples ${max_samples} \
           --seed ${seed[$round]} \
-          --baseline 'piggyback'
+          --baseline 'lora_piggyback' \
+          --lr 1e-4
       done
     done
   done

@@ -144,16 +144,16 @@ class LoRARobertaSelfAttention(am.MultiTaskModule):
         if config.baseline == 'lora':
             self.query = LoRALinear(
                 config.hidden_size, self.all_head_size, config.lora_r, lora_alpha=config.lora_alpha)
-            self.value = LoRALinear(
-                config.hidden_size, self.all_head_size, config.lora_r, lora_alpha=config.lora_alpha)
             self.key = LoRALinear(
+                config.hidden_size, self.all_head_size, config.lora_r, lora_alpha=config.lora_alpha)
+            self.value = LoRALinear(
                 config.hidden_size, self.all_head_size, config.lora_r, lora_alpha=config.lora_alpha)
         elif config.baseline == 'lora_piggyback':
             self.query = LoRAPiggybackLinear(
                 config.hidden_size, self.all_head_size, config.lora_r, lora_alpha=config.lora_alpha, training_type=config.training_type)
-            self.value = LoRAPiggybackLinear(
-                config.hidden_size, self.all_head_size, config.lora_r, lora_alpha=config.lora_alpha, training_type=config.training_type)
             self.key = LoRAPiggybackLinear(
+                config.hidden_size, self.all_head_size, config.lora_r, lora_alpha=config.lora_alpha, training_type=config.training_type)
+            self.value = LoRAPiggybackLinear(
                 config.hidden_size, self.all_head_size, config.lora_r, lora_alpha=config.lora_alpha, training_type=config.training_type)
         else:
             raise ValueError(
@@ -565,8 +565,12 @@ class LoRARobertaEncoder(am.MultiTaskModule):
 class LoRARobertaPooler(am.MultiTaskModule):
     def __init__(self, config):
         super().__init__()
-        self.dense = nn.Linear(
-            config.hidden_size, config.hidden_size)
+        if config.baseline == 'lora':
+            self.dense = LoRALinear(
+                config.hidden_size, config.hidden_size, config.lora_r, lora_alpha=config.lora_alpha)
+        elif config.baseline == 'lora_piggyback':
+            self.dense = LoRAPiggybackLinear(
+                config.hidden_size, config.hidden_size, config.lora_r, lora_alpha=config.lora_alpha, training_type=config.training_type)
         self.activation = nn.Tanh()
 
     def adaptation(self, num_class, task_label):
@@ -578,7 +582,7 @@ class LoRARobertaPooler(am.MultiTaskModule):
         # We "pool" the model by simply taking the hidden state corresponding
         # to the first token.
         first_token_tensor = hidden_states[:, 0]
-        pooled_output = self.dense(first_token_tensor)
+        pooled_output = self.dense(first_token_tensor, task_label)
         pooled_output = self.activation(pooled_output)
         return pooled_output
 
