@@ -173,6 +173,7 @@ class LoRALinear(am.MultiTaskModule):
         # Set this to True if the layer to replace stores weight like (fan_in, fan_out)
         fan_in_fan_out: bool = False,
         merge_weights: bool = True,
+        training_type='posttrain',
         **kwargs
     ):
         super().__init__()
@@ -194,6 +195,7 @@ class LoRALinear(am.MultiTaskModule):
         self.r = r
         self.in_features = in_features
         self.out_features = out_features
+        self.training_type = training_type
 
         # Actual trainable parameters
         if self.r > 0:
@@ -220,26 +222,26 @@ class LoRALinear(am.MultiTaskModule):
             nn.init.kaiming_uniform_(self.lora_As[task_label], a=math.sqrt(5))
             nn.init.zeros_(self.lora_Bs[task_label])
 
-    def train(self, mode: bool = True):
-        def T(w):
-            return w.transpose(0, 1) if self.fan_in_fan_out else w
-        nn.Linear.train(self, mode)
+    # def train(self, mode: bool = True):
+    #     def T(w):
+    #         return w.transpose(0, 1) if self.fan_in_fan_out else w
+    #     nn.Linear.train(self, mode)
 
-        for task_label in self.lora_As:
-            if mode:
-                if self.merge_weights and self.merged:
-                    # Make sure that the weights are not merged
-                    if self.r > 0:
-                        self.weight.data -= T(self.lora_Bs[task_label] @
-                                              self.lora_As[task_label]) * self.scaling
-                    self.merged = False
-            else:
-                if self.merge_weights and not self.merged:
-                    # Merge the weights and mark it
-                    if self.r > 0:
-                        self.weight.data += T(self.lora_Bs[task_label] @
-                                              self.lora_As[task_label]) * self.scaling
-                    self.merged = True
+    #     for task_label in self.lora_As:
+    #         if mode:
+    #             if self.merge_weights and self.merged:
+    #                 # Make sure that the weights are not merged
+    #                 if self.r > 0:
+    #                     self.weight.data -= T(self.lora_Bs[task_label] @
+    #                                           self.lora_As[task_label]) * self.scaling
+    #                 self.merged = False
+    #         else:
+    #             if self.merge_weights and not self.merged:
+    #                 # Merge the weights and mark it
+    #                 if self.r > 0:
+    #                     self.weight.data += T(self.lora_Bs[task_label] @
+    #                                           self.lora_As[task_label]) * self.scaling
+    #                 self.merged = True
 
     def adaptation(self, num_class, task_label):
         if str(task_label) not in self.lora_As:
@@ -252,12 +254,19 @@ class LoRALinear(am.MultiTaskModule):
     def forward_single_task(self, x: torch.Tensor, task_label: int) -> torch.Tensor:
         def T(w):
             return w.transpose(0, 1) if self.fan_in_fan_out else w
-        if self.r > 0 and not self.merged:
-            result = F.linear(x, T(self.weight), bias=self.bias)
-            result = result + (self.lora_dropout(x) @ self.lora_As[str(task_label)].transpose(0, 1)
-                       @ self.lora_Bs[str(task_label)].transpose(0, 1)) * self.scaling
-            return result
-        else:
+        if self.training_type == 'posttrain':
+            if self.r > 0 and not self.merged:
+                result = F.linear(x, T(self.weight), bias=self.bias)
+                result = result + (self.lora_dropout(x) @ self.lora_As[str(task_label)].transpose(0, 1)
+                        @ self.lora_Bs[str(task_label)].transpose(0, 1)) * self.scaling
+                return result
+            else:
+                return F.linear(x, T(self.weight), bias=self.bias)
+        elif self.training_type == 'finetune':
+            if self.r > 0 and not self.merged:
+                self.weight.data += T(self.lora_Bs[str(task_label)] @
+                                      self.lora_As[str(task_label)]) * self.scaling
+                self.merged = True
             return F.linear(x, T(self.weight), bias=self.bias)
 
 
@@ -329,7 +338,7 @@ class LoRAPiggybackLinear(LoRALinear):
     # def train(self, mode: bool = True):
     #     def T(w):
     #         return w.transpose(0, 1) if self.fan_in_fan_out else w
-    #     nn.Linear.train(self, mode)
+        # nn.Linear.train(self, mode)
 
     #     for task_label in self.lora_As:
     #         if mode:

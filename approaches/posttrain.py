@@ -81,15 +81,13 @@ class Appr(object):
         self.args.num_warmup_steps = int(
             float(self.args.warmup_proportion) * float(self.args.max_train_steps))  # 0.1
 
-        if self.args.baseline != 'piggyback' and self.args.baseline != 'piggyback_nonzero':
-            lr_scheduler = get_scheduler(
-                name=self.args.lr_scheduler_type,
-                optimizer=optimizer,
-                num_warmup_steps=self.args.num_warmup_steps,
-                num_training_steps=self.args.max_train_steps,
-            )
-        else:
-            lr_scheduler = None
+
+        lr_scheduler = get_scheduler(
+            name=self.args.lr_scheduler_type,
+            optimizer=optimizer,
+            num_warmup_steps=self.args.num_warmup_steps,
+            num_training_steps=self.args.max_train_steps,
+        )
 
         # Train!
         total_batch_size = self.args.per_device_train_batch_size * \

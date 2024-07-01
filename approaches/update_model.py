@@ -30,7 +30,7 @@ def update(self,model,optimizer,outputs,loss,writer,lr_scheduler,progress_bar,gl
             if 'adapters.e' in n or 'model.e' in n:
                 p.data = torch.clamp(p.data, -self.args.thres_emb, self.args.thres_emb)
     progress_bar.set_description(
-        'Train Iter (loss=%5.3f)' % loss.item())  # show the loss, mean while
+        'Train Iter (loss=%5.3f, lr=%f)' % (loss.item(), optimizer.param_groups[0]['lr']))  # show the loss, mean while
 
     # Set up logging ------------
     if accelerator.is_main_process:

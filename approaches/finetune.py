@@ -175,10 +175,10 @@ class Appr(object):
                         module.masks[str(self.args.ft_task)].grad.data.div_(
                             abs_lora.mean())
 
-            # if batch == 0:
-            #     for n, p in accelerator.unwrap_model(model).named_parameters():
-            #         if p.grad is not None:
-            #             print('n,p： ', n)
+            if batch == 0:
+                for n, p in accelerator.unwrap_model(model).named_parameters():
+                    if p.grad is not None:
+                        print('n,p： ', n)
 
             optimizer.step()
             lr_scheduler.step()

@@ -19,7 +19,7 @@ do
     --idrandom ${idrandom} \
     --ntasks 6 \
     --pt_task ${pt_task} \
-    --baseline 'lora_piggyback'
+    --baseline 'piggyback'
   done
 done
 

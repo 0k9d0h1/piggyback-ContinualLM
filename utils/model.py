@@ -499,8 +499,8 @@ def _lookfor_model_piggyback(args, training_type):
 
     model_pretrained = RobertaModel.from_pretrained(
         args.base_model_name_or_path)
+    config = RobertaConfig.from_pretrained(args.base_model_name_or_path)
     if training_type == 'finetune':
-        config = RobertaConfig.from_pretrained(args.base_model_name_or_path)
         config.baseline = args.baseline
         if config.baseline == 'piggyback':
             config.mask_scale = 1e-2
@@ -523,7 +523,6 @@ def _lookfor_model_piggyback(args, training_type):
                 p.requires_grad = False
 
     elif training_type == 'posttrain':
-        config = RobertaConfig.from_pretrained(args.base_model_name_or_path)
         config.baseline = args.baseline
         if config.baseline == 'piggyback':
             config.mask_scale = 1e-2
@@ -558,11 +557,11 @@ def _lookfor_model_lora(args, training_type):
 
     model_pretrained = RobertaModel.from_pretrained(
         args.base_model_name_or_path)
+    config = RobertaConfig.from_pretrained(args.base_model_name_or_path)
+    config.training_type = training_type
     if training_type == 'finetune':
-        config = RobertaConfig.from_pretrained(args.base_model_name_or_path)
         config.lora_r = args.lora_r
         config.lora_alpha = args.lora_alpha
-        config.training_type = 'finetune'
         config.baseline = args.baseline
 
         model = LoRARobertaForSequenceClassification(
@@ -575,8 +574,11 @@ def _lookfor_model_lora(args, training_type):
         model.roberta.load_state_dict(model_state, strict=False)
 
         if args.baseline == 'lora':
-            for p in model.parameters():
-                p.requires_grad = True
+            for n, p in model.roberta.named_parameters():
+                if 'lora' not in n:
+                    p.requires_grad = True
+                else:
+                    p.requires_grad = False
         elif args.baseline == 'lora_piggyback':
             for n, p in model.roberta.named_parameters():
                 if 'mask' in n:
@@ -585,10 +587,8 @@ def _lookfor_model_lora(args, training_type):
                     p.requires_grad = False
 
     elif training_type == 'posttrain':
-        config = RobertaConfig.from_pretrained(args.base_model_name_or_path)
         config.lora_r = args.lora_r
         config.lora_alpha = args.lora_alpha
-        config.training_type = 'posttrain'
         config.baseline = args.baseline
         model = LoRARobertaForMaskedLM(config, args)
 
