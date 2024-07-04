@@ -92,66 +92,67 @@ class Appr(object):
                                                                                     self.args.dataset_name, macro_f1,
                                                                                     acc, self.args.seed))
 
-        if accelerator.is_main_process:
-            if 'lora' in self.args.baseline:
-                progressive_f1_path = f'{self.args.output_dir}/../{self.args.finetune_type}/progressive_f1_{self.args.seed}'
-                progressive_acc_path = f'{self.args.output_dir}/../{self.args.finetune_type}/progressive_acc_{self.args.seed}'
-            else:
-                progressive_f1_path = f'{self.args.output_dir}/../progressive_f1_{self.args.seed}'
-                progressive_acc_path = f'{self.args.output_dir}/../progressive_acc_{self.args.seed}'
-
-            print(f'Path of progressive f1 score: {progressive_f1_path}')
-            print(f'Path of progressive accuracy: {progressive_acc_path}')
-
-            if os.path.exists(progressive_f1_path):
-                f1s = np.loadtxt(progressive_f1_path)
-                accs = np.loadtxt(progressive_acc_path)
-
-            else:
-                f1s = np.zeros(
-                    (self.args.ntasks, self.args.ntasks), dtype=np.float32)
-                accs = np.zeros(
-                    (self.args.ntasks, self.args.ntasks), dtype=np.float32)
-
-            f1s[self.args.pt_task][self.args.ft_task] = macro_f1
-            np.savetxt(progressive_f1_path, f1s, '%.4f', delimiter='\t')
-
-            accs[self.args.pt_task][self.args.ft_task] = acc
-            np.savetxt(progressive_acc_path, accs, '%.4f', delimiter='\t')
-
-            if self.args.ft_task == self.args.ntasks - 1:  # last ft task, we need a final one
+        if not self.args.hyperparameter_tune:
+            if accelerator.is_main_process:
                 if 'lora' in self.args.baseline:
-                    final_f1 = f'{self.args.output_dir}/../{self.args.finetune_type}/f1_{self.args.seed}'
-                    final_acc = f'{self.args.output_dir}/../{self.args.finetune_type}/acc_{self.args.seed}'
-
-                    forward_f1 = f'{self.args.output_dir}/../{self.args.finetune_type}/forward_f1_{self.args.seed}'
-                    forward_acc = f'{self.args.output_dir}/../{self.args.finetune_type}/forward_acc_{self.args.seed}'
+                    progressive_f1_path = f'{self.args.output_dir}/../{self.args.finetune_type}/progressive_f1_{self.args.seed}'
+                    progressive_acc_path = f'{self.args.output_dir}/../{self.args.finetune_type}/progressive_acc_{self.args.seed}'
                 else:
-                    final_f1 = f'{self.args.output_dir}/../f1_{self.args.seed}'
-                    final_acc = f'{self.args.output_dir}/../acc_{self.args.seed}'
+                    progressive_f1_path = f'{self.args.output_dir}/../progressive_f1_{self.args.seed}'
+                    progressive_acc_path = f'{self.args.output_dir}/../progressive_acc_{self.args.seed}'
 
-                    forward_f1 = f'{self.args.output_dir}/../forward_f1_{self.args.seed}'
-                    forward_acc = f'{self.args.output_dir}/../forward_acc_{self.args.seed}'
+                print(f'Path of progressive f1 score: {progressive_f1_path}')
+                print(f'Path of progressive accuracy: {progressive_acc_path}')
 
-                print(f'Final f1 score: {final_f1}')
-                print(f'Final accuracy: {final_acc}')
-
-                if self.args.baseline == 'one':
-                    with open(final_acc, 'w') as file, open(final_f1, 'w') as f1_file:
-                        for j in range(accs.shape[1]):
-                            file.writelines(str(accs[j][j]) + '\n')
-                            f1_file.writelines(str(f1s[j][j]) + '\n')
+                if os.path.exists(progressive_f1_path):
+                    f1s = np.loadtxt(progressive_f1_path)
+                    accs = np.loadtxt(progressive_acc_path)
 
                 else:
-                    with open(final_acc, 'w') as file, open(final_f1, 'w') as f1_file:
-                        for j in range(accs.shape[1]):
-                            file.writelines(str(accs[-1][j]) + '\n')
-                            f1_file.writelines(str(f1s[-1][j]) + '\n')
+                    f1s = np.zeros(
+                        (self.args.ntasks, self.args.ntasks), dtype=np.float32)
+                    accs = np.zeros(
+                        (self.args.ntasks, self.args.ntasks), dtype=np.float32)
 
-                    with open(forward_acc, 'w') as file, open(forward_f1, 'w') as f1_file:
-                        for j in range(accs.shape[1]):
-                            file.writelines(str(accs[j][j]) + '\n')
-                            f1_file.writelines(str(f1s[j][j]) + '\n')
+                f1s[self.args.pt_task][self.args.ft_task] = macro_f1
+                np.savetxt(progressive_f1_path, f1s, '%.4f', delimiter='\t')
+
+                accs[self.args.pt_task][self.args.ft_task] = acc
+                np.savetxt(progressive_acc_path, accs, '%.4f', delimiter='\t')
+
+                if self.args.ft_task == self.args.ntasks - 1:  # last ft task, we need a final one
+                    if 'lora' in self.args.baseline:
+                        final_f1 = f'{self.args.output_dir}/../{self.args.finetune_type}/f1_{self.args.seed}'
+                        final_acc = f'{self.args.output_dir}/../{self.args.finetune_type}/acc_{self.args.seed}'
+
+                        forward_f1 = f'{self.args.output_dir}/../{self.args.finetune_type}/forward_f1_{self.args.seed}'
+                        forward_acc = f'{self.args.output_dir}/../{self.args.finetune_type}/forward_acc_{self.args.seed}'
+                    else:
+                        final_f1 = f'{self.args.output_dir}/../f1_{self.args.seed}'
+                        final_acc = f'{self.args.output_dir}/../acc_{self.args.seed}'
+
+                        forward_f1 = f'{self.args.output_dir}/../forward_f1_{self.args.seed}'
+                        forward_acc = f'{self.args.output_dir}/../forward_acc_{self.args.seed}'
+
+                    print(f'Final f1 score: {final_f1}')
+                    print(f'Final accuracy: {final_acc}')
+
+                    if self.args.baseline == 'one':
+                        with open(final_acc, 'w') as file, open(final_f1, 'w') as f1_file:
+                            for j in range(accs.shape[1]):
+                                file.writelines(str(accs[j][j]) + '\n')
+                                f1_file.writelines(str(f1s[j][j]) + '\n')
+
+                    else:
+                        with open(final_acc, 'w') as file, open(final_f1, 'w') as f1_file:
+                            for j in range(accs.shape[1]):
+                                file.writelines(str(accs[-1][j]) + '\n')
+                                f1_file.writelines(str(f1s[-1][j]) + '\n')
+
+                        with open(forward_acc, 'w') as file, open(forward_f1, 'w') as f1_file:
+                            for j in range(accs.shape[1]):
+                                file.writelines(str(accs[j][j]) + '\n')
+                                f1_file.writelines(str(f1s[j][j]) + '\n')
 
     def train_epoch(self, model, optimizer, dataloader, accelerator, lr_scheduler):
         # Only show the progress bar once on each machine.
