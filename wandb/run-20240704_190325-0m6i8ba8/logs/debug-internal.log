@@ -689,3 +689,120 @@
 2024-07-04 19:06:44,434 INFO    SenderThread:2595930 [sender.py:_save_file():1389] saving file wandb-summary.json with policy end
 2024-07-04 19:06:44,524 INFO    Thread-13 :2595930 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_190325-0m6i8ba8/files/output.log
 2024-07-04 19:06:44,525 INFO    Thread-13 :2595930 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_190325-0m6i8ba8/files/wandb-summary.json
+2024-07-04 19:06:45,849 ERROR   gpu       :2595930 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 19:06:45,850 ERROR   gpu       :2595930 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 19:06:45,850 ERROR   gpu       :2595930 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 19:06:45,850 ERROR   gpu       :2595930 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 19:06:45,862 DEBUG   HandlerThread:2595930 [handler.py:handle_request():158] handle_request: stop_status
+2024-07-04 19:06:45,862 DEBUG   SenderThread:2595930 [sender.py:send_request():405] send_request: stop_status
+2024-07-04 19:06:46,182 DEBUG   HandlerThread:2595930 [handler.py:handle_request():158] handle_request: status_report
+2024-07-04 19:06:46,526 INFO    Thread-13 :2595930 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_190325-0m6i8ba8/files/output.log
+2024-07-04 19:06:47,856 ERROR   gpu       :2595930 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 19:06:47,856 ERROR   gpu       :2595930 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 19:06:47,857 ERROR   gpu       :2595930 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 19:06:47,857 ERROR   gpu       :2595930 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 19:06:48,526 INFO    Thread-13 :2595930 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_190325-0m6i8ba8/files/output.log
+2024-07-04 19:06:49,863 ERROR   gpu       :2595930 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 19:06:49,863 ERROR   gpu       :2595930 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 19:06:49,864 ERROR   gpu       :2595930 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 19:06:49,864 ERROR   gpu       :2595930 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 19:06:50,527 INFO    Thread-13 :2595930 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_190325-0m6i8ba8/files/output.log
+2024-07-04 19:06:51,229 DEBUG   HandlerThread:2595930 [handler.py:handle_request():158] handle_request: status_report
+2024-07-04 19:06:51,870 ERROR   gpu       :2595930 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 19:06:51,871 ERROR   gpu       :2595930 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 19:06:51,871 ERROR   gpu       :2595930 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 19:06:51,871 ERROR   gpu       :2595930 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 19:06:52,528 INFO    Thread-13 :2595930 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_190325-0m6i8ba8/files/output.log
+2024-07-04 19:06:53,879 ERROR   gpu       :2595930 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 19:06:53,879 ERROR   gpu       :2595930 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 19:06:53,880 ERROR   gpu       :2595930 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 19:06:53,880 ERROR   gpu       :2595930 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 19:06:54,529 INFO    Thread-13 :2595930 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_190325-0m6i8ba8/files/output.log
+2024-07-04 19:06:55,888 ERROR   gpu       :2595930 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 19:06:55,888 ERROR   gpu       :2595930 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 19:06:55,889 ERROR   gpu       :2595930 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 19:06:55,889 ERROR   gpu       :2595930 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 19:06:56,311 DEBUG   HandlerThread:2595930 [handler.py:handle_request():158] handle_request: status_report
+2024-07-04 19:06:56,509 DEBUG   SenderThread:2595930 [sender.py:send():378] send: stats
+2024-07-04 19:06:56,530 INFO    Thread-13 :2595930 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_190325-0m6i8ba8/files/output.log
+2024-07-04 19:06:57,897 ERROR   gpu       :2595930 [interfaces.py:aggregate():159] Failed to serialize metric: Insufficient Permissions
+2024-07-04 19:06:57,898 ERROR   gpu       :2595930 [interfaces.py:aggregate():159] Failed to serialize metric: Insufficient Permissions
+2024-07-04 19:06:57,899 ERROR   gpu       :2595930 [interfaces.py:aggregate():159] Failed to serialize metric: Insufficient Permissions
+2024-07-04 19:06:57,899 ERROR   gpu       :2595930 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 19:06:57,900 ERROR   gpu       :2595930 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 19:06:57,901 ERROR   gpu       :2595930 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 19:06:57,901 ERROR   gpu       :2595930 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 19:06:58,531 INFO    Thread-13 :2595930 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_190325-0m6i8ba8/files/output.log
+2024-07-04 19:06:58,677 DEBUG   HandlerThread:2595930 [handler.py:handle_request():158] handle_request: partial_history
+2024-07-04 19:06:58,678 DEBUG   SenderThread:2595930 [sender.py:send():378] send: history
+2024-07-04 19:06:58,679 DEBUG   SenderThread:2595930 [sender.py:send_request():405] send_request: summary_record
+2024-07-04 19:06:58,681 INFO    SenderThread:2595930 [sender.py:_save_file():1389] saving file wandb-summary.json with policy end
+2024-07-04 19:06:59,532 INFO    Thread-13 :2595930 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_190325-0m6i8ba8/files/wandb-summary.json
+2024-07-04 19:06:59,910 ERROR   gpu       :2595930 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 19:06:59,910 ERROR   gpu       :2595930 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 19:06:59,910 ERROR   gpu       :2595930 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 19:06:59,910 ERROR   gpu       :2595930 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 19:07:00,547 INFO    Thread-13 :2595930 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_190325-0m6i8ba8/files/output.log
+2024-07-04 19:07:00,861 DEBUG   HandlerThread:2595930 [handler.py:handle_request():158] handle_request: stop_status
+2024-07-04 19:07:00,861 DEBUG   SenderThread:2595930 [sender.py:send_request():405] send_request: stop_status
+2024-07-04 19:07:01,451 DEBUG   HandlerThread:2595930 [handler.py:handle_request():158] handle_request: status_report
+2024-07-04 19:07:01,916 ERROR   gpu       :2595930 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 19:07:01,916 ERROR   gpu       :2595930 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 19:07:01,916 ERROR   gpu       :2595930 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 19:07:01,917 ERROR   gpu       :2595930 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 19:07:02,548 INFO    Thread-13 :2595930 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_190325-0m6i8ba8/files/output.log
+2024-07-04 19:07:03,923 ERROR   gpu       :2595930 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 19:07:03,923 ERROR   gpu       :2595930 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 19:07:03,924 ERROR   gpu       :2595930 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 19:07:03,924 ERROR   gpu       :2595930 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 19:07:04,552 INFO    Thread-13 :2595930 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_190325-0m6i8ba8/files/output.log
+2024-07-04 19:07:05,931 ERROR   gpu       :2595930 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 19:07:05,931 ERROR   gpu       :2595930 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 19:07:05,931 ERROR   gpu       :2595930 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 19:07:05,932 ERROR   gpu       :2595930 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 19:07:06,534 DEBUG   HandlerThread:2595930 [handler.py:handle_request():158] handle_request: status_report
+2024-07-04 19:07:06,553 INFO    Thread-13 :2595930 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_190325-0m6i8ba8/files/output.log
+2024-07-04 19:07:07,940 ERROR   gpu       :2595930 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 19:07:07,940 ERROR   gpu       :2595930 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 19:07:07,941 ERROR   gpu       :2595930 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 19:07:07,941 ERROR   gpu       :2595930 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 19:07:08,553 INFO    Thread-13 :2595930 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_190325-0m6i8ba8/files/output.log
+2024-07-04 19:07:09,948 ERROR   gpu       :2595930 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 19:07:09,948 ERROR   gpu       :2595930 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 19:07:09,949 ERROR   gpu       :2595930 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 19:07:09,949 ERROR   gpu       :2595930 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 19:07:10,554 INFO    Thread-13 :2595930 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_190325-0m6i8ba8/files/output.log
+2024-07-04 19:07:11,622 DEBUG   HandlerThread:2595930 [handler.py:handle_request():158] handle_request: status_report
+2024-07-04 19:07:11,957 ERROR   gpu       :2595930 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 19:07:11,957 ERROR   gpu       :2595930 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 19:07:11,957 ERROR   gpu       :2595930 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 19:07:11,957 ERROR   gpu       :2595930 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 19:07:12,555 INFO    Thread-13 :2595930 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_190325-0m6i8ba8/files/output.log
+2024-07-04 19:07:13,003 DEBUG   HandlerThread:2595930 [handler.py:handle_request():158] handle_request: partial_history
+2024-07-04 19:07:13,004 DEBUG   SenderThread:2595930 [sender.py:send():378] send: history
+2024-07-04 19:07:13,004 DEBUG   SenderThread:2595930 [sender.py:send_request():405] send_request: summary_record
+2024-07-04 19:07:13,006 INFO    SenderThread:2595930 [sender.py:_save_file():1389] saving file wandb-summary.json with policy end
+2024-07-04 19:07:13,556 INFO    Thread-13 :2595930 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_190325-0m6i8ba8/files/wandb-summary.json
+2024-07-04 19:07:13,964 ERROR   gpu       :2595930 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 19:07:13,964 ERROR   gpu       :2595930 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 19:07:13,964 ERROR   gpu       :2595930 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 19:07:13,965 ERROR   gpu       :2595930 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 19:07:14,557 INFO    Thread-13 :2595930 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_190325-0m6i8ba8/files/output.log
+2024-07-04 19:07:15,861 DEBUG   HandlerThread:2595930 [handler.py:handle_request():158] handle_request: stop_status
+2024-07-04 19:07:15,862 DEBUG   SenderThread:2595930 [sender.py:send_request():405] send_request: stop_status
+2024-07-04 19:07:15,971 ERROR   gpu       :2595930 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 19:07:15,972 ERROR   gpu       :2595930 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 19:07:15,972 ERROR   gpu       :2595930 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 19:07:15,972 ERROR   gpu       :2595930 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 19:07:16,558 INFO    Thread-13 :2595930 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_190325-0m6i8ba8/files/output.log
+2024-07-04 19:07:16,739 DEBUG   HandlerThread:2595930 [handler.py:handle_request():158] handle_request: status_report
+2024-07-04 19:07:17,981 ERROR   gpu       :2595930 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 19:07:17,981 ERROR   gpu       :2595930 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 19:07:17,981 ERROR   gpu       :2595930 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 19:07:17,982 ERROR   gpu       :2595930 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 19:07:18,558 INFO    Thread-13 :2595930 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_190325-0m6i8ba8/files/output.log
+2024-07-04 19:07:19,988 ERROR   gpu       :2595930 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 19:07:19,989 ERROR   gpu       :2595930 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 19:07:19,989 ERROR   gpu       :2595930 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 19:07:19,989 ERROR   gpu       :2595930 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 19:07:20,559 INFO    Thread-13 :2595930 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_190325-0m6i8ba8/files/output.log

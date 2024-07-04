@@ -4,3 +4,4 @@ docs/
 seq0/
 sequences/
 temp.py
+wandb/
