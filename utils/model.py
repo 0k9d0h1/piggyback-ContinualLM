@@ -403,8 +403,8 @@ def prepare_sequence_finetune(args):
             args.epoch = 15
             args.lr = 3e-5
             args.weight_decay = 0.003
-    elif args.finetune_type == 'lora_piggyback':
-        args.epoch = 30
+    # elif args.finetune_type == 'lora_piggyback':
+    #     args.epoch = 30
     else:
         if args.dataset_name in ['aclarc_sup']:
             args.epoch = 10
