@@ -338,7 +338,7 @@ def prepare_sequence_finetune(args):
 
     posttrain2endtask = {"pubmed_unsup": "chemprot_sup", "phone_unsup": "phone_sup", "ai_unsup": "scierc_sup",
                          "camera_unsup": "camera_sup", "acl_unsup": "aclarc_sup", "restaurant_unsup": "restaurant_sup"}
-
+    
     output = f'{args.base_dir}/seq{args.idrandom}/{args.max_samples}samples/{args.baseline}/{data[args.pt_task]}_roberta/'
     ckpt = f'{args.base_dir}/seq{args.idrandom}/{args.max_samples}samples/{args.baseline}/{data[args.pt_task]}_roberta/'
 
@@ -403,7 +403,7 @@ def prepare_sequence_finetune(args):
             args.epoch = 15
             args.lr = 3e-5
             args.weight_decay = 0.003
-    elif args.baseline == 'lora_piggyback':
+    elif args.finetune_type == 'lora_piggyback':
         args.epoch = 30
     else:
         if args.dataset_name in ['aclarc_sup']:
@@ -514,7 +514,7 @@ def _lookfor_model_piggyback(args, training_type):
 
         model_state = torch.load(os.path.join(
             args.model_name_or_path, 'model.pt'), map_location='cpu')
-        model.roberta.load_state_dict(model_state, strict=False)
+        model.load_state_dict(model_state, strict=False)
 
         for n, p in model.named_parameters():
             if 'mask' not in n:
@@ -538,7 +538,7 @@ def _lookfor_model_piggyback(args, training_type):
 
             model_state = torch.load(os.path.join(
                 args.model_name_or_path, 'model.pt'), map_location='cpu')
-            model.roberta.load_state_dict(model_state, strict=False)
+            model.load_state_dict(model_state, strict=False)
 
         for n, p in model.roberta.named_parameters():
             if 'mask' in n:
@@ -560,6 +560,7 @@ def _lookfor_model_lora(args, training_type):
     config = RobertaConfig.from_pretrained(args.base_model_name_or_path)
     config.training_type = training_type
     if training_type == 'finetune':
+        config.finetune_type = args.finetune_type
         config.lora_r = args.lora_r
         config.lora_alpha = args.lora_alpha
         config.baseline = args.baseline
@@ -571,20 +572,27 @@ def _lookfor_model_lora(args, training_type):
 
         model_state = torch.load(os.path.join(
             args.model_name_or_path, 'model.pt'), map_location='cpu')
-        model.roberta.load_state_dict(model_state, strict=False)
+        model.load_state_dict(model_state, strict=False)
 
-        if args.baseline == 'lora':
+        if args.finetune_type == 'lora':
             for n, p in model.roberta.named_parameters():
-                if 'lora' not in n:
+                if 'lora' in n:
                     p.requires_grad = True
                 else:
                     p.requires_grad = False
-        elif args.baseline == 'lora_piggyback':
+        elif args.finetune_type == 'lora_piggyback':
             for n, p in model.roberta.named_parameters():
                 if 'mask' in n:
                     p.requires_grad = True
                 else:
                     p.requires_grad = False
+        elif args.finetune_type == 'full_finetune':
+            for n, p in model.roberta.named_parameters():
+                if 'lora' not in n:
+                    p.requires_grad = True
+                else:
+                    p.requires_grad = False
+            
 
     elif training_type == 'posttrain':
         config.lora_r = args.lora_r
@@ -598,7 +606,7 @@ def _lookfor_model_lora(args, training_type):
 
             model_state = torch.load(os.path.join(
                 args.model_name_or_path, 'model.pt'), map_location='cpu')
-            model.roberta.load_state_dict(model_state, strict=False)
+            model.load_state_dict(model_state, strict=False)
 
             for module in model.modules():
                 if 'ElementWise' in str(type(module)):

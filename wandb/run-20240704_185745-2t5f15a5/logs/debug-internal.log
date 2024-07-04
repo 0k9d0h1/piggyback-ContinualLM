@@ -1,0 +1,151 @@
+2024-07-04 18:57:45,236 INFO    StreamThr :2595856 [internal.py:wandb_internal():88] W&B internal server running at pid: 2595856, started at: 2024-07-04 18:57:45.227842
+2024-07-04 18:57:45,237 DEBUG   HandlerThread:2595856 [handler.py:handle_request():158] handle_request: status
+2024-07-04 18:57:45,249 INFO    WriterThread:2595856 [datastore.py:open_for_write():87] open: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_185745-2t5f15a5/run-2t5f15a5.wandb
+2024-07-04 18:57:45,249 DEBUG   SenderThread:2595856 [sender.py:send():378] send: header
+2024-07-04 18:57:45,264 DEBUG   SenderThread:2595856 [sender.py:send():378] send: run
+2024-07-04 18:57:45,745 INFO    SenderThread:2595856 [dir_watcher.py:__init__():211] watching files in: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_185745-2t5f15a5/files
+2024-07-04 18:57:45,745 INFO    SenderThread:2595856 [sender.py:_start_run_threads():1126] run started: 2t5f15a5 with start time 1720087065.236154
+2024-07-04 18:57:45,755 DEBUG   HandlerThread:2595856 [handler.py:handle_request():158] handle_request: check_version
+2024-07-04 18:57:45,755 DEBUG   SenderThread:2595856 [sender.py:send_request():405] send_request: check_version
+2024-07-04 18:57:45,857 DEBUG   HandlerThread:2595856 [handler.py:handle_request():158] handle_request: run_start
+2024-07-04 18:57:45,866 DEBUG   HandlerThread:2595856 [system_info.py:__init__():26] System info init
+2024-07-04 18:57:45,866 DEBUG   HandlerThread:2595856 [system_info.py:__init__():41] System info init done
+2024-07-04 18:57:45,866 INFO    HandlerThread:2595856 [system_monitor.py:start():194] Starting system monitor
+2024-07-04 18:57:45,866 INFO    SystemMonitor:2595856 [system_monitor.py:_start():158] Starting system asset monitoring threads
+2024-07-04 18:57:45,866 INFO    HandlerThread:2595856 [system_monitor.py:probe():214] Collecting system info
+2024-07-04 18:57:45,866 INFO    SystemMonitor:2595856 [interfaces.py:start():188] Started cpu monitoring
+2024-07-04 18:57:45,867 INFO    SystemMonitor:2595856 [interfaces.py:start():188] Started disk monitoring
+2024-07-04 18:57:45,868 INFO    SystemMonitor:2595856 [interfaces.py:start():188] Started gpu monitoring
+2024-07-04 18:57:45,868 INFO    SystemMonitor:2595856 [interfaces.py:start():188] Started memory monitoring
+2024-07-04 18:57:45,868 INFO    SystemMonitor:2595856 [interfaces.py:start():188] Started network monitoring
+2024-07-04 18:57:45,875 ERROR   gpu       :2595856 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 18:57:45,875 ERROR   gpu       :2595856 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 18:57:45,877 ERROR   gpu       :2595856 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 18:57:45,877 ERROR   gpu       :2595856 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 18:57:45,890 DEBUG   HandlerThread:2595856 [system_info.py:probe():150] Probing system
+2024-07-04 18:57:45,895 DEBUG   HandlerThread:2595856 [system_info.py:_probe_git():135] Probing git
+2024-07-04 18:57:45,907 DEBUG   HandlerThread:2595856 [system_info.py:_probe_git():143] Probing git done
+2024-07-04 18:57:45,907 DEBUG   HandlerThread:2595856 [system_info.py:probe():198] Probing system done
+2024-07-04 18:57:45,907 DEBUG   HandlerThread:2595856 [system_monitor.py:probe():223] {'os': 'Linux-5.4.0-100-generic-x86_64-with-debian-buster-sid', 'python': '3.7.13', 'heartbeatAt': '2024-07-04T09:57:45.890337', 'startedAt': '2024-07-04T09:57:45.213588', 'docker': None, 'cuda': None, 'args': ('--baseline=lora_init', '--epoch=17', '--finetune_type=lora_piggyback', '--ft_task=0', '--idrandom=0', '--lr=7.343082687700502e-05', '--max_samples=640000', '--max_seq_length=164', '--ntasks=1', '--pt_task=0', '--seed=1', '--weight_decay=0.0010056043660498994'), 'state': 'running', 'program': 'finetune.py', 'codePathLocal': 'finetune.py', 'codePath': 'finetune.py', 'git': {'remote': 'https://github.com/0k9d0h1/piggyback-ContinualLM.git', 'commit': '40b3685d5e4bf9e4568773c2e3810eef98b678b3'}, 'email': None, 'root': '/home/0k9d0h1/piggyback/piggyback-ContinualLM', 'host': 'ece-agpu17', 'username': '0k9d0h1', 'executable': '/home/0k9d0h1/anaconda3/envs/DAS/bin/python', 'cpu_count': 128, 'cpu_count_logical': 128, 'cpu_freq': {'current': 2090.7703125000003, 'min': 0.0, 'max': 0.0}, 'cpu_freq_per_core': [{'current': 1796.553, 'min': 0.0, 'max': 0.0}, {'current': 1792.393, 'min': 0.0, 'max': 0.0}, {'current': 1795.243, 'min': 0.0, 'max': 0.0}, {'current': 1791.359, 'min': 0.0, 'max': 0.0}, {'current': 1797.088, 'min': 0.0, 'max': 0.0}, {'current': 1795.549, 'min': 0.0, 'max': 0.0}, {'current': 1789.215, 'min': 0.0, 'max': 0.0}, {'current': 1792.716, 'min': 0.0, 'max': 0.0}, {'current': 2100.687, 'min': 0.0, 'max': 0.0}, {'current': 2168.093, 'min': 0.0, 'max': 0.0}, {'current': 2105.728, 'min': 0.0, 'max': 0.0}, {'current': 2052.342, 'min': 0.0, 'max': 0.0}, {'current': 2083.529, 'min': 0.0, 'max': 0.0}, {'current': 2074.561, 'min': 0.0, 'max': 0.0}, {'current': 2105.498, 'min': 0.0, 'max': 0.0}, {'current': 2080.824, 'min': 0.0, 'max': 0.0}, {'current': 2588.899, 'min': 0.0, 'max': 0.0}, {'current': 2587.497, 'min': 0.0, 'max': 0.0}, {'current': 2597.489, 'min': 0.0, 'max': 0.0}, {'current': 2594.407, 'min': 0.0, 'max': 0.0}, {'current': 2592.025, 'min': 0.0, 'max': 0.0}, {'current': 2601.382, 'min': 0.0, 'max': 0.0}, {'current': 2590.114, 'min': 0.0, 'max': 0.0}, {'current': 3242.691, 'min': 0.0, 'max': 0.0}, {'current': 1798.7, 'min': 0.0, 'max': 0.0}, {'current': 1795.26, 'min': 0.0, 'max': 0.0}, {'current': 1795.738, 'min': 0.0, 'max': 0.0}, {'current': 1794.957, 'min': 0.0, 'max': 0.0}, {'current': 1792.741, 'min': 0.0, 'max': 0.0}, {'current': 1789.122, 'min': 0.0, 'max': 0.0}, {'current': 1794.002, 'min': 0.0, 'max': 0.0}, {'current': 1803.346, 'min': 0.0, 'max': 0.0}, {'current': 1795.708, 'min': 0.0, 'max': 0.0}, {'current': 1792.612, 'min': 0.0, 'max': 0.0}, {'current': 1795.552, 'min': 0.0, 'max': 0.0}, {'current': 1792.697, 'min': 0.0, 'max': 0.0}, {'current': 1794.639, 'min': 0.0, 'max': 0.0}, {'current': 1792.985, 'min': 0.0, 'max': 0.0}, {'current': 1790.661, 'min': 0.0, 'max': 0.0}, {'current': 1790.383, 'min': 0.0, 'max': 0.0}, {'current': 1797.517, 'min': 0.0, 'max': 0.0}, {'current': 1795.16, 'min': 0.0, 'max': 0.0}, {'current': 1794.273, 'min': 0.0, 'max': 0.0}, {'current': 1796.099, 'min': 0.0, 'max': 0.0}, {'current': 1791.252, 'min': 0.0, 'max': 0.0}, {'current': 1789.708, 'min': 0.0, 'max': 0.0}, {'current': 1792.552, 'min': 0.0, 'max': 0.0}, {'current': 1792.747, 'min': 0.0, 'max': 0.0}, {'current': 2593.18, 'min': 0.0, 'max': 0.0}, {'current': 2594.915, 'min': 0.0, 'max': 0.0}, {'current': 3243.235, 'min': 0.0, 'max': 0.0}, {'current': 2598.238, 'min': 0.0, 'max': 0.0}, {'current': 2595.884, 'min': 0.0, 'max': 0.0}, {'current': 2594.649, 'min': 0.0, 'max': 0.0}, {'current': 2585.146, 'min': 0.0, 'max': 0.0}, {'current': 2624.085, 'min': 0.0, 'max': 0.0}, {'current': 1790.597, 'min': 0.0, 'max': 0.0}, {'current': 1792.819, 'min': 0.0, 'max': 0.0}, {'current': 1795.081, 'min': 0.0, 'max': 0.0}, {'current': 1794.058, 'min': 0.0, 'max': 0.0}, {'current': 1795.471, 'min': 0.0, 'max': 0.0}, {'current': 1792.381, 'min': 0.0, 'max': 0.0}, {'current': 1791.313, 'min': 0.0, 'max': 0.0}, {'current': 1788.429, 'min': 0.0, 'max': 0.0}, {'current': 1787.249, 'min': 0.0, 'max': 0.0}, {'current': 1795.858, 'min': 0.0, 'max': 0.0}, {'current': 1796.992, 'min': 0.0, 'max': 0.0}, {'current': 1793.419, 'min': 0.0, 'max': 0.0}, {'current': 1797.335, 'min': 0.0, 'max': 0.0}, {'current': 1787.161, 'min': 0.0, 'max': 0.0}, {'current': 1790.964, 'min': 0.0, 'max': 0.0}, {'current': 1794.893, 'min': 0.0, 'max': 0.0}, {'current': 1792.59, 'min': 0.0, 'max': 0.0}, {'current': 1794.383, 'min': 0.0, 'max': 0.0}, {'current': 1790.209, 'min': 0.0, 'max': 0.0}, {'current': 1787.412, 'min': 0.0, 'max': 0.0}, {'current': 1796.045, 'min': 0.0, 'max': 0.0}, {'current': 1795.893, 'min': 0.0, 'max': 0.0}, {'current': 1786.294, 'min': 0.0, 'max': 0.0}, {'current': 1789.907, 'min': 0.0, 'max': 0.0}, {'current': 3242.808, 'min': 0.0, 'max': 0.0}, {'current': 2601.261, 'min': 0.0, 'max': 0.0}, {'current': 2585.369, 'min': 0.0, 'max': 0.0}, {'current': 2592.392, 'min': 0.0, 'max': 0.0}, {'current': 2597.541, 'min': 0.0, 'max': 0.0}, {'current': 2583.677, 'min': 0.0, 'max': 0.0}, {'current': 2594.503, 'min': 0.0, 'max': 0.0}, {'current': 2594.209, 'min': 0.0, 'max': 0.0}, {'current': 1793.343, 'min': 0.0, 'max': 0.0}, {'current': 1793.595, 'min': 0.0, 'max': 0.0}, {'current': 1791.452, 'min': 0.0, 'max': 0.0}, {'current': 1788.934, 'min': 0.0, 'max': 0.0}, {'current': 1790.585, 'min': 0.0, 'max': 0.0}, {'current': 1793.985, 'min': 0.0, 'max': 0.0}, {'current': 1793.691, 'min': 0.0, 'max': 0.0}, {'current': 1794.25, 'min': 0.0, 'max': 0.0}, {'current': 1796.099, 'min': 0.0, 'max': 0.0}, {'current': 1796.633, 'min': 0.0, 'max': 0.0}, {'current': 1789.261, 'min': 0.0, 'max': 0.0}, {'current': 1794.98, 'min': 0.0, 'max': 0.0}, {'current': 1791.005, 'min': 0.0, 'max': 0.0}, {'current': 1787.165, 'min': 0.0, 'max': 0.0}, {'current': 1788.074, 'min': 0.0, 'max': 0.0}, {'current': 1791.472, 'min': 0.0, 'max': 0.0}, {'current': 1790.913, 'min': 0.0, 'max': 0.0}, {'current': 1793.903, 'min': 0.0, 'max': 0.0}, {'current': 1793.861, 'min': 0.0, 'max': 0.0}, {'current': 1788.359, 'min': 0.0, 'max': 0.0}, {'current': 1792.413, 'min': 0.0, 'max': 0.0}, {'current': 1795.193, 'min': 0.0, 'max': 0.0}, {'current': 1791.422, 'min': 0.0, 'max': 0.0}, {'current': 1787.477, 'min': 0.0, 'max': 0.0}, {'current': 2594.695, 'min': 0.0, 'max': 0.0}, {'current': 3242.534, 'min': 0.0, 'max': 0.0}, {'current': 2594.016, 'min': 0.0, 'max': 0.0}, {'current': 2594.182, 'min': 0.0, 'max': 0.0}, {'current': 2581.885, 'min': 0.0, 'max': 0.0}, {'current': 2593.407, 'min': 0.0, 'max': 0.0}, {'current': 2603.696, 'min': 0.0, 'max': 0.0}, {'current': 3242.892, 'min': 0.0, 'max': 0.0}, {'current': 1789.856, 'min': 0.0, 'max': 0.0}, {'current': 1792.47, 'min': 0.0, 'max': 0.0}, {'current': 1790.453, 'min': 0.0, 'max': 0.0}, {'current': 1787.404, 'min': 0.0, 'max': 0.0}, {'current': 1797.747, 'min': 0.0, 'max': 0.0}, {'current': 1791.486, 'min': 0.0, 'max': 0.0}, {'current': 1794.891, 'min': 0.0, 'max': 0.0}, {'current': 1786.489, 'min': 0.0, 'max': 0.0}], 'disk': {'/': {'total': 405.5639190673828, 'used': 27.355804443359375}}, 'gpu': 'NVIDIA A100-SXM4-80GB', 'gpu_count': 1, 'memory': {'total': 1007.4195022583008}}
+2024-07-04 18:57:45,907 INFO    HandlerThread:2595856 [system_monitor.py:probe():224] Finished collecting system info
+2024-07-04 18:57:45,908 INFO    HandlerThread:2595856 [system_monitor.py:probe():227] Publishing system info
+2024-07-04 18:57:45,908 DEBUG   HandlerThread:2595856 [system_info.py:_save_conda():208] Saving list of conda packages installed into the current environment
+2024-07-04 18:57:46,747 INFO    Thread-13 :2595856 [dir_watcher.py:_on_file_created():271] file/dir created: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_185745-2t5f15a5/files/conda-environment.yaml
+2024-07-04 18:57:47,885 ERROR   gpu       :2595856 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 18:57:47,886 ERROR   gpu       :2595856 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 18:57:47,886 ERROR   gpu       :2595856 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 18:57:47,886 ERROR   gpu       :2595856 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 18:57:49,747 INFO    Thread-13 :2595856 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_185745-2t5f15a5/files/conda-environment.yaml
+2024-07-04 18:57:49,780 DEBUG   HandlerThread:2595856 [system_info.py:_save_conda():222] Saving conda packages done
+2024-07-04 18:57:49,782 INFO    HandlerThread:2595856 [system_monitor.py:probe():229] Finished publishing system info
+2024-07-04 18:57:49,789 DEBUG   SenderThread:2595856 [sender.py:send():378] send: files
+2024-07-04 18:57:49,789 INFO    SenderThread:2595856 [sender.py:_save_file():1389] saving file wandb-metadata.json with policy now
+2024-07-04 18:57:49,895 ERROR   gpu       :2595856 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 18:57:49,895 ERROR   gpu       :2595856 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 18:57:49,895 ERROR   gpu       :2595856 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 18:57:49,896 ERROR   gpu       :2595856 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 18:57:49,974 DEBUG   HandlerThread:2595856 [handler.py:handle_request():158] handle_request: python_packages
+2024-07-04 18:57:49,974 DEBUG   SenderThread:2595856 [sender.py:send_request():405] send_request: python_packages
+2024-07-04 18:57:49,975 DEBUG   HandlerThread:2595856 [handler.py:handle_request():158] handle_request: stop_status
+2024-07-04 18:57:49,976 DEBUG   SenderThread:2595856 [sender.py:send_request():405] send_request: stop_status
+2024-07-04 18:57:50,308 DEBUG   SenderThread:2595856 [sender.py:send():378] send: telemetry
+2024-07-04 18:57:50,308 DEBUG   HandlerThread:2595856 [handler.py:handle_request():158] handle_request: status_report
+2024-07-04 18:57:50,308 DEBUG   SenderThread:2595856 [sender.py:send():378] send: telemetry
+2024-07-04 18:57:50,309 DEBUG   SenderThread:2595856 [sender.py:send():378] send: run
+2024-07-04 18:57:50,541 INFO    wandb-upload_0:2595856 [upload_job.py:push():130] Uploaded file /tmp/tmpg0cgchjbwandb/5s3x672n-wandb-metadata.json
+2024-07-04 18:57:50,548 INFO    SenderThread:2595856 [sender.py:send_run():996] updated run: 2t5f15a5
+2024-07-04 18:57:50,548 DEBUG   SenderThread:2595856 [sender.py:send():378] send: telemetry
+2024-07-04 18:57:50,748 INFO    Thread-13 :2595856 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_185745-2t5f15a5/files/config.yaml
+2024-07-04 18:57:50,748 INFO    Thread-13 :2595856 [dir_watcher.py:_on_file_created():271] file/dir created: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_185745-2t5f15a5/files/requirements.txt
+2024-07-04 18:57:50,749 INFO    Thread-13 :2595856 [dir_watcher.py:_on_file_created():271] file/dir created: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_185745-2t5f15a5/files/wandb-metadata.json
+2024-07-04 18:57:50,749 INFO    Thread-13 :2595856 [dir_watcher.py:_on_file_created():271] file/dir created: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_185745-2t5f15a5/files/output.log
+2024-07-04 18:57:51,904 ERROR   gpu       :2595856 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 18:57:51,904 ERROR   gpu       :2595856 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 18:57:51,904 ERROR   gpu       :2595856 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 18:57:51,904 ERROR   gpu       :2595856 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 18:57:52,596 DEBUG   SenderThread:2595856 [sender.py:send():378] send: exit
+2024-07-04 18:57:52,596 INFO    SenderThread:2595856 [sender.py:send_exit():585] handling exit code: 0
+2024-07-04 18:57:52,596 INFO    SenderThread:2595856 [sender.py:send_exit():587] handling runtime: 6
+2024-07-04 18:57:52,597 INFO    SenderThread:2595856 [sender.py:_save_file():1389] saving file wandb-summary.json with policy end
+2024-07-04 18:57:52,597 INFO    SenderThread:2595856 [sender.py:send_exit():593] send defer
+2024-07-04 18:57:52,598 DEBUG   HandlerThread:2595856 [handler.py:handle_request():158] handle_request: defer
+2024-07-04 18:57:52,598 INFO    HandlerThread:2595856 [handler.py:handle_request_defer():184] handle defer: 0
+2024-07-04 18:57:52,598 DEBUG   SenderThread:2595856 [sender.py:send_request():405] send_request: defer
+2024-07-04 18:57:52,598 INFO    SenderThread:2595856 [sender.py:send_request_defer():609] handle sender defer: 0
+2024-07-04 18:57:52,598 INFO    SenderThread:2595856 [sender.py:transition_state():613] send defer: 1
+2024-07-04 18:57:52,598 DEBUG   HandlerThread:2595856 [handler.py:handle_request():158] handle_request: defer
+2024-07-04 18:57:52,598 INFO    HandlerThread:2595856 [handler.py:handle_request_defer():184] handle defer: 1
+2024-07-04 18:57:52,598 DEBUG   SenderThread:2595856 [sender.py:send_request():405] send_request: defer
+2024-07-04 18:57:52,598 INFO    SenderThread:2595856 [sender.py:send_request_defer():609] handle sender defer: 1
+2024-07-04 18:57:52,599 INFO    SenderThread:2595856 [sender.py:transition_state():613] send defer: 2
+2024-07-04 18:57:52,599 DEBUG   HandlerThread:2595856 [handler.py:handle_request():158] handle_request: defer
+2024-07-04 18:57:52,599 INFO    HandlerThread:2595856 [handler.py:handle_request_defer():184] handle defer: 2
+2024-07-04 18:57:52,599 INFO    HandlerThread:2595856 [system_monitor.py:finish():203] Stopping system monitor
+2024-07-04 18:57:52,599 DEBUG   SystemMonitor:2595856 [system_monitor.py:_start():172] Starting system metrics aggregation loop
+2024-07-04 18:57:52,599 DEBUG   SystemMonitor:2595856 [system_monitor.py:_start():179] Finished system metrics aggregation loop
+2024-07-04 18:57:52,600 INFO    HandlerThread:2595856 [interfaces.py:finish():200] Joined cpu monitor
+2024-07-04 18:57:52,600 DEBUG   SystemMonitor:2595856 [system_monitor.py:_start():183] Publishing last batch of metrics
+2024-07-04 18:57:52,600 INFO    HandlerThread:2595856 [interfaces.py:finish():200] Joined disk monitor
+2024-07-04 18:57:52,602 INFO    HandlerThread:2595856 [interfaces.py:finish():200] Joined gpu monitor
+2024-07-04 18:57:52,602 INFO    HandlerThread:2595856 [interfaces.py:finish():200] Joined memory monitor
+2024-07-04 18:57:52,602 INFO    HandlerThread:2595856 [interfaces.py:finish():200] Joined network monitor
+2024-07-04 18:57:52,603 DEBUG   SenderThread:2595856 [sender.py:send_request():405] send_request: defer
+2024-07-04 18:57:52,603 INFO    SenderThread:2595856 [sender.py:send_request_defer():609] handle sender defer: 2
+2024-07-04 18:57:52,603 INFO    SenderThread:2595856 [sender.py:transition_state():613] send defer: 3
+2024-07-04 18:57:52,603 DEBUG   SenderThread:2595856 [sender.py:send():378] send: stats
+2024-07-04 18:57:52,603 DEBUG   HandlerThread:2595856 [handler.py:handle_request():158] handle_request: defer
+2024-07-04 18:57:52,604 INFO    HandlerThread:2595856 [handler.py:handle_request_defer():184] handle defer: 3
+2024-07-04 18:57:52,604 DEBUG   SenderThread:2595856 [sender.py:send_request():405] send_request: defer
+2024-07-04 18:57:52,604 INFO    SenderThread:2595856 [sender.py:send_request_defer():609] handle sender defer: 3
+2024-07-04 18:57:52,604 INFO    SenderThread:2595856 [sender.py:transition_state():613] send defer: 4
+2024-07-04 18:57:52,604 DEBUG   HandlerThread:2595856 [handler.py:handle_request():158] handle_request: defer
+2024-07-04 18:57:52,604 INFO    HandlerThread:2595856 [handler.py:handle_request_defer():184] handle defer: 4
+2024-07-04 18:57:52,605 DEBUG   SenderThread:2595856 [sender.py:send_request():405] send_request: defer
+2024-07-04 18:57:52,605 INFO    SenderThread:2595856 [sender.py:send_request_defer():609] handle sender defer: 4
+2024-07-04 18:57:52,605 INFO    SenderThread:2595856 [sender.py:transition_state():613] send defer: 5
+2024-07-04 18:57:52,605 DEBUG   HandlerThread:2595856 [handler.py:handle_request():158] handle_request: defer
+2024-07-04 18:57:52,605 INFO    HandlerThread:2595856 [handler.py:handle_request_defer():184] handle defer: 5
+2024-07-04 18:57:52,605 DEBUG   SenderThread:2595856 [sender.py:send():378] send: summary
+2024-07-04 18:57:52,606 INFO    SenderThread:2595856 [sender.py:_save_file():1389] saving file wandb-summary.json with policy end
+2024-07-04 18:57:52,606 DEBUG   SenderThread:2595856 [sender.py:send_request():405] send_request: defer
+2024-07-04 18:57:52,606 INFO    SenderThread:2595856 [sender.py:send_request_defer():609] handle sender defer: 5
+2024-07-04 18:57:52,606 INFO    SenderThread:2595856 [sender.py:transition_state():613] send defer: 6
+2024-07-04 18:57:52,606 DEBUG   HandlerThread:2595856 [handler.py:handle_request():158] handle_request: defer
+2024-07-04 18:57:52,607 INFO    HandlerThread:2595856 [handler.py:handle_request_defer():184] handle defer: 6
+2024-07-04 18:57:52,607 DEBUG   SenderThread:2595856 [sender.py:send_request():405] send_request: defer
+2024-07-04 18:57:52,607 INFO    SenderThread:2595856 [sender.py:send_request_defer():609] handle sender defer: 6
+2024-07-04 18:57:52,611 DEBUG   HandlerThread:2595856 [handler.py:handle_request():158] handle_request: status_report
+2024-07-04 18:57:52,749 INFO    Thread-13 :2595856 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_185745-2t5f15a5/files/output.log
+2024-07-04 18:57:52,750 INFO    Thread-13 :2595856 [dir_watcher.py:_on_file_created():271] file/dir created: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_185745-2t5f15a5/files/wandb-summary.json
+2024-07-04 18:57:52,843 INFO    SenderThread:2595856 [sender.py:transition_state():613] send defer: 7
+2024-07-04 18:57:52,844 DEBUG   HandlerThread:2595856 [handler.py:handle_request():158] handle_request: defer
+2024-07-04 18:57:52,844 INFO    HandlerThread:2595856 [handler.py:handle_request_defer():184] handle defer: 7
+2024-07-04 18:57:52,844 DEBUG   SenderThread:2595856 [sender.py:send_request():405] send_request: defer
+2024-07-04 18:57:52,844 INFO    SenderThread:2595856 [sender.py:send_request_defer():609] handle sender defer: 7
+2024-07-04 18:57:53,596 DEBUG   HandlerThread:2595856 [handler.py:handle_request():158] handle_request: poll_exit
+2024-07-04 18:57:53,751 INFO    Thread-13 :2595856 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_185745-2t5f15a5/files/config.yaml
+2024-07-04 18:57:54,247 WARNING StreamThr :2595856 [internal.py:is_dead():414] Internal process exiting, parent pid 2595850 disappeared
+2024-07-04 18:57:54,247 ERROR   StreamThr :2595856 [internal.py:wandb_internal():151] Internal process shutdown.
+2024-07-04 18:57:54,596 INFO    HandlerThread:2595856 [handler.py:finish():882] shutting down handler
+2024-07-04 18:57:54,596 INFO    WriterThread:2595856 [datastore.py:close():296] close: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_185745-2t5f15a5/run-2t5f15a5.wandb
+2024-07-04 18:57:54,751 INFO    Thread-13 :2595856 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_185745-2t5f15a5/files/output.log
+2024-07-04 18:57:56,562 INFO    SenderThread:2595856 [sender.py:transition_state():613] send defer: 8
+2024-07-04 18:57:56,562 INFO    SenderThread:2595856 [sender.py:finish():1545] shutting down sender
+2024-07-04 18:57:56,562 INFO    SenderThread:2595856 [dir_watcher.py:finish():358] shutting down directory watcher
+2024-07-04 18:57:56,752 INFO    SenderThread:2595856 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_185745-2t5f15a5/files/output.log
+2024-07-04 18:57:56,753 INFO    SenderThread:2595856 [dir_watcher.py:finish():388] scan: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_185745-2t5f15a5/files
+2024-07-04 18:57:56,753 INFO    SenderThread:2595856 [dir_watcher.py:finish():402] scan save: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_185745-2t5f15a5/files/output.log output.log
+2024-07-04 18:57:56,753 INFO    SenderThread:2595856 [dir_watcher.py:finish():402] scan save: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_185745-2t5f15a5/files/requirements.txt requirements.txt
+2024-07-04 18:57:56,756 INFO    SenderThread:2595856 [dir_watcher.py:finish():402] scan save: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_185745-2t5f15a5/files/wandb-metadata.json wandb-metadata.json
+2024-07-04 18:57:56,756 INFO    SenderThread:2595856 [dir_watcher.py:finish():402] scan save: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_185745-2t5f15a5/files/wandb-summary.json wandb-summary.json
+2024-07-04 18:57:56,759 INFO    SenderThread:2595856 [dir_watcher.py:finish():402] scan save: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_185745-2t5f15a5/files/config.yaml config.yaml
+2024-07-04 18:57:56,762 INFO    SenderThread:2595856 [dir_watcher.py:finish():402] scan save: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_185745-2t5f15a5/files/conda-environment.yaml conda-environment.yaml
+2024-07-04 18:57:56,764 INFO    SenderThread:2595856 [file_pusher.py:finish():169] shutting down file pusher
+2024-07-04 18:57:56,764 INFO    SenderThread:2595856 [file_pusher.py:join():175] waiting for file pusher
+2024-07-04 18:57:57,235 INFO    wandb-upload_2:2595856 [upload_job.py:push():130] Uploaded file /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_185745-2t5f15a5/files/requirements.txt
+2024-07-04 18:57:57,291 INFO    wandb-upload_0:2595856 [upload_job.py:push():130] Uploaded file /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_185745-2t5f15a5/files/output.log
+2024-07-04 18:57:57,328 INFO    wandb-upload_4:2595856 [upload_job.py:push():130] Uploaded file /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_185745-2t5f15a5/files/config.yaml
+2024-07-04 18:57:57,333 INFO    wandb-upload_1:2595856 [upload_job.py:push():130] Uploaded file /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_185745-2t5f15a5/files/wandb-summary.json
+2024-07-04 18:57:57,407 INFO    wandb-upload_3:2595856 [upload_job.py:push():130] Uploaded file /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_185745-2t5f15a5/files/conda-environment.yaml
+2024-07-04 18:57:57,766 INFO    SenderThread:2595856 [file_stream.py:finish():601] file stream finish called
+2024-07-04 18:57:57,971 INFO    SenderThread:2595856 [file_stream.py:finish():605] file stream finish is done

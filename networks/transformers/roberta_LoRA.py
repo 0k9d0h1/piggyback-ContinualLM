@@ -141,23 +141,12 @@ class LoRARobertaSelfAttention(am.MultiTaskModule):
             config.hidden_size / config.num_attention_heads)
         self.all_head_size = self.num_attention_heads * self.attention_head_size
 
-        if config.baseline == 'lora':
-            self.query = LoRALinear(
-                config.hidden_size, self.all_head_size, config.lora_r, lora_alpha=config.lora_alpha)
-            self.key = LoRALinear(
-                config.hidden_size, self.all_head_size, config.lora_r, lora_alpha=config.lora_alpha)
-            self.value = LoRALinear(
-                config.hidden_size, self.all_head_size, config.lora_r, lora_alpha=config.lora_alpha)
-        elif config.baseline == 'lora_piggyback':
-            self.query = LoRAPiggybackLinear(
-                config.hidden_size, self.all_head_size, config.lora_r, lora_alpha=config.lora_alpha, training_type=config.training_type)
-            self.key = LoRAPiggybackLinear(
-                config.hidden_size, self.all_head_size, config.lora_r, lora_alpha=config.lora_alpha, training_type=config.training_type)
-            self.value = LoRAPiggybackLinear(
-                config.hidden_size, self.all_head_size, config.lora_r, lora_alpha=config.lora_alpha, training_type=config.training_type)
-        else:
-            raise ValueError(
-                f"Baseline {config.baseline} not supported for LoRARobertaSelfAttention")
+        self.query = LoRAPiggybackLinear(
+            config.hidden_size, self.all_head_size, config.lora_r, lora_alpha=config.lora_alpha, config=config)
+        self.key = LoRAPiggybackLinear(
+            config.hidden_size, self.all_head_size, config.lora_r, lora_alpha=config.lora_alpha, config=config)
+        self.value = LoRAPiggybackLinear(
+            config.hidden_size, self.all_head_size, config.lora_r, lora_alpha=config.lora_alpha, config=config)
 
         self.dropout = nn.Dropout(config.attention_probs_dropout_prob)
         self.position_embedding_type = position_embedding_type or getattr(
@@ -273,12 +262,8 @@ class LoRARobertaSelfAttention(am.MultiTaskModule):
 class LoRARobertaSelfOutput(am.MultiTaskModule):
     def __init__(self, config):
         super().__init__()
-        if config.baseline == 'lora':
-            self.dense = LoRALinear(
-                config.hidden_size, config.hidden_size, config.lora_r, lora_alpha=config.lora_alpha)
-        elif config.baseline == 'lora_piggyback':
-            self.dense = LoRAPiggybackLinear(
-                config.hidden_size, config.hidden_size, config.lora_r, lora_alpha=config.lora_alpha, training_type=config.training_type)
+        self.dense = LoRAPiggybackLinear(
+            config.hidden_size, config.hidden_size, config.lora_r, lora_alpha=config.lora_alpha, config=config)
         self.LayerNorm = nn.LayerNorm(
             config.hidden_size, eps=config.layer_norm_eps)
         self.dropout = nn.Dropout(config.hidden_dropout_prob)
@@ -354,12 +339,8 @@ class LoRARobertaAttention(am.MultiTaskModule):
 class LoRARobertaIntermediate(am.MultiTaskModule):
     def __init__(self, config):
         super().__init__()
-        if config.baseline == 'lora':
-            self.dense = LoRALinear(
-                config.hidden_size, config.intermediate_size, config.lora_r, lora_alpha=config.lora_alpha)
-        elif config.baseline == 'lora_piggyback':
-            self.dense = LoRAPiggybackLinear(
-                config.hidden_size, config.intermediate_size, config.lora_r, lora_alpha=config.lora_alpha, training_type=config.training_type)
+        self.dense = LoRAPiggybackLinear(
+            config.hidden_size, config.intermediate_size, config.lora_r, lora_alpha=config.lora_alpha, config=config)
         self.intermediate_act_fn = nn.GELU()
 
     def adaptation(self, num_class, task_label):
@@ -376,12 +357,8 @@ class LoRARobertaIntermediate(am.MultiTaskModule):
 class LoRARobertaOutput(am.MultiTaskModule):
     def __init__(self, config):
         super().__init__()
-        if config.baseline == 'lora':
-            self.dense = LoRALinear(
-                config.intermediate_size, config.hidden_size, config.lora_r, lora_alpha=config.lora_alpha)
-        elif config.baseline == 'lora_piggyback':
-            self.dense = LoRAPiggybackLinear(
-                config.intermediate_size, config.hidden_size, config.lora_r, lora_alpha=config.lora_alpha, training_type=config.training_type)
+        self.dense = LoRAPiggybackLinear(
+            config.intermediate_size, config.hidden_size, config.lora_r, lora_alpha=config.lora_alpha, config=config)
         self.LayerNorm = nn.LayerNorm(
             config.hidden_size, eps=config.layer_norm_eps)
         self.dropout = nn.Dropout(config.hidden_dropout_prob)
@@ -565,12 +542,8 @@ class LoRARobertaEncoder(am.MultiTaskModule):
 class LoRARobertaPooler(am.MultiTaskModule):
     def __init__(self, config):
         super().__init__()
-        if config.baseline == 'lora':
-            self.dense = LoRALinear(
-                config.hidden_size, config.hidden_size, config.lora_r, lora_alpha=config.lora_alpha)
-        elif config.baseline == 'lora_piggyback':
-            self.dense = LoRAPiggybackLinear(
-                config.hidden_size, config.hidden_size, config.lora_r, lora_alpha=config.lora_alpha, training_type=config.training_type)
+        self.dense = LoRAPiggybackLinear(
+            config.hidden_size, config.hidden_size, config.lora_r, lora_alpha=config.lora_alpha, config=config)
         self.activation = nn.Tanh()
 
     def adaptation(self, num_class, task_label):

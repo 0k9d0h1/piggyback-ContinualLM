@@ -91,6 +91,36 @@ def prepare(self,model, train_loader_subset, train_loader_subset_dataset, accele
             intermediate_impt = intermediate_impt_accumlate
         if 'output_mask' in self.args.layer_to_mask:
             output_impt = output_impt_accumlate
+    
+    if 'lora_init' == self.args.baseline and self.args.pt_task > 0:
+        train_loader_subset = accelerator.prepare(train_loader_subset)
+        for step, inputs in enumerate(tqdm(train_loader_subset)):
+            outputs = model(inputs, task_label=self.args.pt_task-1)
+            loss = outputs.loss
+            
+            accelerator.backward(loss)
+        
+        for module in model.modules():
+            if 'LoRAPiggybackLinear' in str(type(module)):
+                grad_A = module.lora_As[str(self.args.pt_task-1)].grad.data
+                grad_B = module.lora_Bs[str(self.args.pt_task-1)].grad.data
+                abs_grad_A = torch.abs(grad_A)
+                abs_grad_B = torch.abs(grad_B)
+                A_max = torch.max(abs_grad_A)
+                B_max = torch.max(abs_grad_B)
+                A_impt = abs_grad_A / A_max
+                B_impt = abs_grad_B / B_max
+                
+                module.lora_As[str(self.args.pt_task)].data.copy_(A_impt * module.lora_As[str(self.args.pt_task-1)].data + (1-A_impt) * module.lora_As[str(self.args.pt_task)].data)
+                module.lora_Bs[str(self.args.pt_task)].data.copy_(B_impt * module.lora_Bs[str(self.args.pt_task-1)].data + (1-B_impt) * module.lora_Bs[str(self.args.pt_task)].data)
+                
+                module.lora_As[str(self.args.pt_task-1)].grad = None
+                module.lora_Bs[str(self.args.pt_task-1)].grad = None
+        accelerator.unwrap_model(model).model.lm_head.dense.classifiers[str(self.args.pt_task-1)].weight.grad = None
+        accelerator.unwrap_model(model).model.lm_head.dense.classifiers[str(self.args.pt_task-1)].bias.grad = None
+        accelerator.unwrap_model(model).model.lm_head.decoder.classifiers[str(self.args.pt_task-1)].weight.grad = None
+        accelerator.unwrap_model(model).model.lm_head.decoder.classifiers[str(self.args.pt_task-1)].bias.grad = None
+            
 
     return self,model,head_impt, intermediate_impt, output_impt,self_fisher,mask_pre,mask_back,buffer
 

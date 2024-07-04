@@ -1,0 +1,35 @@
+2024-07-04 18:57:40 INFO Running runs: []
+2024-07-04 18:57:40 INFO Agent received command: run
+2024-07-04 18:57:40 INFO Agent starting run with config:
+	baseline: lora_init
+	epoch: 17
+	finetune_type: lora_piggyback
+	ft_task: 0
+	idrandom: 0
+	lr: 7.343082687700502e-05
+	max_samples: 640000
+	max_seq_length: 164
+	ntasks: 1
+	pt_task: 0
+	seed: 1
+	weight_decay: 0.0010056043660498994
+2024-07-04 18:57:40 INFO About to run command: /usr/bin/env python finetune.py --baseline=lora_init --epoch=17 --finetune_type=lora_piggyback --ft_task=0 --idrandom=0 --lr=7.343082687700502e-05 --max_samples=640000 --max_seq_length=164 --ntasks=1 --pt_task=0 --seed=1 --weight_decay=0.0010056043660498994
+2024-07-04 18:57:45 INFO Running runs: ['2t5f15a5']
+2024-07-04 19:03:20 INFO Running runs: []
+2024-07-04 19:03:21 INFO Agent received command: run
+2024-07-04 19:03:21 INFO Agent starting run with config:
+	baseline: lora_init
+	epoch: 17
+	finetune_type: lora_piggyback
+	ft_task: 0
+	hyperparameter_tune: True
+	idrandom: 0
+	lr: 7.343082687700502e-05
+	max_samples: 640000
+	max_seq_length: 164
+	ntasks: 1
+	pt_task: 0
+	seed: 1
+	weight_decay: 0.0010056043660498994
+2024-07-04 19:03:21 INFO About to run command: /usr/bin/env python finetune.py --baseline=lora_init --epoch=17 --finetune_type=lora_piggyback --ft_task=0 --hyperparameter_tune=True --idrandom=0 --lr=7.343082687700502e-05 --max_samples=640000 --max_seq_length=164 --ntasks=1 --pt_task=0 --seed=1 --weight_decay=0.0010056043660498994
+2024-07-04 19:03:26 INFO Running runs: ['0m6i8ba8']

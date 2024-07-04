@@ -161,7 +161,7 @@ def parseing_posttrain():
     parser.add_argument("--baseline",
                         type=str,
                         help="The supported baselines.",
-                        choices=["dga", "das", "adapter_hat", "adapter_bcl", "adapter_one", "adapter_classic", "prompt_one", "distill", "derpp", "ewc", "ncl", "one", "piggyback", "lora", "lora_piggyback", "piggyback_nonzero"])
+                        choices=["dga", "das", "adapter_hat", "adapter_bcl", "adapter_one", "adapter_classic", "prompt_one", "distill", "derpp", "ewc", "ncl", "one", "piggyback", "lora", "lora_piggyback", "piggyback_nonzero", "lora_init", "lora_distill"])
     parser.add_argument('--share_weight', action='store_true')
     parser.add_argument(
         "--max_train_samples",
@@ -309,12 +309,13 @@ def parseing_finetune():
     parser.add_argument("--baseline",
                         type=str,
                         help="The supported baselines.",
-                        choices=["dga", "das", "adapter_hat", "adapter_bcl", "adapter_one", "adapter_classic", "prompt_one", "distill", "derpp", "ewc", "ncl", "one", "piggyback", "lora", "lora_piggyback", "piggyback_nonzero"])
+                        choices=["dga", "das", "adapter_hat", "adapter_bcl", "adapter_one", "adapter_classic", "prompt_one", "distill", "derpp", "ewc", "ncl", "one", "piggyback", "lora", "piggyback_nonzero", "lora_init", "lora_distill"])
     parser.add_argument('--saved_model', type=str)
     parser.add_argument("--saved_output_dir", type=str,
                         default='./ckpt', help="Where to store the final model.")
     parser.add_argument("--finetune_type", type=str,
-                        help="Where to store the final model.")
+                        help="Where to store the final model.",
+                        choices=["lora_piggyback", "lora", "full_finetune"])
 
     parser.add_argument(
         "--max_seq_length",
@@ -387,7 +388,8 @@ def parseing_finetune():
                         type=int, required=False, help='(default=%(default)d)')
     parser.add_argument('--pipline_norm', default='standard_norm',
                         type=str, required=False, help='(default=%(default)d)')
-
+    parser.add_argument('--hyperparameter_tune', type=lambda x: (True if x == 'True' else (False if x ==
+                   'False' else argparse.ArgumentTypeError('Boolean value expected'))), default=False)
     parser.add_argument("--eval_only", action="store_true")
     parser.add_argument("--sequence_file", type=str, help="sequence file")
     parser.add_argument(

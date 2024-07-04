@@ -1,0 +1,605 @@
+[34m[1mwandb[39m[22m: [33mWARNING[39m Calling wandb.run.save without any arguments is deprecated.Changes to attributes are automatically persisted.
+07/04/2024 16:24:32 - INFO - __main__ - Distributed environment: NO
+Num processes: 1
+Process index: 0
+Local process index: 0
+Device: cuda
+==> Preparing data..
+07/04/2024 16:24:32 - INFO - __main__ - ==> Preparing data..
+100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 2/2 [00:00<00:00,  4.79ba/s]
+Dataset: restaurant_sup
+Size of training set: 3452
+Size of testing set: 1120
+100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 4/4 [00:01<00:00,  3.83ba/s]
+Sample 3425 of the training set: {'labels': tensor(0), 'input_ids': tensor([    0, 30439,  1437,     2, 12583, 13257,  1516,   380, 26010,    13,
+           10,  2051,  7147,     4,     2,     1,     1,     1,     1,     1,
+            1,     1,     1,     1,     1,     1,     1,     1,     1,     1,
+            1,     1,     1,     1,     1,     1,     1,     1,     1,     1,
+            1,     1,     1,     1,     1,     1,     1,     1,     1,     1,
+            1,     1,     1,     1,     1,     1,     1,     1,     1,     1,
+            1,     1,     1,     1,     1,     1,     1,     1,     1,     1,
+            1,     1,     1,     1,     1,     1,     1,     1,     1,     1,
+            1,     1,     1,     1,     1,     1,     1,     1,     1,     1,
+            1,     1,     1,     1,     1,     1,     1,     1,     1,     1,
+            1,     1,     1,     1,     1,     1,     1,     1,     1,     1,
+            1,     1,     1,     1,     1,     1,     1,     1,     1,     1,
+            1,     1,     1,     1,     1,     1,     1,     1,     1,     1,
+            1,     1,     1,     1,     1,     1,     1,     1,     1,     1,
+            1,     1,     1,     1,     1,     1,     1,     1,     1,     1,
+            1,     1,     1,     1,     1,     1,     1,     1,     1,     1,
+            1,     1,     1,     1]), 'attention_mask': tensor([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])}. Decode to: <s>establishment </s>Big Wong gets big Ups for a fine establishment.</s><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad>
+07/04/2024 16:24:36 - INFO - __main__ - Sample 3425 of the training set: {'labels': tensor(0), 'input_ids': tensor([    0, 30439,  1437,     2, 12583, 13257,  1516,   380, 26010,    13,
+           10,  2051,  7147,     4,     2,     1,     1,     1,     1,     1,
+            1,     1,     1,     1,     1,     1,     1,     1,     1,     1,
+            1,     1,     1,     1,     1,     1,     1,     1,     1,     1,
+            1,     1,     1,     1,     1,     1,     1,     1,     1,     1,
+            1,     1,     1,     1,     1,     1,     1,     1,     1,     1,
+            1,     1,     1,     1,     1,     1,     1,     1,     1,     1,
+            1,     1,     1,     1,     1,     1,     1,     1,     1,     1,
+            1,     1,     1,     1,     1,     1,     1,     1,     1,     1,
+            1,     1,     1,     1,     1,     1,     1,     1,     1,     1,
+            1,     1,     1,     1,     1,     1,     1,     1,     1,     1,
+            1,     1,     1,     1,     1,     1,     1,     1,     1,     1,
+            1,     1,     1,     1,     1,     1,     1,     1,     1,     1,
+            1,     1,     1,     1,     1,     1,     1,     1,     1,     1,
+            1,     1,     1,     1,     1,     1,     1,     1,     1,     1,
+            1,     1,     1,     1,     1,     1,     1,     1,     1,     1,
+            1,     1,     1,     1]), 'attention_mask': tensor([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])}. Decode to: <s>establishment </s>Big Wong gets big Ups for a fine establishment.</s><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad>
+==> Building model..
+07/04/2024 16:24:36 - INFO - __main__ - ==> Building model..
+Some weights of the model checkpoint at roberta-base were not used when initializing RobertaModel: ['lm_head.layer_norm.bias', 'lm_head.layer_norm.weight', 'lm_head.decoder.weight', 'lm_head.dense.weight', 'lm_head.bias', 'lm_head.dense.bias']
+- This IS expected if you are initializing RobertaModel from the checkpoint of a model trained on another task or with another architecture (e.g. initializing a BertForSequenceClassification model from a BertForPreTraining model).
+- This IS NOT expected if you are initializing RobertaModel from the checkpoint of a model that you expect to be exactly identical (initializing a BertForSequenceClassification model from a BertForSequenceClassification model).
+/home/0k9d0h1/anaconda3/envs/DAS/lib/python3.7/site-packages/transformers/optimization.py:309: FutureWarning: This implementation of AdamW is deprecated and will be removed in a future version. Use the PyTorch implementation torch.optim.AdamW instead, or set `no_deprecation_warning=True` to disable this warning
+  FutureWarning,
+07/04/2024 16:24:44 - INFO - approaches.finetune - ***** Running training *****
+07/04/2024 16:24:44 - INFO - approaches.finetune - Pretrained Model = .//seq0/640000samples/lora_init/restaurant_unsup_roberta/,  Dataset name = restaurant_sup, seed = 2021
+  0%|                                                                                                                                                                         | 0/216 [00:00<?, ?it/s]
+MyModel(
+  (model): LoRARobertaForSequenceClassification(
+    (roberta): LoRARobertaModel(
+      (embeddings): LoRARobertaEmbeddings(
+        (word_embeddings): Embedding(50265, 768, padding_idx=1)
+        (position_embeddings): Embedding(514, 768, padding_idx=1)
+        (token_type_embeddings): Embedding(1, 768)
+        (LayerNorm): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+        (dropout): Dropout(p=0.1, inplace=False)
+      )
+      (encoder): LoRARobertaEncoder(
+        (layer): ModuleList(
+          (0): LoRARobertaLayer(
+            (attention): LoRARobertaAttention(
+              (self): LoRARobertaSelfAttention(
+                (query): LoRAPiggybackLinear(
+                  (lora_dropout): Identity()
+                  (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                  (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                  (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x768])
+                )
+                (key): LoRAPiggybackLinear(
+                  (lora_dropout): Identity()
+                  (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                  (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                  (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x768])
+                )
+                (value): LoRAPiggybackLinear(
+                  (lora_dropout): Identity()
+                  (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                  (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                  (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x768])
+                )
+                (dropout): Dropout(p=0.1, inplace=False)
+              )
+              (output): LoRARobertaSelfOutput(
+                (dense): LoRAPiggybackLinear(
+                  (lora_dropout): Identity()
+                  (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                  (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                  (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x768])
+                )
+                (LayerNorm): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+                (dropout): Dropout(p=0.1, inplace=False)
+              )
+            )
+            (intermediate): LoRARobertaIntermediate(
+              (dense): LoRAPiggybackLinear(
+                (lora_dropout): Identity()
+                (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 3072x8])
+                (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 3072x768])
+              )
+              (intermediate_act_fn): GELU()
+            )
+            (output): LoRARobertaOutput(
+              (dense): LoRAPiggybackLinear(
+                (lora_dropout): Identity()
+                (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x3072])
+                (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x3072])
+              )
+              (LayerNorm): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+              (dropout): Dropout(p=0.1, inplace=False)
+            )
+          )
+          (1): LoRARobertaLayer(
+            (attention): LoRARobertaAttention(
+              (self): LoRARobertaSelfAttention(
+                (query): LoRAPiggybackLinear(
+                  (lora_dropout): Identity()
+                  (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                  (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                  (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x768])
+                )
+                (key): LoRAPiggybackLinear(
+                  (lora_dropout): Identity()
+                  (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                  (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                  (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x768])
+                )
+                (value): LoRAPiggybackLinear(
+                  (lora_dropout): Identity()
+                  (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                  (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                  (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x768])
+                )
+                (dropout): Dropout(p=0.1, inplace=False)
+              )
+              (output): LoRARobertaSelfOutput(
+                (dense): LoRAPiggybackLinear(
+                  (lora_dropout): Identity()
+                  (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                  (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                  (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x768])
+                )
+                (LayerNorm): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+                (dropout): Dropout(p=0.1, inplace=False)
+              )
+            )
+            (intermediate): LoRARobertaIntermediate(
+              (dense): LoRAPiggybackLinear(
+                (lora_dropout): Identity()
+                (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 3072x8])
+                (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 3072x768])
+              )
+              (intermediate_act_fn): GELU()
+            )
+            (output): LoRARobertaOutput(
+              (dense): LoRAPiggybackLinear(
+                (lora_dropout): Identity()
+                (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x3072])
+                (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x3072])
+              )
+              (LayerNorm): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+              (dropout): Dropout(p=0.1, inplace=False)
+            )
+          )
+          (2): LoRARobertaLayer(
+            (attention): LoRARobertaAttention(
+              (self): LoRARobertaSelfAttention(
+                (query): LoRAPiggybackLinear(
+                  (lora_dropout): Identity()
+                  (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                  (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                  (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x768])
+                )
+                (key): LoRAPiggybackLinear(
+                  (lora_dropout): Identity()
+                  (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                  (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                  (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x768])
+                )
+                (value): LoRAPiggybackLinear(
+                  (lora_dropout): Identity()
+                  (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                  (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                  (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x768])
+                )
+                (dropout): Dropout(p=0.1, inplace=False)
+              )
+              (output): LoRARobertaSelfOutput(
+                (dense): LoRAPiggybackLinear(
+                  (lora_dropout): Identity()
+                  (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                  (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                  (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x768])
+                )
+                (LayerNorm): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+                (dropout): Dropout(p=0.1, inplace=False)
+              )
+            )
+            (intermediate): LoRARobertaIntermediate(
+              (dense): LoRAPiggybackLinear(
+                (lora_dropout): Identity()
+                (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 3072x8])
+                (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 3072x768])
+              )
+              (intermediate_act_fn): GELU()
+            )
+            (output): LoRARobertaOutput(
+              (dense): LoRAPiggybackLinear(
+                (lora_dropout): Identity()
+                (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x3072])
+                (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x3072])
+              )
+              (LayerNorm): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+              (dropout): Dropout(p=0.1, inplace=False)
+            )
+          )
+          (3): LoRARobertaLayer(
+            (attention): LoRARobertaAttention(
+              (self): LoRARobertaSelfAttention(
+                (query): LoRAPiggybackLinear(
+                  (lora_dropout): Identity()
+                  (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                  (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                  (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x768])
+                )
+                (key): LoRAPiggybackLinear(
+                  (lora_dropout): Identity()
+                  (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                  (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                  (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x768])
+                )
+                (value): LoRAPiggybackLinear(
+                  (lora_dropout): Identity()
+                  (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                  (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                  (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x768])
+                )
+                (dropout): Dropout(p=0.1, inplace=False)
+              )
+              (output): LoRARobertaSelfOutput(
+                (dense): LoRAPiggybackLinear(
+                  (lora_dropout): Identity()
+                  (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                  (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                  (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x768])
+                )
+                (LayerNorm): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+                (dropout): Dropout(p=0.1, inplace=False)
+              )
+            )
+            (intermediate): LoRARobertaIntermediate(
+              (dense): LoRAPiggybackLinear(
+                (lora_dropout): Identity()
+                (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 3072x8])
+                (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 3072x768])
+              )
+              (intermediate_act_fn): GELU()
+            )
+            (output): LoRARobertaOutput(
+              (dense): LoRAPiggybackLinear(
+                (lora_dropout): Identity()
+                (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x3072])
+                (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x3072])
+              )
+              (LayerNorm): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+              (dropout): Dropout(p=0.1, inplace=False)
+            )
+          )
+          (4): LoRARobertaLayer(
+            (attention): LoRARobertaAttention(
+              (self): LoRARobertaSelfAttention(
+                (query): LoRAPiggybackLinear(
+                  (lora_dropout): Identity()
+                  (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                  (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                  (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x768])
+                )
+                (key): LoRAPiggybackLinear(
+                  (lora_dropout): Identity()
+                  (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                  (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                  (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x768])
+                )
+                (value): LoRAPiggybackLinear(
+                  (lora_dropout): Identity()
+                  (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                  (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                  (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x768])
+                )
+                (dropout): Dropout(p=0.1, inplace=False)
+              )
+              (output): LoRARobertaSelfOutput(
+                (dense): LoRAPiggybackLinear(
+                  (lora_dropout): Identity()
+                  (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                  (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                  (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x768])
+                )
+                (LayerNorm): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+                (dropout): Dropout(p=0.1, inplace=False)
+              )
+            )
+            (intermediate): LoRARobertaIntermediate(
+              (dense): LoRAPiggybackLinear(
+                (lora_dropout): Identity()
+                (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 3072x8])
+                (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 3072x768])
+              )
+              (intermediate_act_fn): GELU()
+            )
+            (output): LoRARobertaOutput(
+              (dense): LoRAPiggybackLinear(
+                (lora_dropout): Identity()
+                (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x3072])
+                (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x3072])
+              )
+              (LayerNorm): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+              (dropout): Dropout(p=0.1, inplace=False)
+            )
+          )
+          (5): LoRARobertaLayer(
+            (attention): LoRARobertaAttention(
+              (self): LoRARobertaSelfAttention(
+                (query): LoRAPiggybackLinear(
+                  (lora_dropout): Identity()
+                  (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                  (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                  (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x768])
+                )
+                (key): LoRAPiggybackLinear(
+                  (lora_dropout): Identity()
+                  (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                  (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                  (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x768])
+                )
+                (value): LoRAPiggybackLinear(
+                  (lora_dropout): Identity()
+                  (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                  (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                  (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x768])
+                )
+                (dropout): Dropout(p=0.1, inplace=False)
+              )
+              (output): LoRARobertaSelfOutput(
+                (dense): LoRAPiggybackLinear(
+                  (lora_dropout): Identity()
+                  (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                  (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                  (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x768])
+                )
+                (LayerNorm): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+                (dropout): Dropout(p=0.1, inplace=False)
+              )
+            )
+            (intermediate): LoRARobertaIntermediate(
+              (dense): LoRAPiggybackLinear(
+                (lora_dropout): Identity()
+                (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 3072x8])
+                (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 3072x768])
+              )
+              (intermediate_act_fn): GELU()
+            )
+            (output): LoRARobertaOutput(
+              (dense): LoRAPiggybackLinear(
+                (lora_dropout): Identity()
+                (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x3072])
+                (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x3072])
+              )
+              (LayerNorm): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+              (dropout): Dropout(p=0.1, inplace=False)
+            )
+          )
+          (6): LoRARobertaLayer(
+                (query): LoRAPiggybackLinear(
+                  (lora_dropout): Identity()
+                  (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                  (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                  (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x768])
+                )
+                (key): LoRAPiggybackLinear(
+                  (lora_dropout): Identity()
+                  (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                  (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                  (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x768])
+                )
+                (value): LoRAPiggybackLinear(
+                  (lora_dropout): Identity()
+                  (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                  (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                  (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x768])
+                )
+                (dropout): Dropout(p=0.1, inplace=False)
+              )
+              (output): LoRARobertaSelfOutput(
+                (dense): LoRAPiggybackLinear(
+                  (lora_dropout): Identity()
+                  (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                  (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                  (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x768])
+                )
+                (LayerNorm): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+                (dropout): Dropout(p=0.1, inplace=False)
+              )
+            )
+            (intermediate): LoRARobertaIntermediate(
+              (dense): LoRAPiggybackLinear(
+                (lora_dropout): Identity()
+                (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 3072x8])
+                (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 3072x768])
+              )
+              (intermediate_act_fn): GELU()
+            )
+            (output): LoRARobertaOutput(
+              (dense): LoRAPiggybackLinear(
+                (lora_dropout): Identity()
+                (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x3072])
+                (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x3072])
+              )
+              (LayerNorm): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+              (dropout): Dropout(p=0.1, inplace=False)
+            )
+          )
+          (11): LoRARobertaLayer(
+            (attention): LoRARobertaAttention(
+              (self): LoRARobertaSelfAttention(
+                (query): LoRAPiggybackLinear(
+                  (lora_dropout): Identity()
+                  (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                  (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                  (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x768])
+                )
+                (key): LoRAPiggybackLinear(
+                  (lora_dropout): Identity()
+                  (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                  (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                  (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x768])
+                )
+                (value): LoRAPiggybackLinear(
+                  (lora_dropout): Identity()
+                  (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                  (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                  (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x768])
+                )
+                (dropout): Dropout(p=0.1, inplace=False)
+              )
+              (output): LoRARobertaSelfOutput(
+                (dense): LoRAPiggybackLinear(
+                  (lora_dropout): Identity()
+                  (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                  (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                  (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x768])
+                )
+                (LayerNorm): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+                (dropout): Dropout(p=0.1, inplace=False)
+              )
+            )
+            (intermediate): LoRARobertaIntermediate(
+              (dense): LoRAPiggybackLinear(
+                (lora_dropout): Identity()
+                (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 3072x8])
+                (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 3072x768])
+              )
+              (intermediate_act_fn): GELU()
+            )
+            (output): LoRARobertaOutput(
+              (dense): LoRAPiggybackLinear(
+                (lora_dropout): Identity()
+                (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x3072])
+                (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x3072])
+              )
+              (LayerNorm): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+              (dropout): Dropout(p=0.1, inplace=False)
+            )
+          )
+        )
+      )
+    )
+    (classifier): LoRARobertaClassificationHead(
+      (dense): PretrainingMultiTaskClassifier(
+        (classifiers): ModuleDict(
+          (0): Linear(in_features=768, out_features=768, bias=True)
+        )
+      )
+      (dropout): Dropout(p=0.1, inplace=False)
+      (out_proj): MultiTaskClassifier(
+        (classifiers): ModuleDict(
+          (0): Linear(in_features=768, out_features=3, bias=True)
+        )
+      )
+    )
+  )
+  (sigmoid): Sigmoid()
+  (mse_loss): MSELoss()
+  (cos): CosineSimilarity()
+  (tanh): Tanh()
+  (softmax): Softmax(dim=1)
+  (kd_loss): DistillKL()
+  (dropout): Dropout(p=0.1, inplace=False)
+  (contrast): MyContrastive(
+    (bce): BCEWithLogitsLoss()
+    (ce): CrossEntropyLoss()
+    (sup_con): SupConLoss()
+  )
+)
+summary_path: .//seq0/640000samples/lora_init/restaurant_unsup_roberta/../lora_piggyback/restaurant_sup_finetune_summary
+Epoch 0 started
+
+  4%|██████▋                                                                                                                                                          | 9/216 [00:03<00:45,  4.57it/s]
+
+
+
+
+
+
+
+ 97%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████▊     | 209/216 [00:17<00:00, 14.32it/s]
+100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 216/216 [00:18<00:00, 11.72it/s]
+  0%|▋                                                                                                                                                                | 1/216 [00:01<06:03,  1.69s/it]
+
+
+
+
+
+
+
+100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 216/216 [00:16<00:00, 12.89it/s]
+  0%|                                                                                                                                                                         | 0/216 [00:00<?, ?it/s]
+
+  8%|████████████▌                                                                                                                                                   | 17/216 [00:02<00:16, 11.72it/s]
+
+
+
+
+
+
+100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 216/216 [00:16<00:00, 12.78it/s]
+  0%|                                                                                                                                                                         | 0/216 [00:00<?, ?it/s]
+
+  6%|█████████▋                                                                                                                                                      | 13/216 [00:02<00:19, 10.54it/s]
+
+
+
+
+
+
+
+100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████▎| 215/216 [00:16<00:00, 14.33it/s]
+100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 216/216 [00:16<00:00, 13.15it/s]
+  1%|██▏                                                                                                                                                              | 3/216 [00:01<01:42,  2.07it/s]
+
+
+
+ 44%|██████████████████████████████████████████████████████████████████████▎                                                                                         | 95/216 [00:08<00:08, 14.31it/s]Traceback (most recent call last):
+  File "finetune.py", line 150, in <module>
+    main()
+  File "finetune.py", line 146, in main
+    appr.train(model, accelerator, train_loader, test_loader)
+  File "/home/0k9d0h1/piggyback/piggyback-ContinualLM/approaches/finetune.py", line 80, in train
+    model, optimizer, train_loader, accelerator, lr_scheduler)
+  File "/home/0k9d0h1/piggyback/piggyback-ContinualLM/approaches/finetune.py", line 178, in train_epoch
+    accelerator.backward(loss)
+  File "/home/0k9d0h1/anaconda3/envs/DAS/lib/python3.7/site-packages/accelerate/accelerator.py", line 736, in backward
+    loss.backward(**kwargs)
+  File "/home/0k9d0h1/anaconda3/envs/DAS/lib/python3.7/site-packages/torch/_tensor.py", line 363, in backward
+    torch.autograd.backward(self, gradient, retain_graph, create_graph, inputs=inputs)
+  File "/home/0k9d0h1/anaconda3/envs/DAS/lib/python3.7/site-packages/torch/autograd/__init__.py", line 175, in backward
+    allow_unreachable=True, accumulate_grad=True)  # Calls into the C++ engine to run the backward pass
+KeyboardInterrupt

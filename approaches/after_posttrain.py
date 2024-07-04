@@ -26,7 +26,7 @@ def compute(self, model, train_loader_subset, self_fisher, mask_pre, buffer, acc
     if accelerator.is_main_process:
         unwrapped_model = accelerator.unwrap_model(model)
         if 'piggyback' in self.args.baseline or 'lora' in self.args.baseline:
-            torch.save(unwrapped_model.model.roberta.state_dict(),
+            torch.save(unwrapped_model.model.state_dict(),
                        os.path.join(self.args.output_dir, 'model.pt'))
         else:
             unwrapped_model.model.save_pretrained(self.args.output_dir)

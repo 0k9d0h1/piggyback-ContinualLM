@@ -25,7 +25,9 @@ do
       --ntasks 6 \
       --max_samples ${max_samples} \
       --seed ${seed[$round]} \
-      --baseline 'lora' 
+      --hyperparameter_tune 'True' \
+      --baseline 'lora_init' \
+      --finetune_type 'lora_piggyback'
     done
   done
 done

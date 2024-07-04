@@ -1,0 +1,1864 @@
+[34m[1mwandb[39m[22m: [33mWARNING[39m Calling wandb.run.save without any arguments is deprecated.Changes to attributes are automatically persisted.
+07/04/2024 19:03:30 - INFO - __main__ - Distributed environment: NO
+Num processes: 1
+Process index: 0
+Local process index: 0
+Device: cuda
+==> Preparing data..
+07/04/2024 19:03:30 - INFO - __main__ - ==> Preparing data..
+100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:00<00:00,  3.44ba/s]
+Dataset: restaurant_sup
+Size of training set: 2761
+Size of testing set: 691
+100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 3/3 [00:00<00:00,  3.52ba/s]
+Sample 550 of the training set: {'labels': tensor(2), 'input_ids': tensor([    0, 10806, 25717,     9,  3539,  1437,     2,   133,  3539,    16,
+         2310,    53,     5,  3143,     9,  3539,    16,  1085,    66,     9,
+         7945,     4,     2,     1,     1,     1,     1,     1,     1,     1,
+            1,     1,     1,     1,     1,     1,     1,     1,     1,     1,
+            1,     1,     1,     1,     1,     1,     1,     1,     1,     1,
+            1,     1,     1,     1,     1,     1,     1,     1,     1,     1,
+            1,     1,     1,     1,     1,     1,     1,     1,     1,     1,
+            1,     1,     1,     1,     1,     1,     1,     1,     1,     1,
+            1,     1,     1,     1,     1,     1,     1,     1,     1,     1,
+            1,     1,     1,     1,     1,     1,     1,     1,     1,     1,
+            1,     1,     1,     1,     1,     1,     1,     1,     1,     1,
+            1,     1,     1,     1,     1,     1,     1,     1,     1,     1,
+            1,     1,     1,     1,     1,     1,     1,     1,     1,     1,
+            1,     1,     1,     1,     1,     1,     1,     1,     1,     1,
+            1,     1,     1,     1,     1,     1,     1,     1,     1,     1,
+            1,     1,     1,     1,     1,     1,     1,     1,     1,     1,
+            1,     1,     1,     1]), 'attention_mask': tensor([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])}. Decode to: <s>variety of fish </s>The fish is fresh but the variety of fish is nothing out of ordinary.</s><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad>
+07/04/2024 19:03:34 - INFO - __main__ - Sample 550 of the training set: {'labels': tensor(2), 'input_ids': tensor([    0, 10806, 25717,     9,  3539,  1437,     2,   133,  3539,    16,
+         2310,    53,     5,  3143,     9,  3539,    16,  1085,    66,     9,
+         7945,     4,     2,     1,     1,     1,     1,     1,     1,     1,
+            1,     1,     1,     1,     1,     1,     1,     1,     1,     1,
+            1,     1,     1,     1,     1,     1,     1,     1,     1,     1,
+            1,     1,     1,     1,     1,     1,     1,     1,     1,     1,
+            1,     1,     1,     1,     1,     1,     1,     1,     1,     1,
+            1,     1,     1,     1,     1,     1,     1,     1,     1,     1,
+            1,     1,     1,     1,     1,     1,     1,     1,     1,     1,
+            1,     1,     1,     1,     1,     1,     1,     1,     1,     1,
+            1,     1,     1,     1,     1,     1,     1,     1,     1,     1,
+            1,     1,     1,     1,     1,     1,     1,     1,     1,     1,
+            1,     1,     1,     1,     1,     1,     1,     1,     1,     1,
+            1,     1,     1,     1,     1,     1,     1,     1,     1,     1,
+            1,     1,     1,     1,     1,     1,     1,     1,     1,     1,
+            1,     1,     1,     1,     1,     1,     1,     1,     1,     1,
+            1,     1,     1,     1]), 'attention_mask': tensor([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])}. Decode to: <s>variety of fish </s>The fish is fresh but the variety of fish is nothing out of ordinary.</s><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad><pad>
+==> Building model..
+07/04/2024 19:03:34 - INFO - __main__ - ==> Building model..
+Some weights of the model checkpoint at roberta-base were not used when initializing RobertaModel: ['lm_head.bias', 'lm_head.dense.weight', 'lm_head.decoder.weight', 'lm_head.dense.bias', 'lm_head.layer_norm.weight', 'lm_head.layer_norm.bias']
+- This IS expected if you are initializing RobertaModel from the checkpoint of a model trained on another task or with another architecture (e.g. initializing a BertForSequenceClassification model from a BertForPreTraining model).
+- This IS NOT expected if you are initializing RobertaModel from the checkpoint of a model that you expect to be exactly identical (initializing a BertForSequenceClassification model from a BertForSequenceClassification model).
+/home/0k9d0h1/anaconda3/envs/DAS/lib/python3.7/site-packages/transformers/optimization.py:309: FutureWarning: This implementation of AdamW is deprecated and will be removed in a future version. Use the PyTorch implementation torch.optim.AdamW instead, or set `no_deprecation_warning=True` to disable this warning
+  FutureWarning,
+07/04/2024 19:03:39 - INFO - approaches.finetune - ***** Running training *****
+07/04/2024 19:03:39 - INFO - approaches.finetune - Pretrained Model = .//seq0/640000samples/lora_init/restaurant_unsup_roberta/,  Dataset name = restaurant_sup, seed = 1
+  0%|                                                                                                                                                                         | 0/173 [00:00<?, ?it/s]
+MyModel(
+  (model): LoRARobertaForSequenceClassification(
+    (roberta): LoRARobertaModel(
+      (embeddings): LoRARobertaEmbeddings(
+        (word_embeddings): Embedding(50265, 768, padding_idx=1)
+        (position_embeddings): Embedding(514, 768, padding_idx=1)
+        (token_type_embeddings): Embedding(1, 768)
+        (LayerNorm): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+        (dropout): Dropout(p=0.1, inplace=False)
+      )
+      (encoder): LoRARobertaEncoder(
+        (layer): ModuleList(
+          (0): LoRARobertaLayer(
+            (attention): LoRARobertaAttention(
+              (self): LoRARobertaSelfAttention(
+                (query): LoRAPiggybackLinear(
+                  (lora_dropout): Identity()
+                  (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                  (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                  (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x768])
+                )
+                (key): LoRAPiggybackLinear(
+                  (lora_dropout): Identity()
+                  (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                  (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                  (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x768])
+                )
+                (value): LoRAPiggybackLinear(
+                  (lora_dropout): Identity()
+                  (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                  (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                  (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x768])
+                )
+                (dropout): Dropout(p=0.1, inplace=False)
+              )
+              (output): LoRARobertaSelfOutput(
+                (dense): LoRAPiggybackLinear(
+                  (lora_dropout): Identity()
+                  (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                  (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                  (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x768])
+                )
+                (LayerNorm): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+                (dropout): Dropout(p=0.1, inplace=False)
+              )
+            )
+            (intermediate): LoRARobertaIntermediate(
+              (dense): LoRAPiggybackLinear(
+                (lora_dropout): Identity()
+                (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 3072x8])
+                (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 3072x768])
+              )
+              (intermediate_act_fn): GELU()
+            )
+            (output): LoRARobertaOutput(
+              (dense): LoRAPiggybackLinear(
+                (lora_dropout): Identity()
+                (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x3072])
+                (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x3072])
+              )
+              (LayerNorm): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+              (dropout): Dropout(p=0.1, inplace=False)
+            )
+          )
+          (1): LoRARobertaLayer(
+            (attention): LoRARobertaAttention(
+              (self): LoRARobertaSelfAttention(
+                (query): LoRAPiggybackLinear(
+                  (lora_dropout): Identity()
+                  (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                  (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                  (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x768])
+                )
+                (key): LoRAPiggybackLinear(
+                  (lora_dropout): Identity()
+                  (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                  (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                  (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x768])
+                )
+                (value): LoRAPiggybackLinear(
+                  (lora_dropout): Identity()
+                  (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                  (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                  (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x768])
+                )
+                (dropout): Dropout(p=0.1, inplace=False)
+              )
+              (output): LoRARobertaSelfOutput(
+                (dense): LoRAPiggybackLinear(
+                  (lora_dropout): Identity()
+                  (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                  (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                  (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x768])
+                )
+                (LayerNorm): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+                (dropout): Dropout(p=0.1, inplace=False)
+              )
+            )
+            (intermediate): LoRARobertaIntermediate(
+              (dense): LoRAPiggybackLinear(
+                (lora_dropout): Identity()
+                (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 3072x8])
+                (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 3072x768])
+              )
+              (intermediate_act_fn): GELU()
+            )
+            (output): LoRARobertaOutput(
+              (dense): LoRAPiggybackLinear(
+                (lora_dropout): Identity()
+                (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x3072])
+                (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x3072])
+              )
+              (LayerNorm): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+              (dropout): Dropout(p=0.1, inplace=False)
+            )
+          )
+          (2): LoRARobertaLayer(
+            (attention): LoRARobertaAttention(
+              (self): LoRARobertaSelfAttention(
+                (query): LoRAPiggybackLinear(
+                  (lora_dropout): Identity()
+                  (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                  (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                  (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x768])
+                )
+                (key): LoRAPiggybackLinear(
+                  (lora_dropout): Identity()
+                  (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                  (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                  (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x768])
+                )
+                (value): LoRAPiggybackLinear(
+                  (lora_dropout): Identity()
+                  (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                  (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                  (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x768])
+                )
+                (dropout): Dropout(p=0.1, inplace=False)
+              )
+              (output): LoRARobertaSelfOutput(
+                (dense): LoRAPiggybackLinear(
+                  (lora_dropout): Identity()
+                  (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                  (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                  (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x768])
+                )
+                (LayerNorm): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+                (dropout): Dropout(p=0.1, inplace=False)
+              )
+            )
+            (intermediate): LoRARobertaIntermediate(
+              (dense): LoRAPiggybackLinear(
+                (lora_dropout): Identity()
+                (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 3072x8])
+                (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 3072x768])
+              )
+              (intermediate_act_fn): GELU()
+            )
+            (output): LoRARobertaOutput(
+              (dense): LoRAPiggybackLinear(
+                (lora_dropout): Identity()
+                (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x3072])
+                (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x3072])
+              )
+              (LayerNorm): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+              (dropout): Dropout(p=0.1, inplace=False)
+            )
+          )
+          (3): LoRARobertaLayer(
+            (attention): LoRARobertaAttention(
+              (self): LoRARobertaSelfAttention(
+                (query): LoRAPiggybackLinear(
+                  (lora_dropout): Identity()
+                  (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                  (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                  (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x768])
+                )
+                (key): LoRAPiggybackLinear(
+                  (lora_dropout): Identity()
+                  (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                  (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                  (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x768])
+                )
+                (value): LoRAPiggybackLinear(
+                  (lora_dropout): Identity()
+                  (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                  (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                  (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x768])
+                )
+                (dropout): Dropout(p=0.1, inplace=False)
+              )
+              (output): LoRARobertaSelfOutput(
+                (dense): LoRAPiggybackLinear(
+                  (lora_dropout): Identity()
+                  (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                  (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                  (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x768])
+                )
+                (LayerNorm): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+                (dropout): Dropout(p=0.1, inplace=False)
+              )
+            )
+            (intermediate): LoRARobertaIntermediate(
+              (dense): LoRAPiggybackLinear(
+                (lora_dropout): Identity()
+                (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 3072x8])
+                (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 3072x768])
+              )
+              (intermediate_act_fn): GELU()
+            )
+            (output): LoRARobertaOutput(
+              (dense): LoRAPiggybackLinear(
+                (lora_dropout): Identity()
+                (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x3072])
+                (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x3072])
+              )
+              (LayerNorm): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+              (dropout): Dropout(p=0.1, inplace=False)
+            )
+          )
+          (4): LoRARobertaLayer(
+            (attention): LoRARobertaAttention(
+              (self): LoRARobertaSelfAttention(
+                (query): LoRAPiggybackLinear(
+                  (lora_dropout): Identity()
+                  (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                  (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                  (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x768])
+                )
+                (key): LoRAPiggybackLinear(
+                  (lora_dropout): Identity()
+                  (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                  (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                  (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x768])
+                )
+                (value): LoRAPiggybackLinear(
+                  (lora_dropout): Identity()
+                  (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                  (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                  (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x768])
+                )
+                (dropout): Dropout(p=0.1, inplace=False)
+              )
+              (output): LoRARobertaSelfOutput(
+                (dense): LoRAPiggybackLinear(
+                  (lora_dropout): Identity()
+                  (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                  (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                  (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x768])
+                )
+                (LayerNorm): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+                (dropout): Dropout(p=0.1, inplace=False)
+              )
+            )
+            (intermediate): LoRARobertaIntermediate(
+              (dense): LoRAPiggybackLinear(
+                (lora_dropout): Identity()
+                (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 3072x8])
+                (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 3072x768])
+              )
+              (intermediate_act_fn): GELU()
+            )
+            (output): LoRARobertaOutput(
+              (dense): LoRAPiggybackLinear(
+                (lora_dropout): Identity()
+                (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x3072])
+                (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x3072])
+              )
+              (LayerNorm): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+              (dropout): Dropout(p=0.1, inplace=False)
+            )
+          )
+          (5): LoRARobertaLayer(
+            (attention): LoRARobertaAttention(
+              (self): LoRARobertaSelfAttention(
+                (query): LoRAPiggybackLinear(
+                  (lora_dropout): Identity()
+                  (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                  (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                  (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x768])
+                )
+                (key): LoRAPiggybackLinear(
+                  (lora_dropout): Identity()
+                  (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                  (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                  (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x768])
+                )
+                (value): LoRAPiggybackLinear(
+                  (lora_dropout): Identity()
+                  (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                  (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                  (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x768])
+                )
+                (dropout): Dropout(p=0.1, inplace=False)
+              )
+              (output): LoRARobertaSelfOutput(
+                (dense): LoRAPiggybackLinear(
+                  (lora_dropout): Identity()
+                  (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                  (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                  (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x768])
+                )
+                (LayerNorm): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+                (dropout): Dropout(p=0.1, inplace=False)
+              )
+            )
+            (intermediate): LoRARobertaIntermediate(
+              (dense): LoRAPiggybackLinear(
+                (lora_dropout): Identity()
+                (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 3072x8])
+                (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 3072x768])
+              )
+              (intermediate_act_fn): GELU()
+            )
+            (output): LoRARobertaOutput(
+              (dense): LoRAPiggybackLinear(
+                (lora_dropout): Identity()
+                (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x3072])
+                (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x3072])
+              )
+              (LayerNorm): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+              (dropout): Dropout(p=0.1, inplace=False)
+            )
+          )
+          (6): LoRARobertaLayer(
+            (attention): LoRARobertaAttention(
+              (self): LoRARobertaSelfAttention(
+                (query): LoRAPiggybackLinear(
+                  (lora_dropout): Identity()
+                  (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                  (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                  (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x768])
+                )
+                (key): LoRAPiggybackLinear(
+                  (lora_dropout): Identity()
+                  (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                  (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                  (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x768])
+                )
+                (value): LoRAPiggybackLinear(
+                  (lora_dropout): Identity()
+                  (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                  (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                  (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x768])
+                )
+                (dropout): Dropout(p=0.1, inplace=False)
+              )
+              (output): LoRARobertaSelfOutput(
+                (dense): LoRAPiggybackLinear(
+                  (lora_dropout): Identity()
+                  (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                  (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                  (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x768])
+                )
+                (LayerNorm): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+                (dropout): Dropout(p=0.1, inplace=False)
+              )
+            )
+            (intermediate): LoRARobertaIntermediate(
+              (dense): LoRAPiggybackLinear(
+                (lora_dropout): Identity()
+                (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 3072x8])
+                (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 3072x768])
+              )
+              (intermediate_act_fn): GELU()
+            )
+            (output): LoRARobertaOutput(
+              (dense): LoRAPiggybackLinear(
+                (lora_dropout): Identity()
+                (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x3072])
+                (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x3072])
+              )
+              (LayerNorm): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+              (dropout): Dropout(p=0.1, inplace=False)
+            )
+          )
+          (7): LoRARobertaLayer(
+            (attention): LoRARobertaAttention(
+              (self): LoRARobertaSelfAttention(
+                (query): LoRAPiggybackLinear(
+                  (lora_dropout): Identity()
+                  (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                  (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                  (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x768])
+                )
+                (key): LoRAPiggybackLinear(
+                  (lora_dropout): Identity()
+                  (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                  (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                  (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x768])
+                )
+                (value): LoRAPiggybackLinear(
+                  (lora_dropout): Identity()
+                  (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                  (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                  (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x768])
+                )
+                (dropout): Dropout(p=0.1, inplace=False)
+              )
+              (output): LoRARobertaSelfOutput(
+                (dense): LoRAPiggybackLinear(
+                  (lora_dropout): Identity()
+                  (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                  (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                  (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x768])
+                )
+                (LayerNorm): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+                (dropout): Dropout(p=0.1, inplace=False)
+              )
+            )
+            (intermediate): LoRARobertaIntermediate(
+              (dense): LoRAPiggybackLinear(
+                (lora_dropout): Identity()
+                (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 3072x8])
+                (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 3072x768])
+              )
+              (intermediate_act_fn): GELU()
+            )
+            (output): LoRARobertaOutput(
+              (dense): LoRAPiggybackLinear(
+                (lora_dropout): Identity()
+                (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x3072])
+                (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x3072])
+              )
+              (LayerNorm): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+              (dropout): Dropout(p=0.1, inplace=False)
+            )
+          )
+          (8): LoRARobertaLayer(
+            (attention): LoRARobertaAttention(
+              (self): LoRARobertaSelfAttention(
+                (query): LoRAPiggybackLinear(
+                  (lora_dropout): Identity()
+                  (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                  (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                  (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x768])
+                )
+                (key): LoRAPiggybackLinear(
+                  (lora_dropout): Identity()
+                  (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                  (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                  (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x768])
+                )
+                (value): LoRAPiggybackLinear(
+                  (lora_dropout): Identity()
+                  (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                  (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                  (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x768])
+                )
+                (dropout): Dropout(p=0.1, inplace=False)
+              )
+              (output): LoRARobertaSelfOutput(
+                (dense): LoRAPiggybackLinear(
+                  (lora_dropout): Identity()
+                  (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                  (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                  (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x768])
+                )
+                (LayerNorm): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+                (dropout): Dropout(p=0.1, inplace=False)
+              )
+            )
+            (intermediate): LoRARobertaIntermediate(
+              (dense): LoRAPiggybackLinear(
+                (lora_dropout): Identity()
+                (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 3072x8])
+                (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 3072x768])
+              )
+              (intermediate_act_fn): GELU()
+            )
+            (output): LoRARobertaOutput(
+              (dense): LoRAPiggybackLinear(
+                (lora_dropout): Identity()
+                (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x3072])
+                (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x3072])
+              )
+              (LayerNorm): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+              (dropout): Dropout(p=0.1, inplace=False)
+            )
+          )
+          (9): LoRARobertaLayer(
+            (attention): LoRARobertaAttention(
+              (self): LoRARobertaSelfAttention(
+                (query): LoRAPiggybackLinear(
+                  (lora_dropout): Identity()
+                  (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                  (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                  (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x768])
+                )
+                (key): LoRAPiggybackLinear(
+                  (lora_dropout): Identity()
+                  (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                  (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                  (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x768])
+                )
+                (value): LoRAPiggybackLinear(
+                  (lora_dropout): Identity()
+                  (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                  (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                  (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x768])
+                )
+                (dropout): Dropout(p=0.1, inplace=False)
+              )
+              (output): LoRARobertaSelfOutput(
+                (dense): LoRAPiggybackLinear(
+                  (lora_dropout): Identity()
+                  (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                  (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                  (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x768])
+                )
+                (LayerNorm): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+                (dropout): Dropout(p=0.1, inplace=False)
+              )
+            )
+            (intermediate): LoRARobertaIntermediate(
+              (dense): LoRAPiggybackLinear(
+                (lora_dropout): Identity()
+                (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 3072x8])
+                (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 3072x768])
+              )
+              (intermediate_act_fn): GELU()
+            )
+            (output): LoRARobertaOutput(
+              (dense): LoRAPiggybackLinear(
+                (lora_dropout): Identity()
+                (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x3072])
+                (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x3072])
+              )
+              (LayerNorm): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+              (dropout): Dropout(p=0.1, inplace=False)
+            )
+          )
+          (10): LoRARobertaLayer(
+            (attention): LoRARobertaAttention(
+              (self): LoRARobertaSelfAttention(
+                (query): LoRAPiggybackLinear(
+                  (lora_dropout): Identity()
+                  (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                  (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                  (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x768])
+                )
+                (key): LoRAPiggybackLinear(
+                  (lora_dropout): Identity()
+                  (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                  (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                  (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x768])
+                )
+                (value): LoRAPiggybackLinear(
+                  (lora_dropout): Identity()
+                  (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                  (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                  (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x768])
+                )
+                (dropout): Dropout(p=0.1, inplace=False)
+              )
+              (output): LoRARobertaSelfOutput(
+                (dense): LoRAPiggybackLinear(
+                  (lora_dropout): Identity()
+                  (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                  (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                  (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x768])
+                )
+                (LayerNorm): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+                (dropout): Dropout(p=0.1, inplace=False)
+              )
+            )
+            (intermediate): LoRARobertaIntermediate(
+              (dense): LoRAPiggybackLinear(
+                (lora_dropout): Identity()
+                (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 3072x8])
+                (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 3072x768])
+              )
+              (intermediate_act_fn): GELU()
+            )
+            (output): LoRARobertaOutput(
+              (dense): LoRAPiggybackLinear(
+                (lora_dropout): Identity()
+                (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x3072])
+                (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x3072])
+              )
+              (LayerNorm): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+              (dropout): Dropout(p=0.1, inplace=False)
+            )
+          )
+          (11): LoRARobertaLayer(
+            (attention): LoRARobertaAttention(
+              (self): LoRARobertaSelfAttention(
+                (query): LoRAPiggybackLinear(
+                  (lora_dropout): Identity()
+                  (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                  (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                  (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x768])
+                )
+                (key): LoRAPiggybackLinear(
+                  (lora_dropout): Identity()
+                  (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                  (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                  (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x768])
+                )
+                (value): LoRAPiggybackLinear(
+                  (lora_dropout): Identity()
+                  (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                  (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                  (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x768])
+                )
+                (dropout): Dropout(p=0.1, inplace=False)
+              )
+              (output): LoRARobertaSelfOutput(
+                (dense): LoRAPiggybackLinear(
+                  (lora_dropout): Identity()
+                  (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                  (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                  (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x768])
+                )
+                (LayerNorm): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+                (dropout): Dropout(p=0.1, inplace=False)
+              )
+            )
+            (intermediate): LoRARobertaIntermediate(
+              (dense): LoRAPiggybackLinear(
+                (lora_dropout): Identity()
+                (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x768])
+                (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 3072x8])
+                (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 3072x768])
+              )
+              (intermediate_act_fn): GELU()
+            )
+            (output): LoRARobertaOutput(
+              (dense): LoRAPiggybackLinear(
+                (lora_dropout): Identity()
+                (lora_As): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 8x3072])
+                (lora_Bs): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x8])
+                (masks): ParameterDict(  (0): Parameter containing: [torch.FloatTensor of size 768x3072])
+              )
+              (LayerNorm): LayerNorm((768,), eps=1e-05, elementwise_affine=True)
+              (dropout): Dropout(p=0.1, inplace=False)
+            )
+          )
+        )
+      )
+    )
+    (classifier): LoRARobertaClassificationHead(
+      (dense): PretrainingMultiTaskClassifier(
+        (classifiers): ModuleDict(
+          (0): Linear(in_features=768, out_features=768, bias=True)
+        )
+      )
+      (dropout): Dropout(p=0.1, inplace=False)
+      (out_proj): MultiTaskClassifier(
+        (classifiers): ModuleDict(
+          (0): Linear(in_features=768, out_features=3, bias=True)
+        )
+      )
+    )
+  )
+  (sigmoid): Sigmoid()
+  (mse_loss): MSELoss()
+  (cos): CosineSimilarity()
+  (tanh): Tanh()
+  (softmax): Softmax(dim=1)
+  (kd_loss): DistillKL()
+  (dropout): Dropout(p=0.1, inplace=False)
+  (contrast): MyContrastive(
+    (bce): BCEWithLogitsLoss()
+    (ce): CrossEntropyLoss()
+    (sup_con): SupConLoss()
+  )
+)
+summary_path: .//seq0/640000samples/lora_init/restaurant_unsup_roberta/../lora_piggyback/restaurant_sup_finetune_summary
+
+  5%|████████▍                                                                                                                                                        | 9/173 [00:03<00:30,  5.46it/s]
+n,p：  model.roberta.encoder.layer.0.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.0.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.0.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.0.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.0.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.0.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.1.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.1.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.1.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.1.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.1.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.1.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.2.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.2.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.2.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.2.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.2.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.2.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.3.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.3.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.3.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.3.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.3.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.3.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.4.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.4.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.4.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.4.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.4.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.4.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.5.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.5.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.5.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.5.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.5.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.5.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.6.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.6.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.6.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.6.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.6.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.6.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.7.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.7.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.7.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.7.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.7.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.7.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.8.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.8.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.8.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.8.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.8.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.8.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.9.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.9.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.9.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.9.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.9.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.9.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.10.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.10.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.10.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.10.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.10.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.10.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.11.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.11.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.11.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.11.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.11.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.11.output.dense.masks.0
+n,p：  model.classifier.dense.classifiers.0.weight
+n,p：  model.classifier.dense.classifiers.0.bias
+n,p：  model.classifier.out_proj.classifiers.0.weight
+
+
+
+
+
+100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 173/173 [00:15<00:00, 11.48it/s]
+  0%|                                                                                                                                                                         | 0/173 [00:00<?, ?it/s]
+train acc = 0.6744, training loss = 0.0493
+
+  4%|██████▌                                                                                                                                                          | 7/173 [00:02<00:31,  5.22it/s]
+n,p：  model.roberta.encoder.layer.0.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.0.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.0.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.0.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.0.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.0.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.1.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.1.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.1.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.1.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.1.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.1.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.2.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.2.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.2.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.2.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.2.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.2.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.3.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.3.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.3.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.3.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.3.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.3.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.4.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.4.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.4.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.4.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.4.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.4.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.5.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.5.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.5.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.5.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.5.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.5.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.6.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.6.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.6.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.6.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.6.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.6.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.7.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.7.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.7.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.7.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.7.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.7.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.8.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.8.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.8.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.8.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.8.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.8.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.9.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.9.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.9.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.9.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.9.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.9.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.10.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.10.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.10.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.10.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.10.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.10.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.11.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.11.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.11.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.11.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.11.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.11.output.dense.masks.0
+n,p：  model.classifier.dense.classifiers.0.weight
+n,p：  model.classifier.dense.classifiers.0.bias
+n,p：  model.classifier.out_proj.classifiers.0.weight
+
+
+
+
+
+
+100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 173/173 [00:14<00:00, 12.15it/s]
+  2%|██▊                                                                                                                                                              | 3/173 [00:01<01:27,  1.95it/s]
+train acc = 0.7928, training loss = 0.0309
+Epoch 2 started
+n,p：  model.roberta.encoder.layer.0.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.0.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.0.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.0.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.0.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.0.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.1.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.1.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.1.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.1.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.1.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.1.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.2.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.2.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.2.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.2.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.2.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.2.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.3.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.3.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.3.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.3.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.3.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.3.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.4.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.4.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.4.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.4.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.4.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.4.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.5.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.5.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.5.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.5.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.5.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.5.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.6.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.6.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.6.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.6.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.6.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.6.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.7.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.7.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.7.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.7.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.7.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.7.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.8.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.8.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.8.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.8.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.8.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.8.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.9.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.9.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.9.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.9.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.9.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.9.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.10.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.10.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.10.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.10.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.10.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.10.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.11.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.11.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.11.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.11.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.11.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.11.output.dense.masks.0
+n,p：  model.classifier.dense.classifiers.0.weight
+n,p：  model.classifier.dense.classifiers.0.bias
+n,p：  model.classifier.out_proj.classifiers.0.weight
+
+
+
+
+
+
+100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 173/173 [00:14<00:00, 12.09it/s]
+  3%|████▋                                                                                                                                                            | 5/173 [00:01<00:39,  4.27it/s]
+train acc = 0.8667, training loss = 0.0217
+Epoch 3 started
+n,p：  model.roberta.encoder.layer.0.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.0.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.0.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.0.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.0.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.0.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.1.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.1.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.1.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.1.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.1.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.1.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.2.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.2.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.2.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.2.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.2.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.2.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.3.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.3.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.3.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.3.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.3.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.3.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.4.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.4.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.4.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.4.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.4.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.4.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.5.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.5.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.5.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.5.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.5.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.5.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.6.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.6.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.6.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.6.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.6.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.6.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.7.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.7.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.7.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.7.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.7.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.7.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.8.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.8.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.8.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.8.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.8.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.8.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.9.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.9.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.9.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.9.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.9.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.9.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.10.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.10.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.10.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.10.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.10.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.10.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.11.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.11.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.11.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.11.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.11.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.11.output.dense.masks.0
+n,p：  model.classifier.dense.classifiers.0.weight
+n,p：  model.classifier.dense.classifiers.0.bias
+n,p：  model.classifier.out_proj.classifiers.0.weight
+
+
+
+
+
+
+100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 173/173 [00:13<00:00, 12.46it/s]
+  2%|██▊                                                                                                                                                              | 3/173 [00:01<01:28,  1.92it/s]
+train acc = 0.9192, training loss = 0.0143
+Epoch 4 started
+n,p：  model.roberta.encoder.layer.0.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.0.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.0.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.0.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.0.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.0.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.1.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.1.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.1.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.1.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.1.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.1.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.2.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.2.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.2.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.2.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.2.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.2.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.3.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.3.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.3.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.3.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.3.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.3.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.4.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.4.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.4.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.4.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.4.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.4.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.5.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.5.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.5.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.5.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.5.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.5.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.6.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.6.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.6.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.6.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.6.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.6.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.7.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.7.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.7.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.7.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.7.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.7.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.8.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.8.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.8.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.8.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.8.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.8.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.9.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.9.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.9.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.9.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.9.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.9.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.10.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.10.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.10.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.10.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.10.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.10.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.11.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.11.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.11.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.11.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.11.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.11.output.dense.masks.0
+n,p：  model.classifier.dense.classifiers.0.weight
+n,p：  model.classifier.dense.classifiers.0.bias
+n,p：  model.classifier.out_proj.classifiers.0.weight
+
+
+
+
+
+
+100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 173/173 [00:14<00:00, 12.07it/s]
+  1%|▉                                                                                                                                                                | 1/173 [00:01<04:30,  1.57s/it]
+train acc = 0.9417, training loss = 0.0109
+Epoch 5 started
+n,p：  model.roberta.encoder.layer.0.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.0.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.0.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.0.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.0.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.0.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.1.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.1.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.1.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.1.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.1.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.1.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.2.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.2.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.2.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.2.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.2.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.2.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.3.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.3.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.3.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.3.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.3.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.3.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.4.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.4.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.4.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.4.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.4.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.4.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.5.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.5.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.5.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.5.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.5.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.5.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.6.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.6.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.6.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.6.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.6.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.6.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.7.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.7.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.7.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.7.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.7.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.7.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.8.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.8.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.8.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.8.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.8.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.8.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.9.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.9.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.9.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.9.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.9.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.9.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.10.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.10.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.10.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.10.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.10.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.10.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.11.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.11.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.11.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.11.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.11.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.11.output.dense.masks.0
+n,p：  model.classifier.dense.classifiers.0.weight
+n,p：  model.classifier.dense.classifiers.0.bias
+n,p：  model.classifier.out_proj.classifiers.0.weight
+
+
+
+
+
+
+100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 173/173 [00:14<00:00, 12.27it/s]
+  2%|██▊                                                                                                                                                              | 3/173 [00:01<01:16,  2.21it/s]
+train acc = 0.9515, training loss = 0.0088
+
+ 17%|██████████████████████████▊                                                                                                                                     | 29/173 [00:03<00:10, 13.50it/s]
+n,p：  model.roberta.encoder.layer.0.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.0.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.0.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.0.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.0.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.0.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.1.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.1.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.1.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.1.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.1.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.1.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.2.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.2.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.2.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.2.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.2.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.2.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.3.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.3.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.3.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.3.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.3.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.3.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.4.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.4.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.4.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.4.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.4.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.4.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.5.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.5.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.5.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.5.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.5.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.5.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.6.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.6.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.6.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.6.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.6.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.6.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.7.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.7.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.7.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.7.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.7.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.7.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.8.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.8.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.8.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.8.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.8.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.8.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.9.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.9.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.9.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.9.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.9.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.9.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.10.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.10.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.10.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.10.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.10.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.10.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.11.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.11.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.11.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.11.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.11.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.11.output.dense.masks.0
+n,p：  model.classifier.dense.classifiers.0.weight
+n,p：  model.classifier.dense.classifiers.0.bias
+n,p：  model.classifier.out_proj.classifiers.0.weight
+
+
+
+
+
+100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 173/173 [00:14<00:00, 12.31it/s]
+  2%|██▊                                                                                                                                                              | 3/173 [00:01<01:16,  2.23it/s]
+train acc = 0.9598, training loss = 0.0077
+
+ 18%|████████████████████████████▋                                                                                                                                   | 31/173 [00:03<00:10, 13.57it/s]
+n,p：  model.roberta.encoder.layer.0.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.0.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.0.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.0.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.0.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.0.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.1.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.1.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.1.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.1.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.1.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.1.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.2.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.2.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.2.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.2.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.2.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.2.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.3.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.3.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.3.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.3.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.3.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.3.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.4.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.4.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.4.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.4.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.4.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.4.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.5.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.5.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.5.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.5.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.5.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.5.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.6.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.6.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.6.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.6.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.6.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.6.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.7.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.7.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.7.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.7.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.7.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.7.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.8.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.8.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.8.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.8.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.8.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.8.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.9.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.9.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.9.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.9.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.9.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.9.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.10.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.10.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.10.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.10.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.10.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.10.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.11.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.11.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.11.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.11.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.11.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.11.output.dense.masks.0
+n,p：  model.classifier.dense.classifiers.0.weight
+n,p：  model.classifier.dense.classifiers.0.bias
+n,p：  model.classifier.out_proj.classifiers.0.weight
+
+
+
+
+
+100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 173/173 [00:14<00:00, 12.32it/s]
+  0%|                                                                                                                                                                         | 0/173 [00:00<?, ?it/s]
+train acc = 0.9591, training loss = 0.0079
+
+ 12%|███████████████████▍                                                                                                                                            | 21/173 [00:03<00:12, 12.58it/s]
+n,p：  model.roberta.encoder.layer.0.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.0.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.0.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.0.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.0.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.0.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.1.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.1.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.1.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.1.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.1.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.1.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.2.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.2.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.2.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.2.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.2.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.2.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.3.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.3.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.3.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.3.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.3.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.3.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.4.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.4.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.4.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.4.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.4.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.4.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.5.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.5.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.5.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.5.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.5.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.5.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.6.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.6.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.6.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.6.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.6.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.6.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.7.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.7.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.7.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.7.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.7.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.7.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.8.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.8.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.8.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.8.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.8.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.8.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.9.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.9.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.9.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.9.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.9.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.9.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.10.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.10.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.10.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.10.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.10.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.10.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.11.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.11.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.11.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.11.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.11.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.11.output.dense.masks.0
+n,p：  model.classifier.dense.classifiers.0.weight
+n,p：  model.classifier.dense.classifiers.0.bias
+n,p：  model.classifier.out_proj.classifiers.0.weight
+
+
+
+
+
+100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 173/173 [00:14<00:00, 12.15it/s]
+  0%|                                                                                                                                                                         | 0/173 [00:00<?, ?it/s]
+train acc = 0.9555, training loss = 0.0086
+
+ 11%|█████████████████▌                                                                                                                                              | 19/173 [00:03<00:12, 12.12it/s]
+n,p：  model.roberta.encoder.layer.0.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.0.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.0.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.0.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.0.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.0.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.1.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.1.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.1.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.1.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.1.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.1.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.2.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.2.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.2.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.2.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.2.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.2.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.3.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.3.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.3.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.3.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.3.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.3.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.4.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.4.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.4.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.4.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.4.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.4.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.5.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.5.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.5.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.5.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.5.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.5.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.6.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.6.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.6.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.6.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.6.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.6.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.7.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.7.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.7.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.7.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.7.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.7.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.8.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.8.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.8.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.8.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.8.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.8.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.9.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.9.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.9.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.9.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.9.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.9.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.10.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.10.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.10.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.10.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.10.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.10.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.11.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.11.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.11.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.11.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.11.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.11.output.dense.masks.0
+n,p：  model.classifier.dense.classifiers.0.weight
+n,p：  model.classifier.dense.classifiers.0.bias
+n,p：  model.classifier.out_proj.classifiers.0.weight
+
+
+
+
+
+100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 173/173 [00:14<00:00, 12.15it/s]
+  0%|                                                                                                                                                                         | 0/173 [00:00<?, ?it/s]
+train acc = 0.9714, training loss = 0.0059
+
+ 11%|█████████████████▌                                                                                                                                              | 19/173 [00:02<00:12, 12.31it/s]
+n,p：  model.roberta.encoder.layer.0.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.0.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.0.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.0.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.0.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.0.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.1.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.1.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.1.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.1.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.1.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.1.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.2.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.2.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.2.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.2.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.2.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.2.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.3.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.3.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.3.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.3.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.3.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.3.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.4.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.4.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.4.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.4.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.4.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.4.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.5.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.5.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.5.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.5.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.5.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.5.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.6.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.6.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.6.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.6.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.6.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.6.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.7.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.7.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.7.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.7.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.7.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.7.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.8.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.8.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.8.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.8.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.8.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.8.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.9.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.9.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.9.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.9.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.9.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.9.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.10.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.10.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.10.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.10.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.10.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.10.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.11.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.11.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.11.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.11.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.11.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.11.output.dense.masks.0
+n,p：  model.classifier.dense.classifiers.0.weight
+n,p：  model.classifier.dense.classifiers.0.bias
+n,p：  model.classifier.out_proj.classifiers.0.weight
+
+
+
+
+
+100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 173/173 [00:14<00:00, 12.33it/s]
+  0%|                                                                                                                                                                         | 0/173 [00:00<?, ?it/s]
+train acc = 0.9783, training loss = 0.0049
+
+ 11%|█████████████████▌                                                                                                                                              | 19/173 [00:02<00:12, 12.28it/s]
+n,p：  model.roberta.encoder.layer.0.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.0.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.0.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.0.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.0.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.0.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.1.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.1.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.1.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.1.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.1.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.1.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.2.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.2.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.2.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.2.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.2.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.2.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.3.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.3.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.3.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.3.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.3.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.3.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.4.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.4.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.4.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.4.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.4.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.4.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.5.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.5.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.5.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.5.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.5.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.5.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.6.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.6.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.6.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.6.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.6.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.6.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.7.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.7.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.7.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.7.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.7.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.7.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.8.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.8.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.8.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.8.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.8.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.8.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.9.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.9.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.9.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.9.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.9.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.9.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.10.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.10.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.10.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.10.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.10.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.10.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.11.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.11.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.11.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.11.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.11.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.11.output.dense.masks.0
+n,p：  model.classifier.dense.classifiers.0.weight
+n,p：  model.classifier.dense.classifiers.0.bias
+n,p：  model.classifier.out_proj.classifiers.0.weight
+
+
+
+
+
+100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 173/173 [00:14<00:00, 12.31it/s]
+  0%|                                                                                                                                                                         | 0/173 [00:00<?, ?it/s]
+train acc = 0.9750, training loss = 0.0048
+
+ 12%|███████████████████▍                                                                                                                                            | 21/173 [00:02<00:11, 12.70it/s]
+n,p：  model.roberta.encoder.layer.0.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.0.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.0.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.0.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.0.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.0.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.1.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.1.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.1.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.1.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.1.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.1.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.2.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.2.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.2.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.2.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.2.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.2.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.3.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.3.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.3.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.3.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.3.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.3.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.4.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.4.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.4.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.4.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.4.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.4.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.5.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.5.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.5.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.5.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.5.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.5.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.6.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.6.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.6.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.6.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.6.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.6.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.7.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.7.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.7.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.7.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.7.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.7.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.8.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.8.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.8.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.8.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.8.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.8.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.9.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.9.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.9.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.9.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.9.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.9.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.10.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.10.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.10.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.10.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.10.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.10.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.11.attention.self.query.masks.0
+n,p：  model.roberta.encoder.layer.11.attention.self.key.masks.0
+n,p：  model.roberta.encoder.layer.11.attention.self.value.masks.0
+n,p：  model.roberta.encoder.layer.11.attention.output.dense.masks.0
+n,p：  model.roberta.encoder.layer.11.intermediate.dense.masks.0
+n,p：  model.roberta.encoder.layer.11.output.dense.masks.0
+n,p：  model.classifier.dense.classifiers.0.weight
+n,p：  model.classifier.dense.classifiers.0.bias
+n,p：  model.classifier.out_proj.classifiers.0.weight
+
+
+
+
+
+100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 173/173 [00:14<00:00, 12.27it/s]

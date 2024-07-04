@@ -173,7 +173,7 @@ class LoRALinear(am.MultiTaskModule):
         # Set this to True if the layer to replace stores weight like (fan_in, fan_out)
         fan_in_fan_out: bool = False,
         merge_weights: bool = True,
-        training_type='posttrain',
+        config=None,
         **kwargs
     ):
         super().__init__()
@@ -195,7 +195,7 @@ class LoRALinear(am.MultiTaskModule):
         self.r = r
         self.in_features = in_features
         self.out_features = out_features
-        self.training_type = training_type
+        self.config = config
 
         # Actual trainable parameters
         if self.r > 0:
@@ -251,24 +251,6 @@ class LoRALinear(am.MultiTaskModule):
                 self.weight.new_zeros((self.out_features, self.r)))
             self.init_lora(str(task_label))
 
-    def forward_single_task(self, x: torch.Tensor, task_label: int) -> torch.Tensor:
-        def T(w):
-            return w.transpose(0, 1) if self.fan_in_fan_out else w
-        if self.training_type == 'posttrain':
-            if self.r > 0 and not self.merged:
-                result = F.linear(x, T(self.weight), bias=self.bias)
-                result = result + (self.lora_dropout(x) @ self.lora_As[str(task_label)].transpose(0, 1)
-                        @ self.lora_Bs[str(task_label)].transpose(0, 1)) * self.scaling
-                return result
-            else:
-                return F.linear(x, T(self.weight), bias=self.bias)
-        elif self.training_type == 'finetune':
-            if self.r > 0 and not self.merged:
-                self.weight.data += T(self.lora_Bs[str(task_label)] @
-                                      self.lora_As[str(task_label)]) * self.scaling
-                self.merged = True
-            return F.linear(x, T(self.weight), bias=self.bias)
-
 
 class LoRAPiggybackLinear(LoRALinear):
     def __init__(self,
@@ -279,18 +261,17 @@ class LoRAPiggybackLinear(LoRALinear):
                  lora_dropout: float = 0,
                  fan_in_fan_out: bool = False,
                  merge_weights: bool = True,
-                 training_type='posttrain',
+                 config=None,
                  bias=True,
                  mask_init='1s', mask_scale=1e-2,
                  threshold_fn='binarizer', threshold=None, **kwargs):
         super().__init__(in_features, out_features, r, lora_alpha,
-                         lora_dropout, fan_in_fan_out, merge_weights, **kwargs)
+                         lora_dropout, fan_in_fan_out, merge_weights, config, **kwargs)
         self.in_features = in_features
         self.out_features = out_features
         self.threshold_fn = threshold_fn
         self.mask_scale = mask_scale
         self.mask_init = mask_init
-        self.training_type = training_type
 
         if threshold is None:
             threshold = DEFAULT_THRESHOLD
@@ -299,14 +280,14 @@ class LoRAPiggybackLinear(LoRALinear):
             'threshold': threshold,
         }
 
-        if self.training_type == 'finetune':
+        if self.config.training_type == 'finetune' and self.config.finetune_type == 'lora_piggyback':
             # self.masks_A = nn.ParameterDict({'0': self.make_mask('A')})
             # self.masks_B = nn.ParameterDict({'0': self.make_mask('B')})
             self.masks = nn.ParameterDict({'0': self.make_mask('weight')})
 
     def adaptation(self, num_class, task_label):
         super().adaptation(num_class, task_label)
-        if self.training_type == 'finetune' and str(task_label) not in self.masks:
+        if self.config.training_type == 'finetune' and self.config.finetune_type == 'lora_piggyback' and str(task_label) not in self.masks:
             # self.masks_A[str(task_label)] = self.make_mask('A')
             # self.masks_B[str(task_label)] = self.make_mask('B')
             self.masks[str(task_label)] = self.make_mask('weight')
@@ -316,21 +297,32 @@ class LoRAPiggybackLinear(LoRALinear):
             return w.transpose(0, 1) if self.fan_in_fan_out else w
         if self.r > 0:
             # result = F.linear(x, T(self.weight), bias=self.bias)
-            if self.training_type == 'posttrain':
+            if self.config.training_type == 'posttrain':
                 result = F.linear(x, T(self.weight), bias=self.bias)
                 result += (self.lora_dropout(x) @ self.lora_As[str(task_label)].transpose(0, 1)
                            @ self.lora_Bs[str(task_label)].transpose(0, 1)) * self.scaling
-            elif self.training_type == 'finetune':
-                # thresholded_mask_A = Binarizer.apply(
-                #     self.masks_A[str(task_label)], 5e-3, 0)
-                # thresholded_mask_B = Binarizer.apply(
-                #     self.masks_B[str(task_label)], 5e-3, 0)
-                self.lora_weight = self.weight + (self.lora_Bs[str(task_label)] @ self.lora_As[str(task_label)]) * self.scaling
-                thresholded_mask = Binarizer.apply(
-                    self.masks[str(task_label)], 5e-3, 0)
-                result = F.linear(x, T(self.lora_weight * thresholded_mask), bias=self.bias)
-                # result += (self.lora_dropout(x) @ (self.lora_As[str(task_label)] * thresholded_mask_A).transpose(0, 1)
-                #            @ (self.lora_Bs[str(task_label)] * thresholded_mask_B).transpose(0, 1)) * self.scaling
+            elif self.config.training_type == 'finetune':
+                if self.config.finetune_type == 'lora_piggyback':
+                    # thresholded_mask_A = Binarizer.apply(
+                    #     self.masks_A[str(task_label)], 5e-3, 0)
+                    # thresholded_mask_B = Binarizer.apply(
+                    #     self.masks_B[str(task_label)], 5e-3, 0)
+                    self.lora_weight = self.weight + (self.lora_Bs[str(task_label)] @ self.lora_As[str(task_label)]) * self.scaling
+                    thresholded_mask = Binarizer.apply(
+                        self.masks[str(task_label)], 5e-3, 0)
+                    result = F.linear(x, T(self.lora_weight * thresholded_mask), bias=self.bias)
+                    # result += (self.lora_dropout(x) @ (self.lora_As[str(task_label)] * thresholded_mask_A).transpose(0, 1)
+                    #            @ (self.lora_Bs[str(task_label)] * thresholded_mask_B).transpose(0, 1)) * self.scaling
+                elif self.config.finetune_type == 'full_finetune':
+                    if self.r > 0 and not self.merged:
+                        self.weight.data += T(self.lora_Bs[str(task_label)] @
+                                            self.lora_As[str(task_label)]) * self.scaling
+                        self.merged = True
+                    result = F.linear(x, T(self.weight), bias=self.bias)
+                elif self.config.finetune_type == 'lora':
+                    result = F.linear(x, T(self.weight), bias=self.bias)
+                    result = result + (self.lora_dropout(x) @ self.lora_As[str(task_label)].transpose(0, 1)
+                            @ self.lora_Bs[str(task_label)].transpose(0, 1)) * self.scaling
             return result
         else:
             return F.linear(x, T(self.weight), bias=self.bias)

@@ -5,6 +5,7 @@ import logging
 import math
 import os
 import torch
+import wandb
 from tqdm.auto import tqdm
 from networks import prompt
 from transformers import (
@@ -66,7 +67,11 @@ class Appr(object):
         logger.info(
             f"Pretrained Model = {self.args.model_name_or_path},  Dataset name = {self.args.dataset_name}, seed = {self.args.seed}")
 
-        summary_path = f'{self.args.output_dir}../{self.args.dataset_name}_finetune_summary'
+        if 'lora' in self.args.baseline:
+            os.makedirs(f'{self.args.output_dir}/../{self.args.finetune_type}', exist_ok=True)
+            summary_path = f'{self.args.output_dir}../{self.args.finetune_type}/{self.args.dataset_name}_finetune_summary'
+        else:
+            summary_path = f'{self.args.output_dir}../{self.args.dataset_name}_finetune_summary'
         print(f'summary_path: {summary_path}')
 
         for epoch in range(self.args.epoch):
@@ -88,9 +93,12 @@ class Appr(object):
                                                                                     acc, self.args.seed))
 
         if accelerator.is_main_process:
-
-            progressive_f1_path = f'{self.args.output_dir}/../progressive_f1_{self.args.seed}'
-            progressive_acc_path = f'{self.args.output_dir}/../progressive_acc_{self.args.seed}'
+            if 'lora' in self.args.baseline:
+                progressive_f1_path = f'{self.args.output_dir}/../{self.args.finetune_type}/progressive_f1_{self.args.seed}'
+                progressive_acc_path = f'{self.args.output_dir}/../{self.args.finetune_type}/progressive_acc_{self.args.seed}'
+            else:
+                progressive_f1_path = f'{self.args.output_dir}/../progressive_f1_{self.args.seed}'
+                progressive_acc_path = f'{self.args.output_dir}/../progressive_acc_{self.args.seed}'
 
             print(f'Path of progressive f1 score: {progressive_f1_path}')
             print(f'Path of progressive accuracy: {progressive_acc_path}')
@@ -112,11 +120,18 @@ class Appr(object):
             np.savetxt(progressive_acc_path, accs, '%.4f', delimiter='\t')
 
             if self.args.ft_task == self.args.ntasks - 1:  # last ft task, we need a final one
-                final_f1 = f'{self.args.output_dir}/../f1_{self.args.seed}'
-                final_acc = f'{self.args.output_dir}/../acc_{self.args.seed}'
+                if 'lora' in self.args.baseline:
+                    final_f1 = f'{self.args.output_dir}/../{self.args.finetune_type}/f1_{self.args.seed}'
+                    final_acc = f'{self.args.output_dir}/../{self.args.finetune_type}/acc_{self.args.seed}'
 
-                forward_f1 = f'{self.args.output_dir}/../forward_f1_{self.args.seed}'
-                forward_acc = f'{self.args.output_dir}/../forward_acc_{self.args.seed}'
+                    forward_f1 = f'{self.args.output_dir}/../{self.args.finetune_type}/forward_f1_{self.args.seed}'
+                    forward_acc = f'{self.args.output_dir}/../{self.args.finetune_type}/forward_acc_{self.args.seed}'
+                else:
+                    final_f1 = f'{self.args.output_dir}/../f1_{self.args.seed}'
+                    final_acc = f'{self.args.output_dir}/../acc_{self.args.seed}'
+
+                    forward_f1 = f'{self.args.output_dir}/../forward_f1_{self.args.seed}'
+                    forward_acc = f'{self.args.output_dir}/../forward_acc_{self.args.seed}'
 
                 print(f'Final f1 score: {final_f1}')
                 print(f'Final accuracy: {final_acc}')
@@ -162,7 +177,7 @@ class Appr(object):
             optimizer.zero_grad()
             accelerator.backward(loss)
             
-            if 'lora_piggyback' == self.args.baseline:
+            if 'lora_piggyback' == self.args.finetune_type:
                 for module in model.model.modules():
                     if 'Piggyback' in str(type(module)):
                         # abs_weights_A = module.lora_As[str(self.args.ft_task)].data.abs()
@@ -193,6 +208,9 @@ class Appr(object):
             total_num += references.size(0)
 
             progress_bar.update(1)
+            
+        wandb.log({"Train_Loss/Task%s" % (self.args.ft_task): training_loss / total_num,
+                   "Train_Acc/Task%s" % (self.args.ft_task): train_acc / total_num})
             # break
         return train_acc / total_num, training_loss / total_num
 
@@ -236,5 +254,10 @@ class Appr(object):
         macro_f1 = f1_score(label_list, prediction_list, average='macro')
         accuracy = sum([float(label_list[i] == prediction_list[i])
                        for i in range(len(label_list))]) * 1.0 / len(prediction_list)
+        
+        wandb.log({"Eval_Loss/Task%s" % (self.args.ft_task): total_loss/total_num,
+            "Eval_Acc/Task%s" % (self.args.ft_task): accuracy,
+            "Eval_Micro_F1/Task%s" % (self.args.ft_task): micro_f1,
+            "Eval_Macro_F1/Task%s" % (self.args.ft_task): macro_f1, })
 
         return micro_f1, macro_f1, accuracy, total_loss/total_num

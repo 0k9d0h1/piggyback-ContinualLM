@@ -25,10 +25,11 @@ from utils import utils
 import logging
 import os
 import torch
+import wandb
 from accelerate import Accelerator
 from torch.utils.data import DataLoader
 from transformers import RobertaTokenizer, set_seed, AdamW
-from dataloader.data import get_dataset, dataset_class_num
+from dataloader.data import get_dataset, get_dataset_eval, dataset_class_num
 import random
 from transformers import (
     MODEL_MAPPING,
@@ -48,6 +49,16 @@ def main():
     args = utils.model.prepare_sequence_finetune(args)
     args.device = torch.device(
         "cuda" if torch.cuda.is_available() and not args.no_cuda else "cpu")
+    
+    if args.hyperparameter_tune:
+        wandb.init(project='piggyback_continualDAP_sweep',
+               config=args)
+    else:
+        wandb.init(project='piggyback_continualDAP',
+                config=args)
+    wandb.run.name = "%s_%s_%s_%d" % (
+        args.baseline, args.finetune_type, args.dataset_name, args.seed)
+    wandb.run.save()
 
     # Initialize the accelerator. We will let the accelerator handle device placement for us in this example.
     accelerator = Accelerator()
@@ -92,7 +103,10 @@ def main():
 
     logger.info('==> Preparing data..')
 
-    datasets = get_dataset(args.dataset_name, tokenizer=tokenizer, args=args)
+    if args.hyperparameter_tune:
+        datasets = get_dataset_eval(args.dataset_name, tokenizer=tokenizer, args=args)
+    else:
+        datasets = get_dataset(args.dataset_name, tokenizer=tokenizer, args=args)
     print(f'Dataset: {args.dataset_name}')
 
     print(f'Size of training set: {len(datasets["train"])}')

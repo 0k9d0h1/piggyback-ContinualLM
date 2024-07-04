@@ -1,0 +1,674 @@
+2024-07-04 17:52:55,602 INFO    StreamThr :2214470 [internal.py:wandb_internal():88] W&B internal server running at pid: 2214470, started at: 2024-07-04 17:52:55.601006
+2024-07-04 17:52:55,603 DEBUG   HandlerThread:2214470 [handler.py:handle_request():158] handle_request: status
+2024-07-04 17:52:55,605 INFO    WriterThread:2214470 [datastore.py:open_for_write():87] open: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/run-j6adud0j.wandb
+2024-07-04 17:52:55,606 DEBUG   SenderThread:2214470 [sender.py:send():378] send: header
+2024-07-04 17:52:55,623 DEBUG   SenderThread:2214470 [sender.py:send():378] send: run
+2024-07-04 17:52:56,111 INFO    SenderThread:2214470 [dir_watcher.py:__init__():211] watching files in: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files
+2024-07-04 17:52:56,111 INFO    SenderThread:2214470 [sender.py:_start_run_threads():1126] run started: j6adud0j with start time 1720083175.601325
+2024-07-04 17:52:56,117 DEBUG   HandlerThread:2214470 [handler.py:handle_request():158] handle_request: check_version
+2024-07-04 17:52:56,117 DEBUG   SenderThread:2214470 [sender.py:send_request():405] send_request: check_version
+2024-07-04 17:52:56,189 DEBUG   HandlerThread:2214470 [handler.py:handle_request():158] handle_request: run_start
+2024-07-04 17:52:56,197 DEBUG   HandlerThread:2214470 [system_info.py:__init__():26] System info init
+2024-07-04 17:52:56,198 DEBUG   HandlerThread:2214470 [system_info.py:__init__():41] System info init done
+2024-07-04 17:52:56,198 INFO    HandlerThread:2214470 [system_monitor.py:start():194] Starting system monitor
+2024-07-04 17:52:56,198 INFO    SystemMonitor:2214470 [system_monitor.py:_start():158] Starting system asset monitoring threads
+2024-07-04 17:52:56,198 INFO    HandlerThread:2214470 [system_monitor.py:probe():214] Collecting system info
+2024-07-04 17:52:56,198 INFO    SystemMonitor:2214470 [interfaces.py:start():188] Started cpu monitoring
+2024-07-04 17:52:56,199 INFO    SystemMonitor:2214470 [interfaces.py:start():188] Started disk monitoring
+2024-07-04 17:52:56,199 INFO    SystemMonitor:2214470 [interfaces.py:start():188] Started gpu monitoring
+2024-07-04 17:52:56,200 INFO    SystemMonitor:2214470 [interfaces.py:start():188] Started memory monitoring
+2024-07-04 17:52:56,200 INFO    SystemMonitor:2214470 [interfaces.py:start():188] Started network monitoring
+2024-07-04 17:52:56,207 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:52:56,207 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:52:56,208 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:52:56,209 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:52:56,224 DEBUG   HandlerThread:2214470 [system_info.py:probe():150] Probing system
+2024-07-04 17:52:56,229 DEBUG   HandlerThread:2214470 [system_info.py:_probe_git():135] Probing git
+2024-07-04 17:52:56,240 DEBUG   HandlerThread:2214470 [system_info.py:_probe_git():143] Probing git done
+2024-07-04 17:52:56,240 DEBUG   HandlerThread:2214470 [system_info.py:probe():198] Probing system done
+2024-07-04 17:52:56,240 DEBUG   HandlerThread:2214470 [system_monitor.py:probe():223] {'os': 'Linux-5.4.0-100-generic-x86_64-with-debian-buster-sid', 'python': '3.7.13', 'heartbeatAt': '2024-07-04T08:52:56.224752', 'startedAt': '2024-07-04T08:52:55.591271', 'docker': None, 'cuda': None, 'args': ('--max_seq_length', '164', '--pt_task', '3', '--ft_task', '3', '--idrandom', '0', '--ntasks', '6', '--max_samples', '640000', '--seed', '222', '--baseline', 'lora_init', '--finetune_type', 'lora_piggyback'), 'state': 'running', 'program': 'finetune.py', 'codePathLocal': 'finetune.py', 'codePath': 'finetune.py', 'git': {'remote': 'https://github.com/0k9d0h1/piggyback-ContinualLM.git', 'commit': '40b3685d5e4bf9e4568773c2e3810eef98b678b3'}, 'email': None, 'root': '/home/0k9d0h1/piggyback/piggyback-ContinualLM', 'host': 'ece-agpu17', 'username': '0k9d0h1', 'executable': '/home/0k9d0h1/anaconda3/envs/DAS/bin/python', 'cpu_count': 128, 'cpu_count_logical': 128, 'cpu_freq': {'current': 2038.1364375, 'min': 0.0, 'max': 0.0}, 'cpu_freq_per_core': [{'current': 1796.311, 'min': 0.0, 'max': 0.0}, {'current': 1798.734, 'min': 0.0, 'max': 0.0}, {'current': 1786.586, 'min': 0.0, 'max': 0.0}, {'current': 1796.08, 'min': 0.0, 'max': 0.0}, {'current': 1788.497, 'min': 0.0, 'max': 0.0}, {'current': 1790.706, 'min': 0.0, 'max': 0.0}, {'current': 1794.567, 'min': 0.0, 'max': 0.0}, {'current': 1789.867, 'min': 0.0, 'max': 0.0}, {'current': 1790.634, 'min': 0.0, 'max': 0.0}, {'current': 1794.597, 'min': 0.0, 'max': 0.0}, {'current': 1798.159, 'min': 0.0, 'max': 0.0}, {'current': 1787.799, 'min': 0.0, 'max': 0.0}, {'current': 1795.098, 'min': 0.0, 'max': 0.0}, {'current': 1791.503, 'min': 0.0, 'max': 0.0}, {'current': 1791.61, 'min': 0.0, 'max': 0.0}, {'current': 1793.975, 'min': 0.0, 'max': 0.0}, {'current': 2594.199, 'min': 0.0, 'max': 0.0}, {'current': 2593.866, 'min': 0.0, 'max': 0.0}, {'current': 2594.922, 'min': 0.0, 'max': 0.0}, {'current': 2585.923, 'min': 0.0, 'max': 0.0}, {'current': 2592.082, 'min': 0.0, 'max': 0.0}, {'current': 2590.639, 'min': 0.0, 'max': 0.0}, {'current': 3242.877, 'min': 0.0, 'max': 0.0}, {'current': 2580.753, 'min': 0.0, 'max': 0.0}, {'current': 1793.211, 'min': 0.0, 'max': 0.0}, {'current': 1789.167, 'min': 0.0, 'max': 0.0}, {'current': 1791.599, 'min': 0.0, 'max': 0.0}, {'current': 1796.133, 'min': 0.0, 'max': 0.0}, {'current': 1795.718, 'min': 0.0, 'max': 0.0}, {'current': 1798.681, 'min': 0.0, 'max': 0.0}, {'current': 1799.318, 'min': 0.0, 'max': 0.0}, {'current': 1792.176, 'min': 0.0, 'max': 0.0}, {'current': 1789.628, 'min': 0.0, 'max': 0.0}, {'current': 1795.275, 'min': 0.0, 'max': 0.0}, {'current': 1795.817, 'min': 0.0, 'max': 0.0}, {'current': 1796.561, 'min': 0.0, 'max': 0.0}, {'current': 1795.006, 'min': 0.0, 'max': 0.0}, {'current': 1791.206, 'min': 0.0, 'max': 0.0}, {'current': 1797.334, 'min': 0.0, 'max': 0.0}, {'current': 1792.356, 'min': 0.0, 'max': 0.0}, {'current': 1795.722, 'min': 0.0, 'max': 0.0}, {'current': 1790.805, 'min': 0.0, 'max': 0.0}, {'current': 1795.884, 'min': 0.0, 'max': 0.0}, {'current': 1787.663, 'min': 0.0, 'max': 0.0}, {'current': 1795.394, 'min': 0.0, 'max': 0.0}, {'current': 1797.24, 'min': 0.0, 'max': 0.0}, {'current': 1798.245, 'min': 0.0, 'max': 0.0}, {'current': 1798.3, 'min': 0.0, 'max': 0.0}, {'current': 2594.729, 'min': 0.0, 'max': 0.0}, {'current': 2590.259, 'min': 0.0, 'max': 0.0}, {'current': 3242.833, 'min': 0.0, 'max': 0.0}, {'current': 2589.517, 'min': 0.0, 'max': 0.0}, {'current': 2590.195, 'min': 0.0, 'max': 0.0}, {'current': 2588.347, 'min': 0.0, 'max': 0.0}, {'current': 2589.229, 'min': 0.0, 'max': 0.0}, {'current': 2596.733, 'min': 0.0, 'max': 0.0}, {'current': 1797.513, 'min': 0.0, 'max': 0.0}, {'current': 1792.592, 'min': 0.0, 'max': 0.0}, {'current': 1791.581, 'min': 0.0, 'max': 0.0}, {'current': 1797.404, 'min': 0.0, 'max': 0.0}, {'current': 1789.489, 'min': 0.0, 'max': 0.0}, {'current': 1790.473, 'min': 0.0, 'max': 0.0}, {'current': 1796.279, 'min': 0.0, 'max': 0.0}, {'current': 1790.249, 'min': 0.0, 'max': 0.0}, {'current': 1798.7, 'min': 0.0, 'max': 0.0}, {'current': 1787.503, 'min': 0.0, 'max': 0.0}, {'current': 1796.583, 'min': 0.0, 'max': 0.0}, {'current': 1784.37, 'min': 0.0, 'max': 0.0}, {'current': 1794.982, 'min': 0.0, 'max': 0.0}, {'current': 1795.951, 'min': 0.0, 'max': 0.0}, {'current': 1795.345, 'min': 0.0, 'max': 0.0}, {'current': 1792.061, 'min': 0.0, 'max': 0.0}, {'current': 1794.427, 'min': 0.0, 'max': 0.0}, {'current': 1793.241, 'min': 0.0, 'max': 0.0}, {'current': 1791.117, 'min': 0.0, 'max': 0.0}, {'current': 1790.698, 'min': 0.0, 'max': 0.0}, {'current': 1795.372, 'min': 0.0, 'max': 0.0}, {'current': 1793.636, 'min': 0.0, 'max': 0.0}, {'current': 1792.901, 'min': 0.0, 'max': 0.0}, {'current': 1795.547, 'min': 0.0, 'max': 0.0}, {'current': 2584.094, 'min': 0.0, 'max': 0.0}, {'current': 2579.786, 'min': 0.0, 'max': 0.0}, {'current': 2593.251, 'min': 0.0, 'max': 0.0}, {'current': 3242.572, 'min': 0.0, 'max': 0.0}, {'current': 2590.002, 'min': 0.0, 'max': 0.0}, {'current': 2597.007, 'min': 0.0, 'max': 0.0}, {'current': 2586.083, 'min': 0.0, 'max': 0.0}, {'current': 2593.49, 'min': 0.0, 'max': 0.0}, {'current': 1795.611, 'min': 0.0, 'max': 0.0}, {'current': 1789.782, 'min': 0.0, 'max': 0.0}, {'current': 1790.453, 'min': 0.0, 'max': 0.0}, {'current': 1795.673, 'min': 0.0, 'max': 0.0}, {'current': 1789.69, 'min': 0.0, 'max': 0.0}, {'current': 1783.3, 'min': 0.0, 'max': 0.0}, {'current': 1795.789, 'min': 0.0, 'max': 0.0}, {'current': 1790.017, 'min': 0.0, 'max': 0.0}, {'current': 1789.89, 'min': 0.0, 'max': 0.0}, {'current': 1793.393, 'min': 0.0, 'max': 0.0}, {'current': 1791.953, 'min': 0.0, 'max': 0.0}, {'current': 1793.346, 'min': 0.0, 'max': 0.0}, {'current': 1788.543, 'min': 0.0, 'max': 0.0}, {'current': 1785.44, 'min': 0.0, 'max': 0.0}, {'current': 1788.426, 'min': 0.0, 'max': 0.0}, {'current': 1793.507, 'min': 0.0, 'max': 0.0}, {'current': 1794.869, 'min': 0.0, 'max': 0.0}, {'current': 1785.089, 'min': 0.0, 'max': 0.0}, {'current': 1791.551, 'min': 0.0, 'max': 0.0}, {'current': 1791.476, 'min': 0.0, 'max': 0.0}, {'current': 1786.317, 'min': 0.0, 'max': 0.0}, {'current': 1791.614, 'min': 0.0, 'max': 0.0}, {'current': 1798.563, 'min': 0.0, 'max': 0.0}, {'current': 1796.999, 'min': 0.0, 'max': 0.0}, {'current': 3242.355, 'min': 0.0, 'max': 0.0}, {'current': 2594.923, 'min': 0.0, 'max': 0.0}, {'current': 2595.864, 'min': 0.0, 'max': 0.0}, {'current': 2595.445, 'min': 0.0, 'max': 0.0}, {'current': 2593.468, 'min': 0.0, 'max': 0.0}, {'current': 2594.444, 'min': 0.0, 'max': 0.0}, {'current': 3242.889, 'min': 0.0, 'max': 0.0}, {'current': 2592.233, 'min': 0.0, 'max': 0.0}, {'current': 1787.785, 'min': 0.0, 'max': 0.0}, {'current': 1787.32, 'min': 0.0, 'max': 0.0}, {'current': 1790.797, 'min': 0.0, 'max': 0.0}, {'current': 1789.871, 'min': 0.0, 'max': 0.0}, {'current': 1789.748, 'min': 0.0, 'max': 0.0}, {'current': 1790.982, 'min': 0.0, 'max': 0.0}, {'current': 1794.972, 'min': 0.0, 'max': 0.0}, {'current': 1791.321, 'min': 0.0, 'max': 0.0}], 'disk': {'/': {'total': 405.5639190673828, 'used': 27.358295440673828}}, 'gpu': 'NVIDIA A100-SXM4-80GB', 'gpu_count': 1, 'memory': {'total': 1007.4195022583008}}
+2024-07-04 17:52:56,241 INFO    HandlerThread:2214470 [system_monitor.py:probe():224] Finished collecting system info
+2024-07-04 17:52:56,241 INFO    HandlerThread:2214470 [system_monitor.py:probe():227] Publishing system info
+2024-07-04 17:52:56,241 DEBUG   HandlerThread:2214470 [system_info.py:_save_conda():208] Saving list of conda packages installed into the current environment
+2024-07-04 17:52:57,113 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_created():271] file/dir created: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/conda-environment.yaml
+2024-07-04 17:52:58,224 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:52:58,224 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:52:58,225 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:52:58,225 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:53:00,063 DEBUG   HandlerThread:2214470 [system_info.py:_save_conda():222] Saving conda packages done
+2024-07-04 17:53:00,065 INFO    HandlerThread:2214470 [system_monitor.py:probe():229] Finished publishing system info
+2024-07-04 17:53:00,072 DEBUG   SenderThread:2214470 [sender.py:send():378] send: files
+2024-07-04 17:53:00,072 INFO    SenderThread:2214470 [sender.py:_save_file():1389] saving file wandb-metadata.json with policy now
+2024-07-04 17:53:00,115 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/conda-environment.yaml
+2024-07-04 17:53:00,115 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_created():271] file/dir created: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/wandb-metadata.json
+2024-07-04 17:53:00,233 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:53:00,233 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:53:00,233 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:53:00,234 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:53:00,255 DEBUG   HandlerThread:2214470 [handler.py:handle_request():158] handle_request: python_packages
+2024-07-04 17:53:00,255 DEBUG   SenderThread:2214470 [sender.py:send_request():405] send_request: python_packages
+2024-07-04 17:53:00,256 DEBUG   HandlerThread:2214470 [handler.py:handle_request():158] handle_request: stop_status
+2024-07-04 17:53:00,257 DEBUG   SenderThread:2214470 [sender.py:send_request():405] send_request: stop_status
+2024-07-04 17:53:00,613 DEBUG   SenderThread:2214470 [sender.py:send():378] send: telemetry
+2024-07-04 17:53:00,613 DEBUG   HandlerThread:2214470 [handler.py:handle_request():158] handle_request: status_report
+2024-07-04 17:53:00,613 DEBUG   SenderThread:2214470 [sender.py:send():378] send: telemetry
+2024-07-04 17:53:00,614 DEBUG   SenderThread:2214470 [sender.py:send():378] send: run
+2024-07-04 17:53:00,860 INFO    wandb-upload_0:2214470 [upload_job.py:push():130] Uploaded file /tmp/tmpkm1lsk0xwandb/2jx22ahe-wandb-metadata.json
+2024-07-04 17:53:00,868 INFO    SenderThread:2214470 [sender.py:send_run():996] updated run: j6adud0j
+2024-07-04 17:53:00,868 DEBUG   SenderThread:2214470 [sender.py:send():378] send: telemetry
+2024-07-04 17:53:01,116 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/config.yaml
+2024-07-04 17:53:01,116 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_created():271] file/dir created: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/output.log
+2024-07-04 17:53:01,116 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_created():271] file/dir created: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/requirements.txt
+2024-07-04 17:53:02,244 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:53:02,244 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:53:02,244 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:53:02,245 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:53:03,117 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/output.log
+2024-07-04 17:53:04,252 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:53:04,252 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:53:04,253 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:53:04,253 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:53:05,118 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/output.log
+2024-07-04 17:53:06,117 DEBUG   HandlerThread:2214470 [handler.py:handle_request():158] handle_request: status_report
+2024-07-04 17:53:06,262 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:53:06,262 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:53:06,262 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:53:06,263 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:53:08,270 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:53:08,271 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:53:08,271 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:53:08,271 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:53:10,277 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:53:10,278 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:53:10,278 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:53:10,279 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:53:11,118 DEBUG   HandlerThread:2214470 [handler.py:handle_request():158] handle_request: status_report
+2024-07-04 17:53:12,292 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:53:12,293 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:53:12,294 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:53:12,295 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:53:13,276 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/output.log
+2024-07-04 17:53:14,276 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/output.log
+2024-07-04 17:53:14,322 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:53:14,323 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:53:14,323 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:53:14,323 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:53:15,256 DEBUG   HandlerThread:2214470 [handler.py:handle_request():158] handle_request: stop_status
+2024-07-04 17:53:15,256 DEBUG   SenderThread:2214470 [sender.py:send_request():405] send_request: stop_status
+2024-07-04 17:53:15,276 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/output.log
+2024-07-04 17:53:15,565 DEBUG   HandlerThread:2214470 [handler.py:handle_request():158] handle_request: partial_history
+2024-07-04 17:53:15,566 DEBUG   SenderThread:2214470 [sender.py:send():378] send: history
+2024-07-04 17:53:15,567 DEBUG   SenderThread:2214470 [sender.py:send_request():405] send_request: summary_record
+2024-07-04 17:53:15,568 INFO    SenderThread:2214470 [sender.py:_save_file():1389] saving file wandb-summary.json with policy end
+2024-07-04 17:53:16,278 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/output.log
+2024-07-04 17:53:16,278 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_created():271] file/dir created: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/wandb-summary.json
+2024-07-04 17:53:16,329 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:53:16,329 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:53:16,330 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:53:16,330 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:53:16,569 DEBUG   HandlerThread:2214470 [handler.py:handle_request():158] handle_request: status_report
+2024-07-04 17:53:17,288 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/output.log
+2024-07-04 17:53:18,289 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/output.log
+2024-07-04 17:53:18,335 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:53:18,336 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:53:18,336 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:53:18,336 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:53:18,378 DEBUG   HandlerThread:2214470 [handler.py:handle_request():158] handle_request: partial_history
+2024-07-04 17:53:18,379 DEBUG   SenderThread:2214470 [sender.py:send():378] send: history
+2024-07-04 17:53:18,379 DEBUG   SenderThread:2214470 [sender.py:send_request():405] send_request: summary_record
+2024-07-04 17:53:18,381 INFO    SenderThread:2214470 [sender.py:_save_file():1389] saving file wandb-summary.json with policy end
+2024-07-04 17:53:19,290 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/wandb-summary.json
+2024-07-04 17:53:19,290 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/output.log
+2024-07-04 17:53:20,290 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/output.log
+2024-07-04 17:53:20,342 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:53:20,342 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:53:20,342 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:53:20,343 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:53:21,127 DEBUG   HandlerThread:2214470 [handler.py:handle_request():158] handle_request: partial_history
+2024-07-04 17:53:21,128 DEBUG   SenderThread:2214470 [sender.py:send():378] send: history
+2024-07-04 17:53:21,129 DEBUG   SenderThread:2214470 [sender.py:send_request():405] send_request: summary_record
+2024-07-04 17:53:21,130 INFO    SenderThread:2214470 [sender.py:_save_file():1389] saving file wandb-summary.json with policy end
+2024-07-04 17:53:21,291 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/wandb-summary.json
+2024-07-04 17:53:21,292 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/output.log
+2024-07-04 17:53:22,131 DEBUG   HandlerThread:2214470 [handler.py:handle_request():158] handle_request: status_report
+2024-07-04 17:53:22,292 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/output.log
+2024-07-04 17:53:22,349 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:53:22,349 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:53:22,350 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:53:22,350 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:53:23,292 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/output.log
+2024-07-04 17:53:24,067 DEBUG   HandlerThread:2214470 [handler.py:handle_request():158] handle_request: partial_history
+2024-07-04 17:53:24,068 DEBUG   SenderThread:2214470 [sender.py:send():378] send: history
+2024-07-04 17:53:24,069 DEBUG   SenderThread:2214470 [sender.py:send_request():405] send_request: summary_record
+2024-07-04 17:53:24,070 INFO    SenderThread:2214470 [sender.py:_save_file():1389] saving file wandb-summary.json with policy end
+2024-07-04 17:53:24,294 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/wandb-summary.json
+2024-07-04 17:53:24,295 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/output.log
+2024-07-04 17:53:24,356 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:53:24,356 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:53:24,356 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:53:24,356 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:53:25,295 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/output.log
+2024-07-04 17:53:26,295 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/output.log
+2024-07-04 17:53:26,363 ERROR   gpu       :2214470 [interfaces.py:aggregate():159] Failed to serialize metric: Insufficient Permissions
+2024-07-04 17:53:26,364 ERROR   gpu       :2214470 [interfaces.py:aggregate():159] Failed to serialize metric: Insufficient Permissions
+2024-07-04 17:53:26,365 ERROR   gpu       :2214470 [interfaces.py:aggregate():159] Failed to serialize metric: Insufficient Permissions
+2024-07-04 17:53:26,365 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:53:26,366 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:53:26,366 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:53:26,366 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:53:26,913 DEBUG   HandlerThread:2214470 [handler.py:handle_request():158] handle_request: partial_history
+2024-07-04 17:53:26,914 DEBUG   SenderThread:2214470 [sender.py:send():378] send: history
+2024-07-04 17:53:26,915 DEBUG   SenderThread:2214470 [sender.py:send_request():405] send_request: summary_record
+2024-07-04 17:53:26,917 INFO    SenderThread:2214470 [sender.py:_save_file():1389] saving file wandb-summary.json with policy end
+2024-07-04 17:53:27,297 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/wandb-summary.json
+2024-07-04 17:53:27,297 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/output.log
+2024-07-04 17:53:27,922 DEBUG   HandlerThread:2214470 [handler.py:handle_request():158] handle_request: status_report
+2024-07-04 17:53:28,299 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/config.yaml
+2024-07-04 17:53:28,300 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/output.log
+2024-07-04 17:53:28,372 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:53:28,373 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:53:28,373 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:53:28,373 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:53:29,300 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/output.log
+2024-07-04 17:53:29,685 DEBUG   HandlerThread:2214470 [handler.py:handle_request():158] handle_request: partial_history
+2024-07-04 17:53:29,686 DEBUG   SenderThread:2214470 [sender.py:send():378] send: history
+2024-07-04 17:53:29,687 DEBUG   SenderThread:2214470 [sender.py:send_request():405] send_request: summary_record
+2024-07-04 17:53:29,688 INFO    SenderThread:2214470 [sender.py:_save_file():1389] saving file wandb-summary.json with policy end
+2024-07-04 17:53:30,302 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/wandb-summary.json
+2024-07-04 17:53:30,303 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/output.log
+2024-07-04 17:53:30,381 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:53:30,381 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:53:30,381 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:53:30,381 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:53:30,866 DEBUG   HandlerThread:2214470 [handler.py:handle_request():158] handle_request: stop_status
+2024-07-04 17:53:30,866 DEBUG   SenderThread:2214470 [sender.py:send_request():405] send_request: stop_status
+2024-07-04 17:53:31,303 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/output.log
+2024-07-04 17:53:32,303 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/output.log
+2024-07-04 17:53:32,386 DEBUG   HandlerThread:2214470 [handler.py:handle_request():158] handle_request: partial_history
+2024-07-04 17:53:32,388 DEBUG   SenderThread:2214470 [sender.py:send():378] send: history
+2024-07-04 17:53:32,388 DEBUG   SenderThread:2214470 [sender.py:send_request():405] send_request: summary_record
+2024-07-04 17:53:32,388 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:53:32,389 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:53:32,389 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:53:32,389 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:53:32,390 INFO    SenderThread:2214470 [sender.py:_save_file():1389] saving file wandb-summary.json with policy end
+2024-07-04 17:53:33,305 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/wandb-summary.json
+2024-07-04 17:53:33,305 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/output.log
+2024-07-04 17:53:33,390 DEBUG   HandlerThread:2214470 [handler.py:handle_request():158] handle_request: status_report
+2024-07-04 17:53:34,305 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/output.log
+2024-07-04 17:53:34,395 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:53:34,395 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:53:34,395 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:53:34,396 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:53:35,118 DEBUG   HandlerThread:2214470 [handler.py:handle_request():158] handle_request: partial_history
+2024-07-04 17:53:35,119 DEBUG   SenderThread:2214470 [sender.py:send():378] send: history
+2024-07-04 17:53:35,119 DEBUG   SenderThread:2214470 [sender.py:send_request():405] send_request: summary_record
+2024-07-04 17:53:35,121 INFO    SenderThread:2214470 [sender.py:_save_file():1389] saving file wandb-summary.json with policy end
+2024-07-04 17:53:35,306 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/wandb-summary.json
+2024-07-04 17:53:35,307 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/output.log
+2024-07-04 17:53:36,307 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/output.log
+2024-07-04 17:53:36,404 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:53:36,404 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:53:36,404 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:53:36,405 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:53:37,307 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/output.log
+2024-07-04 17:53:37,915 DEBUG   HandlerThread:2214470 [handler.py:handle_request():158] handle_request: partial_history
+2024-07-04 17:53:37,916 DEBUG   SenderThread:2214470 [sender.py:send():378] send: history
+2024-07-04 17:53:37,916 DEBUG   SenderThread:2214470 [sender.py:send_request():405] send_request: summary_record
+2024-07-04 17:53:37,918 INFO    SenderThread:2214470 [sender.py:_save_file():1389] saving file wandb-summary.json with policy end
+2024-07-04 17:53:38,310 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/wandb-summary.json
+2024-07-04 17:53:38,311 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/output.log
+2024-07-04 17:53:38,412 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:53:38,412 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:53:38,412 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:53:38,412 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:53:38,919 DEBUG   HandlerThread:2214470 [handler.py:handle_request():158] handle_request: status_report
+2024-07-04 17:53:39,309 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/output.log
+2024-07-04 17:53:40,310 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/output.log
+2024-07-04 17:53:40,418 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:53:40,418 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:53:40,419 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:53:40,419 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:53:40,651 DEBUG   HandlerThread:2214470 [handler.py:handle_request():158] handle_request: partial_history
+2024-07-04 17:53:40,652 DEBUG   SenderThread:2214470 [sender.py:send():378] send: history
+2024-07-04 17:53:40,652 DEBUG   SenderThread:2214470 [sender.py:send_request():405] send_request: summary_record
+2024-07-04 17:53:40,654 INFO    SenderThread:2214470 [sender.py:_save_file():1389] saving file wandb-summary.json with policy end
+2024-07-04 17:53:41,311 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/wandb-summary.json
+2024-07-04 17:53:41,311 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/output.log
+2024-07-04 17:53:42,312 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/output.log
+2024-07-04 17:53:42,425 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:53:42,426 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:53:42,426 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:53:42,426 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:53:43,313 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/output.log
+2024-07-04 17:53:43,559 DEBUG   HandlerThread:2214470 [handler.py:handle_request():158] handle_request: partial_history
+2024-07-04 17:53:43,560 DEBUG   SenderThread:2214470 [sender.py:send():378] send: history
+2024-07-04 17:53:43,561 DEBUG   SenderThread:2214470 [sender.py:send_request():405] send_request: summary_record
+2024-07-04 17:53:43,562 INFO    SenderThread:2214470 [sender.py:_save_file():1389] saving file wandb-summary.json with policy end
+2024-07-04 17:53:44,318 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/wandb-summary.json
+2024-07-04 17:53:44,319 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/output.log
+2024-07-04 17:53:44,435 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:53:44,435 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:53:44,436 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:53:44,436 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:53:44,563 DEBUG   HandlerThread:2214470 [handler.py:handle_request():158] handle_request: status_report
+2024-07-04 17:53:45,319 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/output.log
+2024-07-04 17:53:45,452 DEBUG   HandlerThread:2214470 [handler.py:handle_request():158] handle_request: stop_status
+2024-07-04 17:53:45,453 DEBUG   SenderThread:2214470 [sender.py:send_request():405] send_request: stop_status
+2024-07-04 17:53:46,319 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/output.log
+2024-07-04 17:53:46,337 DEBUG   HandlerThread:2214470 [handler.py:handle_request():158] handle_request: partial_history
+2024-07-04 17:53:46,338 DEBUG   SenderThread:2214470 [sender.py:send():378] send: history
+2024-07-04 17:53:46,339 DEBUG   SenderThread:2214470 [sender.py:send_request():405] send_request: summary_record
+2024-07-04 17:53:46,340 INFO    SenderThread:2214470 [sender.py:_save_file():1389] saving file wandb-summary.json with policy end
+2024-07-04 17:53:46,441 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:53:46,441 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:53:46,442 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:53:46,442 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:53:47,321 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/wandb-summary.json
+2024-07-04 17:53:47,321 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/output.log
+2024-07-04 17:53:48,340 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/output.log
+2024-07-04 17:53:48,448 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:53:48,448 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:53:48,448 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:53:48,449 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:53:49,245 DEBUG   HandlerThread:2214470 [handler.py:handle_request():158] handle_request: partial_history
+2024-07-04 17:53:49,246 DEBUG   SenderThread:2214470 [sender.py:send():378] send: history
+2024-07-04 17:53:49,246 DEBUG   SenderThread:2214470 [sender.py:send_request():405] send_request: summary_record
+2024-07-04 17:53:49,248 INFO    SenderThread:2214470 [sender.py:_save_file():1389] saving file wandb-summary.json with policy end
+2024-07-04 17:53:49,342 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/wandb-summary.json
+2024-07-04 17:53:49,342 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/output.log
+2024-07-04 17:53:50,249 DEBUG   HandlerThread:2214470 [handler.py:handle_request():158] handle_request: status_report
+2024-07-04 17:53:50,460 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:53:50,460 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:53:50,461 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:53:50,461 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:53:51,343 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/output.log
+2024-07-04 17:53:51,849 DEBUG   HandlerThread:2214470 [handler.py:handle_request():158] handle_request: partial_history
+2024-07-04 17:53:51,850 DEBUG   SenderThread:2214470 [sender.py:send():378] send: history
+2024-07-04 17:53:51,851 DEBUG   SenderThread:2214470 [sender.py:send_request():405] send_request: summary_record
+2024-07-04 17:53:51,852 INFO    SenderThread:2214470 [sender.py:_save_file():1389] saving file wandb-summary.json with policy end
+2024-07-04 17:53:52,346 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/wandb-summary.json
+2024-07-04 17:53:52,468 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:53:52,469 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:53:52,469 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:53:52,469 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:53:53,344 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/output.log
+2024-07-04 17:53:54,482 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:53:54,482 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:53:54,482 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:53:54,483 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:53:54,572 DEBUG   HandlerThread:2214470 [handler.py:handle_request():158] handle_request: partial_history
+2024-07-04 17:53:54,573 DEBUG   SenderThread:2214470 [sender.py:send():378] send: history
+2024-07-04 17:53:54,573 DEBUG   SenderThread:2214470 [sender.py:send_request():405] send_request: summary_record
+2024-07-04 17:53:54,575 INFO    SenderThread:2214470 [sender.py:_save_file():1389] saving file wandb-summary.json with policy end
+2024-07-04 17:53:55,346 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/wandb-summary.json
+2024-07-04 17:53:55,346 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/output.log
+2024-07-04 17:53:55,576 DEBUG   HandlerThread:2214470 [handler.py:handle_request():158] handle_request: status_report
+2024-07-04 17:53:56,201 DEBUG   SystemMonitor:2214470 [system_monitor.py:_start():172] Starting system metrics aggregation loop
+2024-07-04 17:53:56,203 DEBUG   SenderThread:2214470 [sender.py:send():378] send: stats
+2024-07-04 17:53:56,491 ERROR   gpu       :2214470 [interfaces.py:aggregate():159] Failed to serialize metric: Insufficient Permissions
+2024-07-04 17:53:56,492 ERROR   gpu       :2214470 [interfaces.py:aggregate():159] Failed to serialize metric: Insufficient Permissions
+2024-07-04 17:53:56,493 ERROR   gpu       :2214470 [interfaces.py:aggregate():159] Failed to serialize metric: Insufficient Permissions
+2024-07-04 17:53:56,493 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:53:56,493 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:53:56,494 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:53:56,494 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:53:57,347 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/output.log
+2024-07-04 17:53:57,411 DEBUG   HandlerThread:2214470 [handler.py:handle_request():158] handle_request: partial_history
+2024-07-04 17:53:57,412 DEBUG   SenderThread:2214470 [sender.py:send():378] send: history
+2024-07-04 17:53:57,413 DEBUG   SenderThread:2214470 [sender.py:send_request():405] send_request: summary_record
+2024-07-04 17:53:57,414 INFO    SenderThread:2214470 [sender.py:_save_file():1389] saving file wandb-summary.json with policy end
+2024-07-04 17:53:58,348 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/wandb-summary.json
+2024-07-04 17:53:58,501 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:53:58,501 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:53:58,501 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:53:58,501 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:53:59,349 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/output.log
+2024-07-04 17:54:00,118 DEBUG   HandlerThread:2214470 [handler.py:handle_request():158] handle_request: partial_history
+2024-07-04 17:54:00,119 DEBUG   SenderThread:2214470 [sender.py:send():378] send: history
+2024-07-04 17:54:00,120 DEBUG   SenderThread:2214470 [sender.py:send_request():405] send_request: summary_record
+2024-07-04 17:54:00,122 INFO    SenderThread:2214470 [sender.py:_save_file():1389] saving file wandb-summary.json with policy end
+2024-07-04 17:54:00,350 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/wandb-summary.json
+2024-07-04 17:54:00,507 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:54:00,507 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:54:00,507 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:54:00,507 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:54:00,656 DEBUG   HandlerThread:2214470 [handler.py:handle_request():158] handle_request: status_report
+2024-07-04 17:54:00,656 DEBUG   HandlerThread:2214470 [handler.py:handle_request():158] handle_request: stop_status
+2024-07-04 17:54:00,657 DEBUG   SenderThread:2214470 [sender.py:send_request():405] send_request: stop_status
+2024-07-04 17:54:01,350 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/output.log
+2024-07-04 17:54:02,515 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:54:02,515 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:54:02,515 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:54:02,515 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:54:02,844 DEBUG   HandlerThread:2214470 [handler.py:handle_request():158] handle_request: partial_history
+2024-07-04 17:54:02,845 DEBUG   SenderThread:2214470 [sender.py:send():378] send: history
+2024-07-04 17:54:02,846 DEBUG   SenderThread:2214470 [sender.py:send_request():405] send_request: summary_record
+2024-07-04 17:54:02,848 INFO    SenderThread:2214470 [sender.py:_save_file():1389] saving file wandb-summary.json with policy end
+2024-07-04 17:54:03,352 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/wandb-summary.json
+2024-07-04 17:54:03,352 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/output.log
+2024-07-04 17:54:04,522 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:54:04,522 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:54:04,523 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:54:04,523 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:54:05,352 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/output.log
+2024-07-04 17:54:05,537 DEBUG   HandlerThread:2214470 [handler.py:handle_request():158] handle_request: partial_history
+2024-07-04 17:54:05,538 DEBUG   SenderThread:2214470 [sender.py:send():378] send: history
+2024-07-04 17:54:05,538 DEBUG   SenderThread:2214470 [sender.py:send_request():405] send_request: summary_record
+2024-07-04 17:54:05,540 INFO    SenderThread:2214470 [sender.py:_save_file():1389] saving file wandb-summary.json with policy end
+2024-07-04 17:54:06,354 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/wandb-summary.json
+2024-07-04 17:54:06,530 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:54:06,530 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:54:06,530 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:54:06,530 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:54:06,540 DEBUG   HandlerThread:2214470 [handler.py:handle_request():158] handle_request: status_report
+2024-07-04 17:54:07,354 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/output.log
+2024-07-04 17:54:08,219 DEBUG   HandlerThread:2214470 [handler.py:handle_request():158] handle_request: partial_history
+2024-07-04 17:54:08,220 DEBUG   SenderThread:2214470 [sender.py:send():378] send: history
+2024-07-04 17:54:08,221 DEBUG   SenderThread:2214470 [sender.py:send_request():405] send_request: summary_record
+2024-07-04 17:54:08,222 INFO    SenderThread:2214470 [sender.py:_save_file():1389] saving file wandb-summary.json with policy end
+2024-07-04 17:54:08,355 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/wandb-summary.json
+2024-07-04 17:54:08,536 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:54:08,536 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:54:08,537 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:54:08,537 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:54:09,356 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/output.log
+2024-07-04 17:54:10,543 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:54:10,543 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:54:10,543 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:54:10,545 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:54:10,962 DEBUG   HandlerThread:2214470 [handler.py:handle_request():158] handle_request: partial_history
+2024-07-04 17:54:10,963 DEBUG   SenderThread:2214470 [sender.py:send():378] send: history
+2024-07-04 17:54:10,963 DEBUG   SenderThread:2214470 [sender.py:send_request():405] send_request: summary_record
+2024-07-04 17:54:10,965 INFO    SenderThread:2214470 [sender.py:_save_file():1389] saving file wandb-summary.json with policy end
+2024-07-04 17:54:11,357 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/wandb-summary.json
+2024-07-04 17:54:11,358 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/output.log
+2024-07-04 17:54:11,965 DEBUG   HandlerThread:2214470 [handler.py:handle_request():158] handle_request: status_report
+2024-07-04 17:54:12,358 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/output.log
+2024-07-04 17:54:12,616 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:54:12,616 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:54:12,616 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:54:12,617 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:54:13,358 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/output.log
+2024-07-04 17:54:13,944 DEBUG   HandlerThread:2214470 [handler.py:handle_request():158] handle_request: partial_history
+2024-07-04 17:54:13,945 DEBUG   SenderThread:2214470 [sender.py:send():378] send: history
+2024-07-04 17:54:13,946 DEBUG   SenderThread:2214470 [sender.py:send_request():405] send_request: summary_record
+2024-07-04 17:54:13,949 INFO    SenderThread:2214470 [sender.py:_save_file():1389] saving file wandb-summary.json with policy end
+2024-07-04 17:54:14,361 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/wandb-summary.json
+2024-07-04 17:54:14,361 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/output.log
+2024-07-04 17:54:14,623 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:54:14,623 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:54:14,623 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:54:14,623 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:54:15,361 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/output.log
+2024-07-04 17:54:15,599 DEBUG   HandlerThread:2214470 [handler.py:handle_request():158] handle_request: stop_status
+2024-07-04 17:54:15,599 DEBUG   SenderThread:2214470 [sender.py:send_request():405] send_request: stop_status
+2024-07-04 17:54:16,362 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/output.log
+2024-07-04 17:54:16,631 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:54:16,631 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:54:16,632 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:54:16,632 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:54:16,746 DEBUG   HandlerThread:2214470 [handler.py:handle_request():158] handle_request: partial_history
+2024-07-04 17:54:16,747 DEBUG   SenderThread:2214470 [sender.py:send():378] send: history
+2024-07-04 17:54:16,748 DEBUG   SenderThread:2214470 [sender.py:send_request():405] send_request: summary_record
+2024-07-04 17:54:16,749 INFO    SenderThread:2214470 [sender.py:_save_file():1389] saving file wandb-summary.json with policy end
+2024-07-04 17:54:17,363 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/wandb-summary.json
+2024-07-04 17:54:17,363 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/output.log
+2024-07-04 17:54:17,750 DEBUG   HandlerThread:2214470 [handler.py:handle_request():158] handle_request: status_report
+2024-07-04 17:54:18,364 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/output.log
+2024-07-04 17:54:18,638 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:54:18,638 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:54:18,639 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:54:18,639 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:54:19,364 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/output.log
+2024-07-04 17:54:19,429 DEBUG   HandlerThread:2214470 [handler.py:handle_request():158] handle_request: partial_history
+2024-07-04 17:54:19,430 DEBUG   SenderThread:2214470 [sender.py:send():378] send: history
+2024-07-04 17:54:19,430 DEBUG   SenderThread:2214470 [sender.py:send_request():405] send_request: summary_record
+2024-07-04 17:54:19,432 INFO    SenderThread:2214470 [sender.py:_save_file():1389] saving file wandb-summary.json with policy end
+2024-07-04 17:54:20,365 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/wandb-summary.json
+2024-07-04 17:54:20,366 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/output.log
+2024-07-04 17:54:20,647 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:54:20,647 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:54:20,647 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:54:20,648 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:54:21,366 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/output.log
+2024-07-04 17:54:22,203 DEBUG   HandlerThread:2214470 [handler.py:handle_request():158] handle_request: partial_history
+2024-07-04 17:54:22,204 DEBUG   SenderThread:2214470 [sender.py:send():378] send: history
+2024-07-04 17:54:22,205 DEBUG   SenderThread:2214470 [sender.py:send_request():405] send_request: summary_record
+2024-07-04 17:54:22,206 INFO    SenderThread:2214470 [sender.py:_save_file():1389] saving file wandb-summary.json with policy end
+2024-07-04 17:54:22,367 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/wandb-summary.json
+2024-07-04 17:54:22,367 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/output.log
+2024-07-04 17:54:22,680 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:54:22,680 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:54:22,681 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:54:22,681 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:54:23,207 DEBUG   HandlerThread:2214470 [handler.py:handle_request():158] handle_request: status_report
+2024-07-04 17:54:23,367 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/output.log
+2024-07-04 17:54:24,368 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/output.log
+2024-07-04 17:54:24,687 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:54:24,687 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:54:24,687 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:54:24,687 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:54:24,836 DEBUG   HandlerThread:2214470 [handler.py:handle_request():158] handle_request: partial_history
+2024-07-04 17:54:24,839 DEBUG   SenderThread:2214470 [sender.py:send():378] send: history
+2024-07-04 17:54:24,839 DEBUG   SenderThread:2214470 [sender.py:send_request():405] send_request: summary_record
+2024-07-04 17:54:24,840 INFO    SenderThread:2214470 [sender.py:_save_file():1389] saving file wandb-summary.json with policy end
+2024-07-04 17:54:25,369 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/wandb-summary.json
+2024-07-04 17:54:25,369 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/output.log
+2024-07-04 17:54:26,204 DEBUG   SenderThread:2214470 [sender.py:send():378] send: stats
+2024-07-04 17:54:26,369 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/output.log
+2024-07-04 17:54:26,696 ERROR   gpu       :2214470 [interfaces.py:aggregate():159] Failed to serialize metric: Insufficient Permissions
+2024-07-04 17:54:26,698 ERROR   gpu       :2214470 [interfaces.py:aggregate():159] Failed to serialize metric: Insufficient Permissions
+2024-07-04 17:54:26,699 ERROR   gpu       :2214470 [interfaces.py:aggregate():159] Failed to serialize metric: Insufficient Permissions
+2024-07-04 17:54:26,699 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:54:26,699 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:54:26,699 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:54:26,700 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:54:27,370 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/output.log
+2024-07-04 17:54:27,608 DEBUG   HandlerThread:2214470 [handler.py:handle_request():158] handle_request: partial_history
+2024-07-04 17:54:27,609 DEBUG   SenderThread:2214470 [sender.py:send():378] send: history
+2024-07-04 17:54:27,609 DEBUG   SenderThread:2214470 [sender.py:send_request():405] send_request: summary_record
+2024-07-04 17:54:27,611 INFO    SenderThread:2214470 [sender.py:_save_file():1389] saving file wandb-summary.json with policy end
+2024-07-04 17:54:28,371 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/wandb-summary.json
+2024-07-04 17:54:28,371 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/output.log
+2024-07-04 17:54:28,611 DEBUG   HandlerThread:2214470 [handler.py:handle_request():158] handle_request: status_report
+2024-07-04 17:54:28,708 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:54:28,708 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:54:28,708 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:54:28,709 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:54:29,371 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/output.log
+2024-07-04 17:54:30,317 DEBUG   HandlerThread:2214470 [handler.py:handle_request():158] handle_request: partial_history
+2024-07-04 17:54:30,318 DEBUG   SenderThread:2214470 [sender.py:send():378] send: history
+2024-07-04 17:54:30,318 DEBUG   SenderThread:2214470 [sender.py:send_request():405] send_request: summary_record
+2024-07-04 17:54:30,320 INFO    SenderThread:2214470 [sender.py:_save_file():1389] saving file wandb-summary.json with policy end
+2024-07-04 17:54:30,372 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/wandb-summary.json
+2024-07-04 17:54:30,372 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/output.log
+2024-07-04 17:54:30,669 DEBUG   HandlerThread:2214470 [handler.py:handle_request():158] handle_request: stop_status
+2024-07-04 17:54:30,669 DEBUG   SenderThread:2214470 [sender.py:send_request():405] send_request: stop_status
+2024-07-04 17:54:30,714 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:54:30,714 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:54:30,715 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:54:30,715 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:54:31,373 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/output.log
+2024-07-04 17:54:32,373 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/output.log
+2024-07-04 17:54:32,721 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:54:32,722 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:54:32,722 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:54:32,722 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:54:33,000 DEBUG   HandlerThread:2214470 [handler.py:handle_request():158] handle_request: partial_history
+2024-07-04 17:54:33,001 DEBUG   SenderThread:2214470 [sender.py:send():378] send: history
+2024-07-04 17:54:33,002 DEBUG   SenderThread:2214470 [sender.py:send_request():405] send_request: summary_record
+2024-07-04 17:54:33,003 INFO    SenderThread:2214470 [sender.py:_save_file():1389] saving file wandb-summary.json with policy end
+2024-07-04 17:54:33,374 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/wandb-summary.json
+2024-07-04 17:54:33,375 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/output.log
+2024-07-04 17:54:34,004 DEBUG   HandlerThread:2214470 [handler.py:handle_request():158] handle_request: status_report
+2024-07-04 17:54:34,375 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/output.log
+2024-07-04 17:54:34,741 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:54:34,755 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:54:34,762 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:54:34,762 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:54:35,375 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/output.log
+2024-07-04 17:54:35,846 DEBUG   HandlerThread:2214470 [handler.py:handle_request():158] handle_request: partial_history
+2024-07-04 17:54:35,847 DEBUG   SenderThread:2214470 [sender.py:send():378] send: history
+2024-07-04 17:54:35,847 DEBUG   SenderThread:2214470 [sender.py:send_request():405] send_request: summary_record
+2024-07-04 17:54:35,849 INFO    SenderThread:2214470 [sender.py:_save_file():1389] saving file wandb-summary.json with policy end
+2024-07-04 17:54:36,378 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/wandb-summary.json
+2024-07-04 17:54:36,378 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/output.log
+2024-07-04 17:54:36,769 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:54:36,769 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 17:54:36,769 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:54:36,769 ERROR   gpu       :2214470 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 17:54:37,379 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/output.log
+2024-07-04 17:54:38,380 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/output.log
+2024-07-04 17:54:38,495 DEBUG   HandlerThread:2214470 [handler.py:handle_request():158] handle_request: partial_history
+2024-07-04 17:54:38,496 DEBUG   SenderThread:2214470 [sender.py:send():378] send: history
+2024-07-04 17:54:38,497 DEBUG   SenderThread:2214470 [sender.py:send_request():405] send_request: summary_record
+2024-07-04 17:54:38,498 INFO    SenderThread:2214470 [sender.py:_save_file():1389] saving file wandb-summary.json with policy end
+2024-07-04 17:54:38,514 DEBUG   SenderThread:2214470 [sender.py:send():378] send: exit
+2024-07-04 17:54:38,514 INFO    SenderThread:2214470 [sender.py:send_exit():585] handling exit code: 0
+2024-07-04 17:54:38,514 INFO    SenderThread:2214470 [sender.py:send_exit():587] handling runtime: 102
+2024-07-04 17:54:38,515 INFO    SenderThread:2214470 [sender.py:_save_file():1389] saving file wandb-summary.json with policy end
+2024-07-04 17:54:38,515 INFO    SenderThread:2214470 [sender.py:send_exit():593] send defer
+2024-07-04 17:54:38,516 DEBUG   HandlerThread:2214470 [handler.py:handle_request():158] handle_request: defer
+2024-07-04 17:54:38,516 INFO    HandlerThread:2214470 [handler.py:handle_request_defer():184] handle defer: 0
+2024-07-04 17:54:38,516 DEBUG   SenderThread:2214470 [sender.py:send_request():405] send_request: defer
+2024-07-04 17:54:38,516 INFO    SenderThread:2214470 [sender.py:send_request_defer():609] handle sender defer: 0
+2024-07-04 17:54:38,516 INFO    SenderThread:2214470 [sender.py:transition_state():613] send defer: 1
+2024-07-04 17:54:38,516 DEBUG   HandlerThread:2214470 [handler.py:handle_request():158] handle_request: defer
+2024-07-04 17:54:38,516 INFO    HandlerThread:2214470 [handler.py:handle_request_defer():184] handle defer: 1
+2024-07-04 17:54:38,516 DEBUG   SenderThread:2214470 [sender.py:send_request():405] send_request: defer
+2024-07-04 17:54:38,516 INFO    SenderThread:2214470 [sender.py:send_request_defer():609] handle sender defer: 1
+2024-07-04 17:54:38,516 INFO    SenderThread:2214470 [sender.py:transition_state():613] send defer: 2
+2024-07-04 17:54:38,516 DEBUG   HandlerThread:2214470 [handler.py:handle_request():158] handle_request: defer
+2024-07-04 17:54:38,517 INFO    HandlerThread:2214470 [handler.py:handle_request_defer():184] handle defer: 2
+2024-07-04 17:54:38,517 INFO    HandlerThread:2214470 [system_monitor.py:finish():203] Stopping system monitor
+2024-07-04 17:54:38,517 DEBUG   SystemMonitor:2214470 [system_monitor.py:_start():179] Finished system metrics aggregation loop
+2024-07-04 17:54:38,517 DEBUG   SystemMonitor:2214470 [system_monitor.py:_start():183] Publishing last batch of metrics
+2024-07-04 17:54:38,518 INFO    HandlerThread:2214470 [interfaces.py:finish():200] Joined cpu monitor
+2024-07-04 17:54:38,519 INFO    HandlerThread:2214470 [interfaces.py:finish():200] Joined disk monitor
+2024-07-04 17:54:38,520 ERROR   gpu       :2214470 [interfaces.py:aggregate():159] Failed to serialize metric: Insufficient Permissions
+2024-07-04 17:54:38,521 ERROR   gpu       :2214470 [interfaces.py:aggregate():159] Failed to serialize metric: Insufficient Permissions
+2024-07-04 17:54:38,522 ERROR   gpu       :2214470 [interfaces.py:aggregate():159] Failed to serialize metric: Insufficient Permissions
+2024-07-04 17:54:38,522 INFO    HandlerThread:2214470 [interfaces.py:finish():200] Joined gpu monitor
+2024-07-04 17:54:38,522 INFO    HandlerThread:2214470 [interfaces.py:finish():200] Joined memory monitor
+2024-07-04 17:54:38,522 INFO    HandlerThread:2214470 [interfaces.py:finish():200] Joined network monitor
+2024-07-04 17:54:38,523 DEBUG   SenderThread:2214470 [sender.py:send_request():405] send_request: defer
+2024-07-04 17:54:38,523 INFO    SenderThread:2214470 [sender.py:send_request_defer():609] handle sender defer: 2
+2024-07-04 17:54:38,523 INFO    SenderThread:2214470 [sender.py:transition_state():613] send defer: 3
+2024-07-04 17:54:38,523 DEBUG   SenderThread:2214470 [sender.py:send():378] send: stats
+2024-07-04 17:54:38,523 DEBUG   HandlerThread:2214470 [handler.py:handle_request():158] handle_request: defer
+2024-07-04 17:54:38,524 INFO    HandlerThread:2214470 [handler.py:handle_request_defer():184] handle defer: 3
+2024-07-04 17:54:38,524 DEBUG   SenderThread:2214470 [sender.py:send_request():405] send_request: defer
+2024-07-04 17:54:38,524 INFO    SenderThread:2214470 [sender.py:send_request_defer():609] handle sender defer: 3
+2024-07-04 17:54:38,524 INFO    SenderThread:2214470 [sender.py:transition_state():613] send defer: 4
+2024-07-04 17:54:38,524 DEBUG   HandlerThread:2214470 [handler.py:handle_request():158] handle_request: defer
+2024-07-04 17:54:38,524 INFO    HandlerThread:2214470 [handler.py:handle_request_defer():184] handle defer: 4
+2024-07-04 17:54:38,524 DEBUG   SenderThread:2214470 [sender.py:send_request():405] send_request: defer
+2024-07-04 17:54:38,524 INFO    SenderThread:2214470 [sender.py:send_request_defer():609] handle sender defer: 4
+2024-07-04 17:54:38,524 INFO    SenderThread:2214470 [sender.py:transition_state():613] send defer: 5
+2024-07-04 17:54:38,525 DEBUG   HandlerThread:2214470 [handler.py:handle_request():158] handle_request: defer
+2024-07-04 17:54:38,525 INFO    HandlerThread:2214470 [handler.py:handle_request_defer():184] handle defer: 5
+2024-07-04 17:54:38,525 DEBUG   SenderThread:2214470 [sender.py:send():378] send: summary
+2024-07-04 17:54:38,526 INFO    SenderThread:2214470 [sender.py:_save_file():1389] saving file wandb-summary.json with policy end
+2024-07-04 17:54:38,526 DEBUG   SenderThread:2214470 [sender.py:send_request():405] send_request: defer
+2024-07-04 17:54:38,526 INFO    SenderThread:2214470 [sender.py:send_request_defer():609] handle sender defer: 5
+2024-07-04 17:54:38,526 INFO    SenderThread:2214470 [sender.py:transition_state():613] send defer: 6
+2024-07-04 17:54:38,526 DEBUG   HandlerThread:2214470 [handler.py:handle_request():158] handle_request: defer
+2024-07-04 17:54:38,526 INFO    HandlerThread:2214470 [handler.py:handle_request_defer():184] handle defer: 6
+2024-07-04 17:54:38,527 DEBUG   SenderThread:2214470 [sender.py:send_request():405] send_request: defer
+2024-07-04 17:54:38,527 INFO    SenderThread:2214470 [sender.py:send_request_defer():609] handle sender defer: 6
+2024-07-04 17:54:38,527 INFO    SenderThread:2214470 [sender.py:transition_state():613] send defer: 7
+2024-07-04 17:54:38,527 DEBUG   HandlerThread:2214470 [handler.py:handle_request():158] handle_request: status_report
+2024-07-04 17:54:38,527 DEBUG   HandlerThread:2214470 [handler.py:handle_request():158] handle_request: defer
+2024-07-04 17:54:38,527 INFO    HandlerThread:2214470 [handler.py:handle_request_defer():184] handle defer: 7
+2024-07-04 17:54:38,527 DEBUG   SenderThread:2214470 [sender.py:send_request():405] send_request: defer
+2024-07-04 17:54:38,527 INFO    SenderThread:2214470 [sender.py:send_request_defer():609] handle sender defer: 7
+2024-07-04 17:54:39,381 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/wandb-summary.json
+2024-07-04 17:54:39,381 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/output.log
+2024-07-04 17:54:39,514 DEBUG   HandlerThread:2214470 [handler.py:handle_request():158] handle_request: poll_exit
+2024-07-04 17:54:40,187 INFO    SenderThread:2214470 [sender.py:transition_state():613] send defer: 8
+2024-07-04 17:54:40,187 DEBUG   SenderThread:2214470 [sender.py:send_request():405] send_request: poll_exit
+2024-07-04 17:54:40,187 DEBUG   HandlerThread:2214470 [handler.py:handle_request():158] handle_request: defer
+2024-07-04 17:54:40,187 INFO    HandlerThread:2214470 [handler.py:handle_request_defer():184] handle defer: 8
+2024-07-04 17:54:40,187 DEBUG   SenderThread:2214470 [sender.py:send_request():405] send_request: defer
+2024-07-04 17:54:40,188 INFO    SenderThread:2214470 [sender.py:send_request_defer():609] handle sender defer: 8
+2024-07-04 17:54:40,188 INFO    SenderThread:2214470 [job_builder.py:build():432] Attempting to build job artifact
+2024-07-04 17:54:40,188 INFO    SenderThread:2214470 [job_builder.py:_get_source_type():565] is repo sourced job
+2024-07-04 17:54:40,218 INFO    SenderThread:2214470 [job_builder.py:build():541] adding wandb-job metadata file
+2024-07-04 17:54:40,223 INFO    SenderThread:2214470 [sender.py:transition_state():613] send defer: 9
+2024-07-04 17:54:40,224 DEBUG   HandlerThread:2214470 [handler.py:handle_request():158] handle_request: defer
+2024-07-04 17:54:40,224 DEBUG   SenderThread:2214470 [sender.py:send():378] send: artifact
+2024-07-04 17:54:40,224 INFO    HandlerThread:2214470 [handler.py:handle_request_defer():184] handle defer: 9
+2024-07-04 17:54:40,381 INFO    Thread-12 :2214470 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/output.log
+2024-07-04 17:54:40,515 DEBUG   HandlerThread:2214470 [handler.py:handle_request():158] handle_request: poll_exit
+2024-07-04 17:54:43,621 INFO    SenderThread:2214470 [sender.py:send_artifact():1467] sent artifact job-https___github.com_0k9d0h1_piggyback-ContinualLM.git_finetune.py - {'id': 'QXJ0aWZhY3Q6OTQyNjU0Njcz', 'state': 'COMMITTED', 'artifactSequence': {'id': 'QXJ0aWZhY3RDb2xsZWN0aW9uOjI0MzAwNTU0NA==', 'latestArtifact': {'id': 'QXJ0aWZhY3Q6OTQyNjkwNjcw', 'versionIndex': 5}}}
+2024-07-04 17:54:43,621 DEBUG   SenderThread:2214470 [sender.py:send_request():405] send_request: defer
+2024-07-04 17:54:43,621 INFO    SenderThread:2214470 [sender.py:send_request_defer():609] handle sender defer: 9
+2024-07-04 17:54:43,621 INFO    SenderThread:2214470 [dir_watcher.py:finish():358] shutting down directory watcher
+2024-07-04 17:54:44,383 INFO    SenderThread:2214470 [dir_watcher.py:finish():388] scan: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files
+2024-07-04 17:54:44,383 INFO    SenderThread:2214470 [dir_watcher.py:finish():402] scan save: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/output.log output.log
+2024-07-04 17:54:44,383 INFO    SenderThread:2214470 [dir_watcher.py:finish():402] scan save: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/requirements.txt requirements.txt
+2024-07-04 17:54:44,386 INFO    SenderThread:2214470 [dir_watcher.py:finish():402] scan save: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/wandb-metadata.json wandb-metadata.json
+2024-07-04 17:54:44,386 INFO    SenderThread:2214470 [dir_watcher.py:finish():402] scan save: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/wandb-summary.json wandb-summary.json
+2024-07-04 17:54:44,389 INFO    SenderThread:2214470 [dir_watcher.py:finish():402] scan save: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/config.yaml config.yaml
+2024-07-04 17:54:44,392 INFO    SenderThread:2214470 [dir_watcher.py:finish():402] scan save: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/conda-environment.yaml conda-environment.yaml
+2024-07-04 17:54:44,395 INFO    SenderThread:2214470 [sender.py:transition_state():613] send defer: 10
+2024-07-04 17:54:44,395 DEBUG   SenderThread:2214470 [sender.py:send_request():405] send_request: poll_exit
+2024-07-04 17:54:44,395 DEBUG   HandlerThread:2214470 [handler.py:handle_request():158] handle_request: defer
+2024-07-04 17:54:44,398 INFO    HandlerThread:2214470 [handler.py:handle_request_defer():184] handle defer: 10
+2024-07-04 17:54:44,398 DEBUG   SenderThread:2214470 [sender.py:send_request():405] send_request: defer
+2024-07-04 17:54:44,398 INFO    SenderThread:2214470 [sender.py:send_request_defer():609] handle sender defer: 10
+2024-07-04 17:54:44,398 INFO    SenderThread:2214470 [file_pusher.py:finish():169] shutting down file pusher
+2024-07-04 17:54:44,516 DEBUG   HandlerThread:2214470 [handler.py:handle_request():158] handle_request: poll_exit
+2024-07-04 17:54:44,517 DEBUG   SenderThread:2214470 [sender.py:send_request():405] send_request: poll_exit
+2024-07-04 17:54:44,911 INFO    wandb-upload_1:2214470 [upload_job.py:push():130] Uploaded file /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/requirements.txt
+2024-07-04 17:54:44,977 INFO    wandb-upload_3:2214470 [upload_job.py:push():130] Uploaded file /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/conda-environment.yaml
+2024-07-04 17:54:44,988 INFO    wandb-upload_4:2214470 [upload_job.py:push():130] Uploaded file /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/config.yaml
+2024-07-04 17:54:45,003 INFO    wandb-upload_2:2214470 [upload_job.py:push():130] Uploaded file /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/wandb-summary.json
+2024-07-04 17:54:45,468 INFO    wandb-upload_0:2214470 [upload_job.py:push():130] Uploaded file /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/files/output.log
+2024-07-04 17:54:45,517 DEBUG   HandlerThread:2214470 [handler.py:handle_request():158] handle_request: poll_exit
+2024-07-04 17:54:45,517 DEBUG   SenderThread:2214470 [sender.py:send_request():405] send_request: poll_exit
+2024-07-04 17:54:45,518 DEBUG   HandlerThread:2214470 [handler.py:handle_request():158] handle_request: status_report
+2024-07-04 17:54:45,668 INFO    Thread-11 :2214470 [sender.py:transition_state():613] send defer: 11
+2024-07-04 17:54:45,668 DEBUG   HandlerThread:2214470 [handler.py:handle_request():158] handle_request: defer
+2024-07-04 17:54:45,668 INFO    HandlerThread:2214470 [handler.py:handle_request_defer():184] handle defer: 11
+2024-07-04 17:54:45,669 DEBUG   SenderThread:2214470 [sender.py:send_request():405] send_request: defer
+2024-07-04 17:54:45,669 INFO    SenderThread:2214470 [sender.py:send_request_defer():609] handle sender defer: 11
+2024-07-04 17:54:45,669 INFO    SenderThread:2214470 [file_pusher.py:join():175] waiting for file pusher
+2024-07-04 17:54:45,669 INFO    SenderThread:2214470 [sender.py:transition_state():613] send defer: 12
+2024-07-04 17:54:45,669 DEBUG   HandlerThread:2214470 [handler.py:handle_request():158] handle_request: defer
+2024-07-04 17:54:45,670 INFO    HandlerThread:2214470 [handler.py:handle_request_defer():184] handle defer: 12
+2024-07-04 17:54:45,670 DEBUG   SenderThread:2214470 [sender.py:send_request():405] send_request: defer
+2024-07-04 17:54:45,670 INFO    SenderThread:2214470 [sender.py:send_request_defer():609] handle sender defer: 12
+2024-07-04 17:54:45,670 INFO    SenderThread:2214470 [file_stream.py:finish():601] file stream finish called
+2024-07-04 17:54:45,926 INFO    SenderThread:2214470 [file_stream.py:finish():605] file stream finish is done
+2024-07-04 17:54:45,926 INFO    SenderThread:2214470 [sender.py:transition_state():613] send defer: 13
+2024-07-04 17:54:45,926 DEBUG   HandlerThread:2214470 [handler.py:handle_request():158] handle_request: defer
+2024-07-04 17:54:45,926 INFO    HandlerThread:2214470 [handler.py:handle_request_defer():184] handle defer: 13
+2024-07-04 17:54:45,926 DEBUG   SenderThread:2214470 [sender.py:send_request():405] send_request: defer
+2024-07-04 17:54:45,926 INFO    SenderThread:2214470 [sender.py:send_request_defer():609] handle sender defer: 13
+2024-07-04 17:54:45,926 INFO    SenderThread:2214470 [sender.py:transition_state():613] send defer: 14
+2024-07-04 17:54:45,927 DEBUG   HandlerThread:2214470 [handler.py:handle_request():158] handle_request: defer
+2024-07-04 17:54:45,927 DEBUG   SenderThread:2214470 [sender.py:send():378] send: final
+2024-07-04 17:54:45,927 INFO    HandlerThread:2214470 [handler.py:handle_request_defer():184] handle defer: 14
+2024-07-04 17:54:45,927 DEBUG   SenderThread:2214470 [sender.py:send():378] send: footer
+2024-07-04 17:54:45,927 DEBUG   SenderThread:2214470 [sender.py:send_request():405] send_request: defer
+2024-07-04 17:54:45,927 INFO    SenderThread:2214470 [sender.py:send_request_defer():609] handle sender defer: 14
+2024-07-04 17:54:45,928 DEBUG   HandlerThread:2214470 [handler.py:handle_request():158] handle_request: poll_exit
+2024-07-04 17:54:45,928 DEBUG   SenderThread:2214470 [sender.py:send_request():405] send_request: poll_exit
+2024-07-04 17:54:45,928 DEBUG   HandlerThread:2214470 [handler.py:handle_request():158] handle_request: poll_exit
+2024-07-04 17:54:45,928 DEBUG   HandlerThread:2214470 [handler.py:handle_request():158] handle_request: server_info
+2024-07-04 17:54:45,928 DEBUG   SenderThread:2214470 [sender.py:send_request():405] send_request: poll_exit
+2024-07-04 17:54:45,929 DEBUG   SenderThread:2214470 [sender.py:send_request():405] send_request: server_info
+2024-07-04 17:54:45,931 DEBUG   HandlerThread:2214470 [handler.py:handle_request():158] handle_request: get_summary
+2024-07-04 17:54:45,931 DEBUG   HandlerThread:2214470 [handler.py:handle_request():158] handle_request: sampled_history
+2024-07-04 17:54:45,932 DEBUG   HandlerThread:2214470 [handler.py:handle_request():158] handle_request: internal_messages
+2024-07-04 17:54:46,138 INFO    MainThread:2214470 [wandb_run.py:_footer_history_summary_info():3994] rendering history
+2024-07-04 17:54:46,139 INFO    MainThread:2214470 [wandb_run.py:_footer_history_summary_info():4026] rendering summary
+2024-07-04 17:54:46,139 INFO    MainThread:2214470 [wandb_run.py:_footer_sync_info():3953] logging synced files
+2024-07-04 17:54:46,139 DEBUG   HandlerThread:2214470 [handler.py:handle_request():158] handle_request: shutdown
+2024-07-04 17:54:46,139 INFO    HandlerThread:2214470 [handler.py:finish():882] shutting down handler
+2024-07-04 17:54:46,929 INFO    WriterThread:2214470 [datastore.py:close():296] close: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/run-20240704_175255-j6adud0j/run-j6adud0j.wandb
+2024-07-04 17:54:47,138 INFO    SenderThread:2214470 [sender.py:finish():1545] shutting down sender
+2024-07-04 17:54:47,138 INFO    SenderThread:2214470 [file_pusher.py:finish():169] shutting down file pusher
+2024-07-04 17:54:47,138 INFO    SenderThread:2214470 [file_pusher.py:join():175] waiting for file pusher

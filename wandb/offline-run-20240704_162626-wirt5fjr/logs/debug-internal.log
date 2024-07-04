@@ -1,0 +1,232 @@
+2024-07-04 16:26:26,610 INFO    StreamThr :1722720 [internal.py:wandb_internal():88] W&B internal server running at pid: 1722720, started at: 2024-07-04 16:26:26.609369
+2024-07-04 16:26:26,611 DEBUG   HandlerThread:1722720 [handler.py:handle_request():158] handle_request: status
+2024-07-04 16:26:26,614 INFO    WriterThread:1722720 [datastore.py:open_for_write():87] open: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/offline-run-20240704_162626-wirt5fjr/run-wirt5fjr.wandb
+2024-07-04 16:26:26,639 DEBUG   HandlerThread:1722720 [handler.py:handle_request():158] handle_request: run_start
+2024-07-04 16:26:26,666 DEBUG   HandlerThread:1722720 [system_info.py:__init__():26] System info init
+2024-07-04 16:26:26,666 DEBUG   HandlerThread:1722720 [system_info.py:__init__():41] System info init done
+2024-07-04 16:26:26,666 INFO    HandlerThread:1722720 [system_monitor.py:start():194] Starting system monitor
+2024-07-04 16:26:26,666 INFO    SystemMonitor:1722720 [system_monitor.py:_start():158] Starting system asset monitoring threads
+2024-07-04 16:26:26,666 INFO    HandlerThread:1722720 [system_monitor.py:probe():214] Collecting system info
+2024-07-04 16:26:26,667 INFO    SystemMonitor:1722720 [interfaces.py:start():188] Started cpu monitoring
+2024-07-04 16:26:26,667 INFO    SystemMonitor:1722720 [interfaces.py:start():188] Started disk monitoring
+2024-07-04 16:26:26,668 INFO    SystemMonitor:1722720 [interfaces.py:start():188] Started gpu monitoring
+2024-07-04 16:26:26,668 INFO    SystemMonitor:1722720 [interfaces.py:start():188] Started memory monitoring
+2024-07-04 16:26:26,668 INFO    SystemMonitor:1722720 [interfaces.py:start():188] Started network monitoring
+2024-07-04 16:26:26,675 ERROR   gpu       :1722720 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 16:26:26,675 ERROR   gpu       :1722720 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 16:26:26,677 ERROR   gpu       :1722720 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 16:26:26,677 ERROR   gpu       :1722720 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 16:26:26,690 DEBUG   HandlerThread:1722720 [system_info.py:probe():150] Probing system
+2024-07-04 16:26:26,694 DEBUG   HandlerThread:1722720 [system_info.py:_probe_git():135] Probing git
+2024-07-04 16:26:26,705 DEBUG   HandlerThread:1722720 [system_info.py:_probe_git():143] Probing git done
+2024-07-04 16:26:26,705 DEBUG   HandlerThread:1722720 [system_info.py:probe():198] Probing system done
+2024-07-04 16:26:26,705 DEBUG   HandlerThread:1722720 [system_monitor.py:probe():223] {'os': 'Linux-5.4.0-100-generic-x86_64-with-debian-buster-sid', 'python': '3.7.13', 'heartbeatAt': '2024-07-04T07:26:26.690118', 'startedAt': '2024-07-04T07:26:26.599661', 'docker': None, 'cuda': None, 'args': ('--max_seq_length', '164', '--pt_task', '0', '--ft_task', '0', '--idrandom', '0', '--ntasks', '6', '--max_samples', '640000', '--seed', '2021', '--baseline', 'lora_init', '--finetune_type', 'lora_piggyback'), 'state': 'running', 'program': 'finetune.py', 'codePathLocal': 'finetune.py', 'codePath': 'finetune.py', 'git': {'remote': 'https://github.com/0k9d0h1/piggyback-ContinualLM.git', 'commit': '40b3685d5e4bf9e4568773c2e3810eef98b678b3'}, 'email': None, 'root': '/home/0k9d0h1/piggyback/piggyback-ContinualLM', 'host': 'ece-agpu17', 'username': '0k9d0h1', 'executable': '/home/0k9d0h1/anaconda3/envs/DAS/bin/python', 'cpu_count': 128, 'cpu_count_logical': 128, 'cpu_freq': {'current': 2077.4513359375, 'min': 0.0, 'max': 0.0}, 'cpu_freq_per_core': [{'current': 1796.509, 'min': 0.0, 'max': 0.0}, {'current': 1790.064, 'min': 0.0, 'max': 0.0}, {'current': 2085.717, 'min': 0.0, 'max': 0.0}, {'current': 2086.898, 'min': 0.0, 'max': 0.0}, {'current': 2170.958, 'min': 0.0, 'max': 0.0}, {'current': 2142.973, 'min': 0.0, 'max': 0.0}, {'current': 2171.002, 'min': 0.0, 'max': 0.0}, {'current': 2168.97, 'min': 0.0, 'max': 0.0}, {'current': 1798.763, 'min': 0.0, 'max': 0.0}, {'current': 1793.261, 'min': 0.0, 'max': 0.0}, {'current': 1788.705, 'min': 0.0, 'max': 0.0}, {'current': 1795.612, 'min': 0.0, 'max': 0.0}, {'current': 1795.182, 'min': 0.0, 'max': 0.0}, {'current': 1795.605, 'min': 0.0, 'max': 0.0}, {'current': 1796.489, 'min': 0.0, 'max': 0.0}, {'current': 1792.078, 'min': 0.0, 'max': 0.0}, {'current': 3242.733, 'min': 0.0, 'max': 0.0}, {'current': 2594.859, 'min': 0.0, 'max': 0.0}, {'current': 2596.109, 'min': 0.0, 'max': 0.0}, {'current': 2592.972, 'min': 0.0, 'max': 0.0}, {'current': 2603.23, 'min': 0.0, 'max': 0.0}, {'current': 2596.146, 'min': 0.0, 'max': 0.0}, {'current': 2594.476, 'min': 0.0, 'max': 0.0}, {'current': 2594.292, 'min': 0.0, 'max': 0.0}, {'current': 2106.575, 'min': 0.0, 'max': 0.0}, {'current': 1931.484, 'min': 0.0, 'max': 0.0}, {'current': 1843.867, 'min': 0.0, 'max': 0.0}, {'current': 2172.363, 'min': 0.0, 'max': 0.0}, {'current': 1788.822, 'min': 0.0, 'max': 0.0}, {'current': 2076.533, 'min': 0.0, 'max': 0.0}, {'current': 2117.236, 'min': 0.0, 'max': 0.0}, {'current': 2173.197, 'min': 0.0, 'max': 0.0}, {'current': 1793.131, 'min': 0.0, 'max': 0.0}, {'current': 1795.692, 'min': 0.0, 'max': 0.0}, {'current': 1795.623, 'min': 0.0, 'max': 0.0}, {'current': 1790.82, 'min': 0.0, 'max': 0.0}, {'current': 1795.731, 'min': 0.0, 'max': 0.0}, {'current': 1793.497, 'min': 0.0, 'max': 0.0}, {'current': 1793.66, 'min': 0.0, 'max': 0.0}, {'current': 1792.703, 'min': 0.0, 'max': 0.0}, {'current': 1792.613, 'min': 0.0, 'max': 0.0}, {'current': 1791.588, 'min': 0.0, 'max': 0.0}, {'current': 1797.788, 'min': 0.0, 'max': 0.0}, {'current': 1800.049, 'min': 0.0, 'max': 0.0}, {'current': 1798.813, 'min': 0.0, 'max': 0.0}, {'current': 1793.305, 'min': 0.0, 'max': 0.0}, {'current': 1789.928, 'min': 0.0, 'max': 0.0}, {'current': 1795.075, 'min': 0.0, 'max': 0.0}, {'current': 2605.15, 'min': 0.0, 'max': 0.0}, {'current': 2593.473, 'min': 0.0, 'max': 0.0}, {'current': 3243.134, 'min': 0.0, 'max': 0.0}, {'current': 2598.141, 'min': 0.0, 'max': 0.0}, {'current': 2584.055, 'min': 0.0, 'max': 0.0}, {'current': 2594.276, 'min': 0.0, 'max': 0.0}, {'current': 2592.828, 'min': 0.0, 'max': 0.0}, {'current': 2584.868, 'min': 0.0, 'max': 0.0}, {'current': 2094.103, 'min': 0.0, 'max': 0.0}, {'current': 2128.624, 'min': 0.0, 'max': 0.0}, {'current': 2059.572, 'min': 0.0, 'max': 0.0}, {'current': 2083.675, 'min': 0.0, 'max': 0.0}, {'current': 2068.348, 'min': 0.0, 'max': 0.0}, {'current': 2066.143, 'min': 0.0, 'max': 0.0}, {'current': 2077.695, 'min': 0.0, 'max': 0.0}, {'current': 1812.167, 'min': 0.0, 'max': 0.0}, {'current': 2150.801, 'min': 0.0, 'max': 0.0}, {'current': 2179.535, 'min': 0.0, 'max': 0.0}, {'current': 2189.548, 'min': 0.0, 'max': 0.0}, {'current': 2175.993, 'min': 0.0, 'max': 0.0}, {'current': 2218.68, 'min': 0.0, 'max': 0.0}, {'current': 1861.144, 'min': 0.0, 'max': 0.0}, {'current': 2203.634, 'min': 0.0, 'max': 0.0}, {'current': 2197.873, 'min': 0.0, 'max': 0.0}, {'current': 1797.11, 'min': 0.0, 'max': 0.0}, {'current': 1792.075, 'min': 0.0, 'max': 0.0}, {'current': 1791.266, 'min': 0.0, 'max': 0.0}, {'current': 1787.377, 'min': 0.0, 'max': 0.0}, {'current': 1796.916, 'min': 0.0, 'max': 0.0}, {'current': 1796.6, 'min': 0.0, 'max': 0.0}, {'current': 1788.118, 'min': 0.0, 'max': 0.0}, {'current': 1792.66, 'min': 0.0, 'max': 0.0}, {'current': 3243.043, 'min': 0.0, 'max': 0.0}, {'current': 2593.526, 'min': 0.0, 'max': 0.0}, {'current': 2588.142, 'min': 0.0, 'max': 0.0}, {'current': 2589.328, 'min': 0.0, 'max': 0.0}, {'current': 2589.059, 'min': 0.0, 'max': 0.0}, {'current': 2601.011, 'min': 0.0, 'max': 0.0}, {'current': 2584.622, 'min': 0.0, 'max': 0.0}, {'current': 2593.362, 'min': 0.0, 'max': 0.0}, {'current': 1797.955, 'min': 0.0, 'max': 0.0}, {'current': 1794.847, 'min': 0.0, 'max': 0.0}, {'current': 1785.082, 'min': 0.0, 'max': 0.0}, {'current': 1791.096, 'min': 0.0, 'max': 0.0}, {'current': 1791.782, 'min': 0.0, 'max': 0.0}, {'current': 1793.793, 'min': 0.0, 'max': 0.0}, {'current': 1791.452, 'min': 0.0, 'max': 0.0}, {'current': 1790.709, 'min': 0.0, 'max': 0.0}, {'current': 1794.932, 'min': 0.0, 'max': 0.0}, {'current': 1789.963, 'min': 0.0, 'max': 0.0}, {'current': 1791.556, 'min': 0.0, 'max': 0.0}, {'current': 1794.153, 'min': 0.0, 'max': 0.0}, {'current': 1791.558, 'min': 0.0, 'max': 0.0}, {'current': 1793.288, 'min': 0.0, 'max': 0.0}, {'current': 1791.02, 'min': 0.0, 'max': 0.0}, {'current': 1795.396, 'min': 0.0, 'max': 0.0}, {'current': 1790.052, 'min': 0.0, 'max': 0.0}, {'current': 1792.141, 'min': 0.0, 'max': 0.0}, {'current': 1790.869, 'min': 0.0, 'max': 0.0}, {'current': 1792.191, 'min': 0.0, 'max': 0.0}, {'current': 1794.381, 'min': 0.0, 'max': 0.0}, {'current': 1789.175, 'min': 0.0, 'max': 0.0}, {'current': 1789.794, 'min': 0.0, 'max': 0.0}, {'current': 1793.457, 'min': 0.0, 'max': 0.0}, {'current': 2595.759, 'min': 0.0, 'max': 0.0}, {'current': 2594.232, 'min': 0.0, 'max': 0.0}, {'current': 3242.873, 'min': 0.0, 'max': 0.0}, {'current': 2594.727, 'min': 0.0, 'max': 0.0}, {'current': 2593.08, 'min': 0.0, 'max': 0.0}, {'current': 3196.22, 'min': 0.0, 'max': 0.0}, {'current': 2597.269, 'min': 0.0, 'max': 0.0}, {'current': 2594.846, 'min': 0.0, 'max': 0.0}, {'current': 1791.438, 'min': 0.0, 'max': 0.0}, {'current': 1790.218, 'min': 0.0, 'max': 0.0}, {'current': 1786.037, 'min': 0.0, 'max': 0.0}, {'current': 1789.681, 'min': 0.0, 'max': 0.0}, {'current': 1796.375, 'min': 0.0, 'max': 0.0}, {'current': 1796.095, 'min': 0.0, 'max': 0.0}, {'current': 1790.994, 'min': 0.0, 'max': 0.0}, {'current': 1794.412, 'min': 0.0, 'max': 0.0}], 'disk': {'/': {'total': 405.5639190673828, 'used': 27.324230194091797}}, 'gpu': 'NVIDIA A100-SXM4-80GB', 'gpu_count': 1, 'memory': {'total': 1007.4195022583008}}
+2024-07-04 16:26:26,705 INFO    HandlerThread:1722720 [system_monitor.py:probe():224] Finished collecting system info
+2024-07-04 16:26:26,705 INFO    HandlerThread:1722720 [system_monitor.py:probe():227] Publishing system info
+2024-07-04 16:26:26,705 DEBUG   HandlerThread:1722720 [system_info.py:_save_conda():208] Saving list of conda packages installed into the current environment
+2024-07-04 16:26:28,689 ERROR   gpu       :1722720 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 16:26:28,689 ERROR   gpu       :1722720 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 16:26:28,690 ERROR   gpu       :1722720 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 16:26:28,690 ERROR   gpu       :1722720 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 16:26:30,698 ERROR   gpu       :1722720 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 16:26:30,698 ERROR   gpu       :1722720 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 16:26:30,698 ERROR   gpu       :1722720 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 16:26:30,699 ERROR   gpu       :1722720 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 16:26:30,878 DEBUG   HandlerThread:1722720 [system_info.py:_save_conda():222] Saving conda packages done
+2024-07-04 16:26:30,880 INFO    HandlerThread:1722720 [system_monitor.py:probe():229] Finished publishing system info
+2024-07-04 16:26:31,067 DEBUG   HandlerThread:1722720 [handler.py:handle_request():158] handle_request: python_packages
+2024-07-04 16:26:31,615 DEBUG   HandlerThread:1722720 [handler.py:handle_request():158] handle_request: status_report
+2024-07-04 16:26:31,615 DEBUG   SenderThread:1722720 [sender.py:send_request():405] send_request: status_report
+2024-07-04 16:26:32,707 ERROR   gpu       :1722720 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 16:26:32,707 ERROR   gpu       :1722720 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 16:26:32,707 ERROR   gpu       :1722720 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 16:26:32,708 ERROR   gpu       :1722720 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 16:26:34,718 ERROR   gpu       :1722720 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 16:26:34,718 ERROR   gpu       :1722720 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 16:26:34,718 ERROR   gpu       :1722720 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 16:26:34,719 ERROR   gpu       :1722720 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 16:26:36,616 DEBUG   HandlerThread:1722720 [handler.py:handle_request():158] handle_request: status_report
+2024-07-04 16:26:36,617 DEBUG   SenderThread:1722720 [sender.py:send_request():405] send_request: status_report
+2024-07-04 16:26:36,728 ERROR   gpu       :1722720 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 16:26:36,728 ERROR   gpu       :1722720 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 16:26:36,728 ERROR   gpu       :1722720 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 16:26:36,729 ERROR   gpu       :1722720 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 16:26:38,736 ERROR   gpu       :1722720 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 16:26:38,736 ERROR   gpu       :1722720 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 16:26:38,737 ERROR   gpu       :1722720 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 16:26:38,737 ERROR   gpu       :1722720 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 16:26:40,743 ERROR   gpu       :1722720 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 16:26:40,743 ERROR   gpu       :1722720 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 16:26:40,743 ERROR   gpu       :1722720 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 16:26:40,744 ERROR   gpu       :1722720 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 16:26:41,617 DEBUG   HandlerThread:1722720 [handler.py:handle_request():158] handle_request: status_report
+2024-07-04 16:26:41,618 DEBUG   SenderThread:1722720 [sender.py:send_request():405] send_request: status_report
+2024-07-04 16:26:42,819 ERROR   gpu       :1722720 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 16:26:42,819 ERROR   gpu       :1722720 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 16:26:42,819 ERROR   gpu       :1722720 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 16:26:42,820 ERROR   gpu       :1722720 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 16:26:44,826 ERROR   gpu       :1722720 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 16:26:44,827 ERROR   gpu       :1722720 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 16:26:44,827 ERROR   gpu       :1722720 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 16:26:44,827 ERROR   gpu       :1722720 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 16:26:46,618 DEBUG   HandlerThread:1722720 [handler.py:handle_request():158] handle_request: status_report
+2024-07-04 16:26:46,619 DEBUG   SenderThread:1722720 [sender.py:send_request():405] send_request: status_report
+2024-07-04 16:26:46,833 ERROR   gpu       :1722720 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 16:26:46,833 ERROR   gpu       :1722720 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 16:26:46,834 ERROR   gpu       :1722720 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 16:26:46,834 ERROR   gpu       :1722720 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 16:26:48,842 ERROR   gpu       :1722720 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 16:26:48,842 ERROR   gpu       :1722720 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 16:26:48,842 ERROR   gpu       :1722720 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 16:26:48,842 ERROR   gpu       :1722720 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 16:26:50,851 ERROR   gpu       :1722720 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 16:26:50,851 ERROR   gpu       :1722720 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 16:26:50,852 ERROR   gpu       :1722720 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 16:26:50,852 ERROR   gpu       :1722720 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 16:26:51,619 DEBUG   HandlerThread:1722720 [handler.py:handle_request():158] handle_request: status_report
+2024-07-04 16:26:51,620 DEBUG   SenderThread:1722720 [sender.py:send_request():405] send_request: status_report
+2024-07-04 16:26:52,858 ERROR   gpu       :1722720 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 16:26:52,859 ERROR   gpu       :1722720 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 16:26:52,859 ERROR   gpu       :1722720 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 16:26:52,859 ERROR   gpu       :1722720 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 16:26:54,899 ERROR   gpu       :1722720 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 16:26:54,903 ERROR   gpu       :1722720 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 16:26:54,904 ERROR   gpu       :1722720 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 16:26:54,904 ERROR   gpu       :1722720 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 16:26:56,620 DEBUG   HandlerThread:1722720 [handler.py:handle_request():158] handle_request: status_report
+2024-07-04 16:26:56,621 DEBUG   SenderThread:1722720 [sender.py:send_request():405] send_request: status_report
+2024-07-04 16:26:56,912 ERROR   gpu       :1722720 [interfaces.py:aggregate():159] Failed to serialize metric: Insufficient Permissions
+2024-07-04 16:26:56,913 ERROR   gpu       :1722720 [interfaces.py:aggregate():159] Failed to serialize metric: Insufficient Permissions
+2024-07-04 16:26:56,914 ERROR   gpu       :1722720 [interfaces.py:aggregate():159] Failed to serialize metric: Insufficient Permissions
+2024-07-04 16:26:56,914 ERROR   gpu       :1722720 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 16:26:56,914 ERROR   gpu       :1722720 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 16:26:56,915 ERROR   gpu       :1722720 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 16:26:56,915 ERROR   gpu       :1722720 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 16:26:57,999 DEBUG   HandlerThread:1722720 [handler.py:handle_request():158] handle_request: partial_history
+2024-07-04 16:26:58,925 ERROR   gpu       :1722720 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 16:26:58,925 ERROR   gpu       :1722720 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 16:26:58,925 ERROR   gpu       :1722720 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 16:26:58,925 ERROR   gpu       :1722720 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 16:27:00,931 ERROR   gpu       :1722720 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 16:27:00,931 ERROR   gpu       :1722720 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 16:27:00,931 ERROR   gpu       :1722720 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 16:27:00,932 ERROR   gpu       :1722720 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 16:27:01,621 DEBUG   HandlerThread:1722720 [handler.py:handle_request():158] handle_request: status_report
+2024-07-04 16:27:01,622 DEBUG   SenderThread:1722720 [sender.py:send_request():405] send_request: status_report
+2024-07-04 16:27:02,938 ERROR   gpu       :1722720 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 16:27:02,938 ERROR   gpu       :1722720 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 16:27:02,938 ERROR   gpu       :1722720 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 16:27:02,939 ERROR   gpu       :1722720 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 16:27:04,947 ERROR   gpu       :1722720 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 16:27:04,947 ERROR   gpu       :1722720 [interfaces.py:monitor():142] Failed to sample metric: Insufficient Permissions
+2024-07-04 16:27:04,947 ERROR   gpu       :1722720 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 16:27:04,955 ERROR   gpu       :1722720 [interfaces.py:monitor():142] Failed to sample metric: Not Supported
+2024-07-04 16:27:06,285 DEBUG   SenderThread:1722720 [sender.py:send():378] send: exit
+2024-07-04 16:27:06,285 INFO    SenderThread:1722720 [sender.py:send_exit():585] handling exit code: 255
+2024-07-04 16:27:06,285 INFO    SenderThread:1722720 [sender.py:send_exit():587] handling runtime: 39
+2024-07-04 16:27:06,287 INFO    SenderThread:1722720 [sender.py:_save_file():1389] saving file wandb-summary.json with policy end
+2024-07-04 16:27:06,287 INFO    SenderThread:1722720 [sender.py:send_exit():593] send defer
+2024-07-04 16:27:06,287 DEBUG   HandlerThread:1722720 [handler.py:handle_request():158] handle_request: defer
+2024-07-04 16:27:06,287 INFO    HandlerThread:1722720 [handler.py:handle_request_defer():184] handle defer: 0
+2024-07-04 16:27:06,287 DEBUG   SenderThread:1722720 [sender.py:send_request():405] send_request: defer
+2024-07-04 16:27:06,287 INFO    SenderThread:1722720 [sender.py:send_request_defer():609] handle sender defer: 0
+2024-07-04 16:27:06,287 INFO    SenderThread:1722720 [sender.py:transition_state():613] send defer: 1
+2024-07-04 16:27:06,287 DEBUG   HandlerThread:1722720 [handler.py:handle_request():158] handle_request: defer
+2024-07-04 16:27:06,287 INFO    HandlerThread:1722720 [handler.py:handle_request_defer():184] handle defer: 1
+2024-07-04 16:27:06,288 DEBUG   SenderThread:1722720 [sender.py:send_request():405] send_request: defer
+2024-07-04 16:27:06,288 INFO    SenderThread:1722720 [sender.py:send_request_defer():609] handle sender defer: 1
+2024-07-04 16:27:06,288 INFO    SenderThread:1722720 [sender.py:transition_state():613] send defer: 2
+2024-07-04 16:27:06,288 DEBUG   HandlerThread:1722720 [handler.py:handle_request():158] handle_request: defer
+2024-07-04 16:27:06,288 INFO    HandlerThread:1722720 [handler.py:handle_request_defer():184] handle defer: 2
+2024-07-04 16:27:06,288 INFO    HandlerThread:1722720 [system_monitor.py:finish():203] Stopping system monitor
+2024-07-04 16:27:06,288 DEBUG   SystemMonitor:1722720 [system_monitor.py:_start():172] Starting system metrics aggregation loop
+2024-07-04 16:27:06,289 INFO    HandlerThread:1722720 [interfaces.py:finish():200] Joined cpu monitor
+2024-07-04 16:27:06,289 DEBUG   SystemMonitor:1722720 [system_monitor.py:_start():179] Finished system metrics aggregation loop
+2024-07-04 16:27:06,289 INFO    HandlerThread:1722720 [interfaces.py:finish():200] Joined disk monitor
+2024-07-04 16:27:06,289 DEBUG   SystemMonitor:1722720 [system_monitor.py:_start():183] Publishing last batch of metrics
+2024-07-04 16:27:06,292 ERROR   gpu       :1722720 [interfaces.py:aggregate():159] Failed to serialize metric: Insufficient Permissions
+2024-07-04 16:27:06,292 ERROR   gpu       :1722720 [interfaces.py:aggregate():159] Failed to serialize metric: Insufficient Permissions
+2024-07-04 16:27:06,293 ERROR   gpu       :1722720 [interfaces.py:aggregate():159] Failed to serialize metric: Insufficient Permissions
+2024-07-04 16:27:06,293 INFO    HandlerThread:1722720 [interfaces.py:finish():200] Joined gpu monitor
+2024-07-04 16:27:06,293 INFO    HandlerThread:1722720 [interfaces.py:finish():200] Joined memory monitor
+2024-07-04 16:27:06,294 INFO    HandlerThread:1722720 [interfaces.py:finish():200] Joined network monitor
+2024-07-04 16:27:06,294 DEBUG   SenderThread:1722720 [sender.py:send_request():405] send_request: defer
+2024-07-04 16:27:06,294 INFO    SenderThread:1722720 [sender.py:send_request_defer():609] handle sender defer: 2
+2024-07-04 16:27:06,294 INFO    SenderThread:1722720 [sender.py:transition_state():613] send defer: 3
+2024-07-04 16:27:06,294 DEBUG   HandlerThread:1722720 [handler.py:handle_request():158] handle_request: defer
+2024-07-04 16:27:06,294 INFO    HandlerThread:1722720 [handler.py:handle_request_defer():184] handle defer: 3
+2024-07-04 16:27:06,294 DEBUG   SenderThread:1722720 [sender.py:send_request():405] send_request: defer
+2024-07-04 16:27:06,294 INFO    SenderThread:1722720 [sender.py:send_request_defer():609] handle sender defer: 3
+2024-07-04 16:27:06,295 INFO    SenderThread:1722720 [sender.py:transition_state():613] send defer: 4
+2024-07-04 16:27:06,295 DEBUG   HandlerThread:1722720 [handler.py:handle_request():158] handle_request: defer
+2024-07-04 16:27:06,295 INFO    HandlerThread:1722720 [handler.py:handle_request_defer():184] handle defer: 4
+2024-07-04 16:27:06,295 DEBUG   SenderThread:1722720 [sender.py:send_request():405] send_request: defer
+2024-07-04 16:27:06,295 INFO    SenderThread:1722720 [sender.py:send_request_defer():609] handle sender defer: 4
+2024-07-04 16:27:06,295 INFO    SenderThread:1722720 [sender.py:transition_state():613] send defer: 5
+2024-07-04 16:27:06,295 DEBUG   HandlerThread:1722720 [handler.py:handle_request():158] handle_request: defer
+2024-07-04 16:27:06,295 INFO    HandlerThread:1722720 [handler.py:handle_request_defer():184] handle defer: 5
+2024-07-04 16:27:06,295 DEBUG   SenderThread:1722720 [sender.py:send_request():405] send_request: defer
+2024-07-04 16:27:06,295 INFO    SenderThread:1722720 [sender.py:send_request_defer():609] handle sender defer: 5
+2024-07-04 16:27:06,295 INFO    SenderThread:1722720 [sender.py:transition_state():613] send defer: 6
+2024-07-04 16:27:06,295 DEBUG   HandlerThread:1722720 [handler.py:handle_request():158] handle_request: defer
+2024-07-04 16:27:06,296 INFO    HandlerThread:1722720 [handler.py:handle_request_defer():184] handle defer: 6
+2024-07-04 16:27:06,296 DEBUG   SenderThread:1722720 [sender.py:send_request():405] send_request: defer
+2024-07-04 16:27:06,296 INFO    SenderThread:1722720 [sender.py:send_request_defer():609] handle sender defer: 6
+2024-07-04 16:27:06,296 INFO    SenderThread:1722720 [sender.py:transition_state():613] send defer: 7
+2024-07-04 16:27:06,296 DEBUG   HandlerThread:1722720 [handler.py:handle_request():158] handle_request: status_report
+2024-07-04 16:27:06,296 DEBUG   HandlerThread:1722720 [handler.py:handle_request():158] handle_request: defer
+2024-07-04 16:27:06,296 INFO    HandlerThread:1722720 [handler.py:handle_request_defer():184] handle defer: 7
+2024-07-04 16:27:06,296 DEBUG   SenderThread:1722720 [sender.py:send_request():405] send_request: status_report
+2024-07-04 16:27:06,296 DEBUG   SenderThread:1722720 [sender.py:send_request():405] send_request: defer
+2024-07-04 16:27:06,296 INFO    SenderThread:1722720 [sender.py:send_request_defer():609] handle sender defer: 7
+2024-07-04 16:27:06,296 INFO    SenderThread:1722720 [sender.py:transition_state():613] send defer: 8
+2024-07-04 16:27:06,296 DEBUG   HandlerThread:1722720 [handler.py:handle_request():158] handle_request: defer
+2024-07-04 16:27:06,296 INFO    HandlerThread:1722720 [handler.py:handle_request_defer():184] handle defer: 8
+2024-07-04 16:27:06,297 DEBUG   SenderThread:1722720 [sender.py:send_request():405] send_request: defer
+2024-07-04 16:27:06,297 INFO    SenderThread:1722720 [sender.py:send_request_defer():609] handle sender defer: 8
+2024-07-04 16:27:06,297 INFO    SenderThread:1722720 [sender.py:transition_state():613] send defer: 9
+2024-07-04 16:27:06,297 DEBUG   HandlerThread:1722720 [handler.py:handle_request():158] handle_request: defer
+2024-07-04 16:27:06,297 INFO    HandlerThread:1722720 [handler.py:handle_request_defer():184] handle defer: 9
+2024-07-04 16:27:06,297 DEBUG   SenderThread:1722720 [sender.py:send_request():405] send_request: defer
+2024-07-04 16:27:06,297 INFO    SenderThread:1722720 [sender.py:send_request_defer():609] handle sender defer: 9
+2024-07-04 16:27:06,297 INFO    SenderThread:1722720 [sender.py:transition_state():613] send defer: 10
+2024-07-04 16:27:06,297 DEBUG   HandlerThread:1722720 [handler.py:handle_request():158] handle_request: defer
+2024-07-04 16:27:06,297 INFO    HandlerThread:1722720 [handler.py:handle_request_defer():184] handle defer: 10
+2024-07-04 16:27:06,297 DEBUG   SenderThread:1722720 [sender.py:send_request():405] send_request: defer
+2024-07-04 16:27:06,297 INFO    SenderThread:1722720 [sender.py:send_request_defer():609] handle sender defer: 10
+2024-07-04 16:27:06,297 INFO    SenderThread:1722720 [sender.py:transition_state():613] send defer: 11
+2024-07-04 16:27:06,297 DEBUG   HandlerThread:1722720 [handler.py:handle_request():158] handle_request: defer
+2024-07-04 16:27:06,298 INFO    HandlerThread:1722720 [handler.py:handle_request_defer():184] handle defer: 11
+2024-07-04 16:27:06,298 DEBUG   SenderThread:1722720 [sender.py:send_request():405] send_request: defer
+2024-07-04 16:27:06,298 INFO    SenderThread:1722720 [sender.py:send_request_defer():609] handle sender defer: 11
+2024-07-04 16:27:06,298 INFO    SenderThread:1722720 [sender.py:transition_state():613] send defer: 12
+2024-07-04 16:27:06,298 DEBUG   HandlerThread:1722720 [handler.py:handle_request():158] handle_request: defer
+2024-07-04 16:27:06,298 INFO    HandlerThread:1722720 [handler.py:handle_request_defer():184] handle defer: 12
+2024-07-04 16:27:06,298 DEBUG   SenderThread:1722720 [sender.py:send_request():405] send_request: defer
+2024-07-04 16:27:06,298 INFO    SenderThread:1722720 [sender.py:send_request_defer():609] handle sender defer: 12
+2024-07-04 16:27:06,298 INFO    SenderThread:1722720 [sender.py:transition_state():613] send defer: 13
+2024-07-04 16:27:06,298 DEBUG   HandlerThread:1722720 [handler.py:handle_request():158] handle_request: defer
+2024-07-04 16:27:06,298 INFO    HandlerThread:1722720 [handler.py:handle_request_defer():184] handle defer: 13
+2024-07-04 16:27:06,298 DEBUG   SenderThread:1722720 [sender.py:send_request():405] send_request: defer
+2024-07-04 16:27:06,298 INFO    SenderThread:1722720 [sender.py:send_request_defer():609] handle sender defer: 13
+2024-07-04 16:27:06,298 INFO    SenderThread:1722720 [sender.py:transition_state():613] send defer: 14
+2024-07-04 16:27:06,299 DEBUG   HandlerThread:1722720 [handler.py:handle_request():158] handle_request: defer
+2024-07-04 16:27:06,299 DEBUG   SenderThread:1722720 [sender.py:send():378] send: final
+2024-07-04 16:27:06,299 INFO    HandlerThread:1722720 [handler.py:handle_request_defer():184] handle defer: 14
+2024-07-04 16:27:06,299 DEBUG   SenderThread:1722720 [sender.py:send_request():405] send_request: defer
+2024-07-04 16:27:06,299 INFO    SenderThread:1722720 [sender.py:send_request_defer():609] handle sender defer: 14
+2024-07-04 16:27:06,299 DEBUG   HandlerThread:1722720 [handler.py:handle_request():158] handle_request: poll_exit
+2024-07-04 16:27:06,299 DEBUG   SenderThread:1722720 [sender.py:send_request():405] send_request: poll_exit
+2024-07-04 16:27:06,300 DEBUG   HandlerThread:1722720 [handler.py:handle_request():158] handle_request: poll_exit
+2024-07-04 16:27:06,300 DEBUG   SenderThread:1722720 [sender.py:send_request():405] send_request: poll_exit
+2024-07-04 16:27:06,300 DEBUG   HandlerThread:1722720 [handler.py:handle_request():158] handle_request: server_info
+2024-07-04 16:27:06,300 DEBUG   SenderThread:1722720 [sender.py:send_request():405] send_request: server_info
+2024-07-04 16:27:06,300 DEBUG   HandlerThread:1722720 [handler.py:handle_request():158] handle_request: get_summary
+2024-07-04 16:27:06,301 DEBUG   HandlerThread:1722720 [handler.py:handle_request():158] handle_request: sampled_history
+2024-07-04 16:27:06,301 DEBUG   HandlerThread:1722720 [handler.py:handle_request():158] handle_request: internal_messages
+2024-07-04 16:27:06,301 INFO    MainThread:1722720 [wandb_run.py:_footer_history_summary_info():3994] rendering history
+2024-07-04 16:27:06,301 INFO    MainThread:1722720 [wandb_run.py:_footer_history_summary_info():4026] rendering summary
+2024-07-04 16:27:06,302 DEBUG   HandlerThread:1722720 [handler.py:handle_request():158] handle_request: shutdown
+2024-07-04 16:27:06,302 INFO    HandlerThread:1722720 [handler.py:finish():882] shutting down handler
+2024-07-04 16:27:07,300 INFO    WriterThread:1722720 [datastore.py:close():296] close: /home/0k9d0h1/piggyback/piggyback-ContinualLM/wandb/offline-run-20240704_162626-wirt5fjr/run-wirt5fjr.wandb
+2024-07-04 16:27:07,300 INFO    SenderThread:1722720 [sender.py:finish():1545] shutting down sender
