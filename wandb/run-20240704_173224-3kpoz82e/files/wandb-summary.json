@@ -1,1 +1,0 @@
-{"Train_Loss/Task0": 0.0005799799487665682, "Train_Acc/Task0": 0.9959443800695249, "_timestamp": 1720082482.2103624, "_runtime": 537.7449305057526, "_step": 30, "Eval_Loss/Task0": 0.8184068619597903, "Eval_Acc/Task0": 0.8723214285714286, "Eval_Micro_F1/Task0": 0.8723214285714286, "Eval_Macro_F1/Task0": 0.8054769692001953, "_wandb": {"runtime": 537}}
