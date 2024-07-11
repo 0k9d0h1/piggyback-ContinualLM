@@ -21,6 +21,7 @@ import random
 import torch
 import datasets
 import transformers
+import wandb
 from transformers import (
     MODEL_MAPPING,
     AdamW,
@@ -53,6 +54,13 @@ def main():
     args.device = torch.device(
         "cuda" if torch.cuda.is_available() and not args.no_cuda else "cpu")
     args = utils.model.prepare_sequence_posttrain(args)
+    
+    wandb.init(project='piggyback_continualDAP_pretrain',
+                config=args)
+    wandb.run.name = "%s_%s_%d" % (
+        args.baseline, args.dataset_name, args.seed)
+    wandb.run.save()
+    
     from approaches.posttrain import Appr
 
     # Initialize the accelerator. We will let the accelerator handle device placement for us in this example.

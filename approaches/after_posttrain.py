@@ -64,5 +64,6 @@ def compute(self, model, train_loader_subset, self_fisher, mask_pre, buffer, acc
             softmask.compute_impt(args=self.args, config=config, model=model,
                                   eval_dataloader=train_loader_subset, accelerator=accelerator,
                                   prune_loss='after_mlm')
+            
 
     return self

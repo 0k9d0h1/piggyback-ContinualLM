@@ -9,6 +9,7 @@ import sys
 import torch
 import datasets
 import transformers
+import wandb
 from accelerate import Accelerator, DistributedType
 from tqdm.auto import tqdm
 from transformers import (
@@ -142,30 +143,65 @@ class Appr(object):
                 shutil.rmtree(tensorboard_file)
             writer = utils.model.setup_writer(tensorboard_file)
 
-        try:
-            if not self.args.eval_only:
-                for epoch in range(self.args.num_train_epochs):
+        # try:
+        #     if not self.args.eval_only:
+        #         for epoch in range(self.args.num_train_epochs):
+        #             # break
+        #             model.train()
+        #             for step, batch in enumerate(train_loader):
+
+        #                 self, model, outputs = compute_loss.compute(
+        #                     self, model, batch, head_impt, intermediate_impt, output_impt, self_fisher, mask_pre, train_loader, step, accelerator)
+        #                 loss = outputs.loss  # loss 1
+        #                 wandb.log({"Train_Loss/Task%s" % (self.args.pt_task): loss.item()})
+        #                 model = compute_gradient.compute(
+        #                     self, model, head_impt, intermediate_impt, output_impt, batch, loss, buffer, mask_back, outputs, epoch, step, accelerator)
+        #                 global_step += 1
+
+        #                 if step % self.args.gradient_accumulation_steps == 0 or step == len(train_loader) - 1:
+        #                     update_model.update(self, model, optimizer, outputs, loss, writer,
+        #                                         lr_scheduler, progress_bar, global_step, completed_steps, accelerator)
+
+        #                 # break
+        #                 if completed_steps >= self.args.max_train_steps:
+        #                     break
+
+        # except KeyboardInterrupt:  # even if contro-C, I still want to save model
+        #     return
+
+        # after_posttrain.compute(
+        #     self, model, train_loader_subset, self_fisher, mask_pre, buffer, accelerator)
+        
+        if 'lora_sim' == self.args.baseline:
+            for epoch in range(self.args.num_train_epochs):
+                # break
+                model.eval()
+                cossim = []
+                for step, batch in enumerate(train_loader):
+                    outputs = accelerator.unwrap_model(model).model.roberta(batch['input_ids'], batch['attention_mask'], task_label=self.args.pt_task)
+                    sequence_output = outputs[0]
+                    n_sequence_output = torch.nn.functional.normalize(sequence_output.mean(dim=1), dim=1)
+
+                    import torch.nn as nn
+
+                    if self.args.pt_task > 0:
+                        n_prev_key = nn.functional.normalize(accelerator.unwrap_model(model).model.keys[str(self.args.pt_task - 1)], dim=0)
+                        prev_cos_sim = torch.einsum('bk,k->b', n_sequence_output, n_prev_key)
+                        print(prev_cos_sim)
+                        cossim.append(prev_cos_sim.detach().cpu())
+
                     # break
-                    model.train()
-                    for step, batch in enumerate(train_loader):
-
-                        self, model, outputs = compute_loss.compute(
-                            self, model, batch, head_impt, intermediate_impt, output_impt, self_fisher, mask_pre, train_loader, step, accelerator)
-                        loss = outputs.loss  # loss 1
-                        model = compute_gradient.compute(
-                            self, model, head_impt, intermediate_impt, output_impt, batch, loss, buffer, mask_back, outputs, epoch, step, accelerator)
-                        global_step += 1
-
-                        if step % self.args.gradient_accumulation_steps == 0 or step == len(train_loader) - 1:
-                            update_model.update(self, model, optimizer, outputs, loss, writer,
-                                                lr_scheduler, progress_bar, global_step, completed_steps, accelerator)
-
-                        # break
-                        if completed_steps >= self.args.max_train_steps:
-                            break
-
-        except KeyboardInterrupt:  # even if contro-C, I still want to save model
-            return
-
-        after_posttrain.compute(
-            self, model, train_loader_subset, self_fisher, mask_pre, buffer, accelerator)
+                    if completed_steps >= self.args.max_train_steps:
+                        break
+                cossim = torch.cat(cossim)
+                print(torch.max(cossim), torch.min(cossim), torch.mean(cossim), torch.std(cossim), torch.median(cossim))
+                import matplotlib.pyplot as plt
+                import numpy as np
+                
+                cossim = cossim.numpy()
+                plt.hist(cossim, bins=100)
+                plt.title('Histogram of Tensor Elements')
+                plt.xlabel('Value')
+                plt.ylabel('Frequency')
+                plt.savefig('./cossim.png')
+                np.save('./cossim.npy', cossim)

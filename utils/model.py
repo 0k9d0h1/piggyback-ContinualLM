@@ -404,8 +404,33 @@ def prepare_sequence_finetune(args):
             args.lr = 3e-5
             args.weight_decay = 0.003
     elif args.finetune_type == 'lora_piggyback':
-        pass
-        # args.epoch = 30
+        if args.hyperparameter_tune:
+            pass
+        else:
+            if args.dataset_name == 'aclarc_sup':
+                args.epoch = 10
+                args.lr = 0.0000825563281269546
+                args.weight_decay = 0.013997436347693602
+            elif args.dataset_name == 'restaurant_sup':
+                args.epoch = 5
+                args.lr = 0.0000562138452426044
+                args.weight_decay = 0.02051551571669142
+            elif args.dataset_name == 'phone_sup':
+                args.epoch = 23
+                args.lr = 0.00009916564272175414
+                args.weight_decay = 0.04497327262904149
+            elif args.dataset_name == 'scierc_sup':
+                args.epoch = 34
+                args.lr = 0.00001897132489990663
+                args.weight_decay = 0.0018982691934866672
+            elif args.dataset_name == 'chemprot_sup':
+                args.epoch = 8
+                args.lr = 0.00005023402861391314
+                args.weight_decay = 0.016548869151454117
+            elif args.dataset_name == 'camera_sup':
+                args.epoch = 16
+                args.lr = 0.00009128966095587548
+                args.weight_decay = 0.02544224709650889
     else:
         if args.dataset_name in ['aclarc_sup']:
             args.epoch = 10
@@ -605,8 +630,10 @@ def _lookfor_model_lora(args, training_type):
             for i in range(args.pt_task + 1):
                 model.adaptation(0, i)
 
+            # model_state = torch.load(os.path.join(
+            #     args.model_name_or_path, 'model.pt'), map_location='cpu')
             model_state = torch.load(os.path.join(
-                args.model_name_or_path, 'model.pt'), map_location='cpu')
+                f'{args.base_dir}/seq{args.idrandom}/{args.max_samples}samples/{args.baseline}/acl_unsup_roberta/', 'model.pt'), map_location='cpu')
             model.load_state_dict(model_state, strict=False)
 
             for module in model.modules():

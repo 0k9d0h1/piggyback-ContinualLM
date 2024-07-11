@@ -161,7 +161,7 @@ def parseing_posttrain():
     parser.add_argument("--baseline",
                         type=str,
                         help="The supported baselines.",
-                        choices=["dga", "das", "adapter_hat", "adapter_bcl", "adapter_one", "adapter_classic", "prompt_one", "distill", "derpp", "ewc", "ncl", "one", "piggyback", "lora", "lora_piggyback", "piggyback_nonzero", "lora_init", "lora_distill"])
+                        choices=["dga", "das", "adapter_hat", "adapter_bcl", "adapter_one", "adapter_classic", "prompt_one", "distill", "derpp", "ewc", "ncl", "one", "piggyback", "lora", "lora_piggyback", "piggyback_nonzero", "lora_init", "lora_init_no_impt", "lora_sim"])
     parser.add_argument('--share_weight', action='store_true')
     parser.add_argument(
         "--max_train_samples",
@@ -309,7 +309,7 @@ def parseing_finetune():
     parser.add_argument("--baseline",
                         type=str,
                         help="The supported baselines.",
-                        choices=["dga", "das", "adapter_hat", "adapter_bcl", "adapter_one", "adapter_classic", "prompt_one", "distill", "derpp", "ewc", "ncl", "one", "piggyback", "lora", "piggyback_nonzero", "lora_init", "lora_distill"])
+                        choices=["dga", "das", "adapter_hat", "adapter_bcl", "adapter_one", "adapter_classic", "prompt_one", "distill", "derpp", "ewc", "ncl", "one", "piggyback", "lora", "piggyback_nonzero", "lora_init", "lora_init_no_impt", "lora_sim"])
     parser.add_argument('--saved_model', type=str)
     parser.add_argument("--saved_output_dir", type=str,
                         default='./ckpt', help="Where to store the final model.")

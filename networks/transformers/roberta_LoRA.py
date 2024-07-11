@@ -736,12 +736,21 @@ class LoRARobertaForMaskedLM(am.MultiTaskModule):
         self.config = config
         self.roberta = LoRARobertaModel(
             config, args, add_pooling_layer=False)
+        
+        if self.config.baseline == "lora_sim":
+            self.keys = nn.ParameterDict({'0': nn.Parameter(torch.zeros(self.config.hidden_size), requires_grad=True)})
+            nn.init.uniform_(self.keys['0'])
+        
         self.lm_head = LoRARobertaLMHead(config)
 
     def adaptation(self, num_class, task_label):
         for module in self.modules():
             if 'adaptation' in dir(module) and module is not self:
                 module.adaptation(num_class, task_label)
+        if self.config.baseline == "lora_sim":
+            if str(task_label) not in self.keys:
+                self.keys[str(task_label)] = nn.Parameter(torch.zeros(self.config.hidden_size), requires_grad=True)
+                nn.init.uniform_(self.keys[str(task_label)])
 
     def forward(self,
                 input_ids: Optional[torch.Tensor] = None,
@@ -795,6 +804,18 @@ class LoRARobertaForMaskedLM(am.MultiTaskModule):
             return_dict=return_dict,
         )
         sequence_output = outputs[0]
+        
+        if self.config.baseline == "lora_sim":
+            n_sequence_output = nn.functional.normalize(sequence_output.mean(dim=1), dim=1)
+            n_key = nn.functional.normalize(self.keys[str(task_label)], dim=0)
+            cos_sim = torch.einsum('bk,k->b', n_sequence_output, n_key)
+            matching_loss = (1.0-cos_sim).mean()
+            
+            # if task_label > 0:
+            #     n_prev_key = nn.functional.normalize(self.keys[str(task_label - 1)], dim=0)
+            #     prev_cos_sim = torch.einsum('bk,k->b', n_sequence_output, n_prev_key)
+            #     print(prev_cos_sim)
+            
         prediction_scores = self.lm_head(sequence_output, task_label)
 
         masked_lm_loss = None
@@ -804,6 +825,9 @@ class LoRARobertaForMaskedLM(am.MultiTaskModule):
             loss_fct = CrossEntropyLoss()
             masked_lm_loss = loss_fct(
                 prediction_scores.view(-1, self.config.vocab_size), labels.view(-1))
+        
+        if self.config.baseline == "lora_sim":
+            masked_lm_loss += matching_loss
 
         if not return_dict:
             output = (prediction_scores,) + outputs[2:]

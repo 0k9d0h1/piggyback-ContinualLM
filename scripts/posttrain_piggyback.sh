@@ -10,7 +10,7 @@ max_samples=640000
 
 for idrandom in  0
 do
-  for pt_task in 0 1 2 3 4 5
+  for pt_task in 1 2 3 4 5
   do
     python -m torch.distributed.launch --nproc_per_node 1 --use_env posttrain.py \
     --per_device_train_batch_size 128 \
@@ -19,7 +19,7 @@ do
     --idrandom ${idrandom} \
     --ntasks 6 \
     --pt_task ${pt_task} \
-    --baseline 'lora_init'
+    --baseline 'lora_sim'
   done
 done
 

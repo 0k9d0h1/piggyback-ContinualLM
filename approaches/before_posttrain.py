@@ -121,6 +121,11 @@ def prepare(self,model, train_loader_subset, train_loader_subset_dataset, accele
         accelerator.unwrap_model(model).model.lm_head.decoder.classifiers[str(self.args.pt_task-1)].weight.grad = None
         accelerator.unwrap_model(model).model.lm_head.decoder.classifiers[str(self.args.pt_task-1)].bias.grad = None
             
+    if 'lora_init_no_impt' == self.args.baseline and self.args.pt_task > 0:
+        for module in model.modules():
+            if 'LoRAPiggybackLinear' in str(type(module)):
+                module.lora_As[str(self.args.pt_task)].data.copy_(module.lora_As[str(self.args.pt_task-1)].data)
+                module.lora_Bs[str(self.args.pt_task)].data.copy_(module.lora_Bs[str(self.args.pt_task-1)].data)
 
     return self,model,head_impt, intermediate_impt, output_impt,self_fisher,mask_pre,mask_back,buffer
 
