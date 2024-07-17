@@ -28,6 +28,7 @@ from transformers import (
     AutoTokenizer,
     AutoConfig,
     RobertaTokenizer,
+    T5Tokenizer,
     BertTokenizer,
     DataCollatorForLanguageModeling,
     get_scheduler,
@@ -104,7 +105,10 @@ def main():
     # download model & vocab.
     # tokenizer = AutoTokenizer.from_pretrained(
     #     args.model_name_or_path, use_fast=not args.use_slow_tokenizer)
-    tokenizer = RobertaTokenizer.from_pretrained(args.model_name_or_path)
+    if "roberta" in args.base_model_name_or_path:
+        tokenizer = RobertaTokenizer.from_pretrained(args.base_model_name_or_path)
+    elif "t5" in args.base_model_name_or_path:
+        tokenizer = T5Tokenizer.from_pretrained(args.base_model_name_or_path)
     args.tokenizer = tokenizer
 
     model = utils.model.lookfor_model_posttrain(args)
@@ -201,8 +205,12 @@ def main():
 
     # Data collator
     # This one will take care of randomly masking the tokens.
-    data_collator = utils.data.PTDataCollatorForLanguageModeling(
-        tokenizer=tokenizer, mlm_probability=args.mlm_probability)
+    if "roberta" in args.base_model_name_or_path:
+        data_collator = utils.data.PTDataCollatorForLanguageModeling(
+            tokenizer=tokenizer, mlm_probability=args.mlm_probability)
+    elif "t5" in args.base_model_name_or_path:
+        data_collator = utils.data.DataCollatorForT5MLM(tokenizer=tokenizer, noise_density=args.noise_density, mean_noise_span_length=args.mean_noise_span_length,
+                                                        input_length=args.max_seq_length, target_length=args.max_seq_length, pad_token_id=tokenizer.pad_token_id)
 
     print('train_dataset: ', len(train_dataset))
     if args.max_train_samples is not None:

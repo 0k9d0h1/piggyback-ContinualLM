@@ -50,6 +50,8 @@ def parseing_posttrain():
         default='roberta-base',
         help="Path to pretrained model or model identifier from huggingface.co/models."
     )
+    parser.add_argument('--base_model_name_or_path',
+                        type=str, default='roberta-base')
     parser.add_argument(
         "--config_name",
         type=str,
@@ -288,6 +290,8 @@ def parseing_finetune():
     parser.add_argument('--seed', type=int, default=2021)
     parser.add_argument('--dataset_name', type=str)
     parser.add_argument('--model_name_or_path',
+                        type=str, default='roberta-base')
+    parser.add_argument('--base_model_name_or_path',
                         type=str, default='roberta-base')
     parser.add_argument('--output_dir', type=str, default=None)
     parser.add_argument('--lr', type=float, default=3e-5)

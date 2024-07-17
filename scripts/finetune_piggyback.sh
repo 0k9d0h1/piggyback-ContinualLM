@@ -26,7 +26,7 @@ do
       --max_samples ${max_samples} \
       --seed ${seed[$round]} \
       --baseline 'lora' \
-      --finetune_type 'lora_piggyback'
+      --finetune_type 'full_finetune'
     done
   done
 done

@@ -14,9 +14,11 @@ from networks.baselines.supsup import MultitaskMaskLinear
 from networks.transformers.roberta import MyRobertaForSequenceClassification, MyRobertaForMaskedLM
 from networks.transformers.roberta_piggyback import PiggybackRobertaForSequenceClassification, PiggybackRobertaForMaskedLM
 from networks.transformers.roberta_LoRA import LoRARobertaForSequenceClassification, LoRARobertaForMaskedLM
+from networks.transformers.T5_LoRA import LoRAT5ForConditionalGeneration
 from networks.prompt.tuning import MyRobertaForSequenceClassificationSoftPromptTunning, MyRobertaForMaskedLMSoftPromptTunning
 from networks.posttrain.model import MyModel
 from transformers.models.roberta.modeling_roberta import RobertaForSequenceClassification
+from transformers.models.t5.modeling_t5 import T5ForConditionalGeneration
 from .manage import copy_weights
 import utils
 from transformers import (
@@ -25,7 +27,8 @@ from transformers import (
     RobertaConfig,
     RobertaModel,
     get_scheduler,
-    Adafactor
+    Adafactor,
+    T5Config,
 )
 ########################################################################################################################
 
@@ -247,11 +250,11 @@ def prepare_sequence_posttrain(args):
         datas = f.readlines()[args.idrandom]
         data = datas.split()
 
-    output = f'{args.base_dir}/seq{args.idrandom}/{args.max_samples}samples/{args.baseline}/{data[args.pt_task]}_roberta/'
-    ckpt = f'{args.base_dir}/seq{args.idrandom}/{args.max_samples}samples/{args.baseline}/{data[args.pt_task-1]}_roberta/'
+    output = f'{args.base_dir}/{args.base_model_name_or_path}_/seq{args.idrandom}/{args.max_samples}samples/{args.baseline}/{data[args.pt_task]}_roberta/'
+    ckpt = f'{args.base_dir}/{args.base_model_name_or_path}_/seq{args.idrandom}/{args.max_samples}samples/{args.baseline}/{data[args.pt_task-1]}_roberta/'
 
     if 'dga' in args.baseline or 'das' in args.baseline:
-        output_dir = f'{args.base_dir}/seq{args.idrandom}/{args.max_samples}samples/{args.baseline}'
+        output_dir = f'{args.base_dir}/{args.base_model_name_or_path}_/seq{args.idrandom}/{args.max_samples}samples/{args.baseline}'
         args.saved_output_dir = []
 
         if args.softmask_compute is not None:
@@ -278,7 +281,7 @@ def prepare_sequence_posttrain(args):
 
     else:
         args.saved_output_dir = [
-            f'{args.base_dir}/seq{args.idrandom}/{args.max_samples}samples/{args.baseline}/{args.dataset_name}/{data[t]}_roberta/' for t in range(args.pt_task + 1)]
+            f'{args.base_dir}/{args.base_model_name_or_path}_/seq{args.idrandom}/{args.max_samples}samples/{args.baseline}/{args.dataset_name}/{data[t]}_roberta/' for t in range(args.pt_task + 1)]
 
     print(
         f'The directory of saved models or saved importances: {args.saved_output_dir}')
@@ -287,7 +290,6 @@ def prepare_sequence_posttrain(args):
     args.task = args.pt_task
 
     args.data = data
-    args.base_model_name_or_path = "roberta-base"
     args.eval_t = args.pt_task  # we need to use the adapter/plugin
 
     if 'comb' in args.baseline:
@@ -302,7 +304,7 @@ def prepare_sequence_posttrain(args):
         args.model_name_or_path = ckpt
 
     if args.eval_only:
-        args.model_name_or_path = f'{args.base_dir}/seq{args.idrandom}/{args.max_samples}samples/{args.baseline}/{data[args.pt_task]}_roberta/'
+        args.model_name_or_path = f'{args.base_dir}/{args.base_model_name_or_path}_/seq{args.idrandom}/{args.max_samples}samples/{args.baseline}/{data[args.pt_task]}_roberta/'
 
     print(f'Output directory: {args.output_dir}')
     print(f'Dataset: {args.dataset_name}')
@@ -322,7 +324,6 @@ def prepare_sequence_posttrain(args):
 
 def prepare_sequence_finetune(args):
     args.sequence_file = 'posttrain'
-    args.base_model_name_or_path = "roberta-base"
 
     if 'dga' in args.baseline:
         args.baseline += '_one'
@@ -339,8 +340,8 @@ def prepare_sequence_finetune(args):
     posttrain2endtask = {"pubmed_unsup": "chemprot_sup", "phone_unsup": "phone_sup", "ai_unsup": "scierc_sup",
                          "camera_unsup": "camera_sup", "acl_unsup": "aclarc_sup", "restaurant_unsup": "restaurant_sup"}
     
-    output = f'{args.base_dir}/seq{args.idrandom}/{args.max_samples}samples/{args.baseline}/{data[args.pt_task]}_roberta/'
-    ckpt = f'{args.base_dir}/seq{args.idrandom}/{args.max_samples}samples/{args.baseline}/{data[args.pt_task]}_roberta/'
+    output = f'{args.base_dir}/{args.base_model_name_or_path}_/seq{args.idrandom}/{args.max_samples}samples/{args.baseline}/{data[args.pt_task]}_roberta/'
+    ckpt = f'{args.base_dir}/{args.base_model_name_or_path}_/seq{args.idrandom}/{args.max_samples}samples/{args.baseline}/{data[args.pt_task]}_roberta/'
 
     args.output_dir = output
 
@@ -431,6 +432,34 @@ def prepare_sequence_finetune(args):
                 args.epoch = 16
                 args.lr = 0.00009128966095587548
                 args.weight_decay = 0.02544224709650889
+    elif args.finetune_type == 'full_finetune':
+        if args.hyperparameter_tune:
+            pass
+        else:
+            if args.dataset_name == 'aclarc_sup':
+                args.epoch = 10
+                args.lr = 0.00001758603631446087
+                args.weight_decay = 0.028795229455204106
+            elif args.dataset_name == 'restaurant_sup':
+                args.epoch = 5
+                args.lr = 0.00000851786023623331
+                args.weight_decay = 0.030024549247204775
+            elif args.dataset_name == 'phone_sup':
+                args.epoch = 23
+                args.lr = 0.00004574757302938677
+                args.weight_decay = 0.045907177806925395
+            elif args.dataset_name == 'scierc_sup':
+                args.epoch = 20
+                args.lr = 0.0000160773225582201
+                args.weight_decay = 0.006517616029196202
+            elif args.dataset_name == 'chemprot_sup':
+                args.epoch = 12
+                args.lr = 0.00001671028533878026
+                args.weight_decay = 0.0018589965753565147
+            elif args.dataset_name == 'camera_sup':
+                args.epoch = 9
+                args.lr = 0.00006373191389078576
+                args.weight_decay = 0.015424987277841556
     else:
         if args.dataset_name in ['aclarc_sup']:
             args.epoch = 10
@@ -581,9 +610,15 @@ def _lookfor_model_piggyback(args, training_type):
 
 def _lookfor_model_lora(args, training_type):
 
-    model_pretrained = RobertaModel.from_pretrained(
-        args.base_model_name_or_path)
-    config = RobertaConfig.from_pretrained(args.base_model_name_or_path)
+    if "roberta" in args.base_model_name_or_path:
+        model_pretrained = RobertaModel.from_pretrained(
+            args.base_model_name_or_path)
+        config = RobertaConfig.from_pretrained(args.base_model_name_or_path)
+    elif "t5" in args.base_model_name_or_path:
+        model_pretrained = T5ForConditionalGeneration.from_pretrained(
+            args.base_model_name_or_path)
+        config = T5Config.from_pretrained(args.base_model_name_or_path)
+        
     config.training_type = training_type
     if training_type == 'finetune':
         config.finetune_type = args.finetune_type
@@ -591,8 +626,12 @@ def _lookfor_model_lora(args, training_type):
         config.lora_alpha = args.lora_alpha
         config.baseline = args.baseline
 
-        model = LoRARobertaForSequenceClassification(
-            config, args, args.class_num)
+        if "roberta" in args.base_model_name_or_path:
+            model = LoRARobertaForSequenceClassification(
+                config, args, args.class_num)
+        elif "t5" in args.base_model_name_or_path:
+            model = LoRAT5ForConditionalGeneration(config)
+            
         for i in range(args.ft_task + 1):
             model.adaptation(args.class_num, i)
 
@@ -624,21 +663,20 @@ def _lookfor_model_lora(args, training_type):
         config.lora_r = args.lora_r
         config.lora_alpha = args.lora_alpha
         config.baseline = args.baseline
-        model = LoRARobertaForMaskedLM(config, args)
+        if "roberta" in args.base_model_name_or_path:
+            model = LoRARobertaForMaskedLM(config, args)
+        elif "t5" in args.base_model_name_or_path:
+            model = LoRAT5ForConditionalGeneration(config)
 
         if "lora" in args.model_name_or_path:
             for i in range(args.pt_task + 1):
                 model.adaptation(0, i)
 
-            # model_state = torch.load(os.path.join(
-            #     args.model_name_or_path, 'model.pt'), map_location='cpu')
             model_state = torch.load(os.path.join(
-                f'{args.base_dir}/seq{args.idrandom}/{args.max_samples}samples/{args.baseline}/acl_unsup_roberta/', 'model.pt'), map_location='cpu')
+                args.model_name_or_path, 'model.pt'), map_location='cpu')
+            # model_state = torch.load(os.path.join(
+            #     f'{args.base_dir}/seq{args.idrandom}/{args.max_samples}samples/{args.baseline}/camera_unsup_roberta/', 'model.pt'), map_location='cpu')
             model.load_state_dict(model_state, strict=False)
-
-            for module in model.modules():
-                if 'ElementWise' in str(type(module)):
-                    print(module.masks['0'].data)
 
         for n, p in model.roberta.named_parameters():
             if 'lora' in n:

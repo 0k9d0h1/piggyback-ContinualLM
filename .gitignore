@@ -5,3 +5,5 @@ seq0/
 sequences/
 temp.py
 wandb/
+cossim.npy
+cossim.png
