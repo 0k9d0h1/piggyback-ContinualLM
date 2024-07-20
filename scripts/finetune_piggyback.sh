@@ -4,8 +4,8 @@
 #SBATCH -o posttrain_procy_qa-%j.out
 #SBATCH --gres gpu:2
 
-export HF_DATASETS_CACHE='/home/0k9d0h1/piggyback/dataset_cache'
-export TRANSFORMERS_CACHE='/home/0k9d0h1/piggyback/model_cache'
+export HF_DATASETS_CACHE='/home/eecomp_test/donghoon/dataset_cache'
+export TRANSFORMERS_CACHE='/home/eecomp_test/donghoon/model_cache'
 
 max_samples=640000
 
@@ -18,6 +18,7 @@ do
   for ft_task in 0 1 2 3 4 5;
     do
       CUDA_VISIBLE_DEVICES=0 python finetune.py \
+      --base_model_name_or_path "t5-base" \
       --max_seq_length 164 \
       --pt_task ${ft_task} \
       --ft_task ${ft_task} \

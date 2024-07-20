@@ -174,6 +174,7 @@ class LoRALinear(am.MultiTaskModule):
         fan_in_fan_out: bool = False,
         merge_weights: bool = True,
         config=None,
+        bias=True,
         **kwargs
     ):
         super().__init__()
@@ -189,7 +190,10 @@ class LoRALinear(am.MultiTaskModule):
 
         self.weight = Parameter(torch.Tensor(
             out_features, in_features), requires_grad=False)
-        self.bias = Parameter(torch.Tensor(out_features), requires_grad=False)
+        if bias:
+            self.bias = Parameter(torch.Tensor(out_features), requires_grad=False)
+        else:
+            self.register_parameter('bias', None)
 
         self.fan_in_fan_out = fan_in_fan_out
         self.r = r
@@ -266,7 +270,7 @@ class LoRAPiggybackLinear(LoRALinear):
                  mask_init='1s', mask_scale=1e-2,
                  threshold_fn='binarizer', threshold=None, **kwargs):
         super().__init__(in_features, out_features, r, lora_alpha,
-                         lora_dropout, fan_in_fan_out, merge_weights, config, **kwargs)
+                         lora_dropout, fan_in_fan_out, merge_weights, config, bias, **kwargs)
         self.in_features = in_features
         self.out_features = out_features
         self.threshold_fn = threshold_fn
@@ -407,4 +411,5 @@ class LoRAPiggybackLinear(LoRALinear):
                 self._buffers[key] = fn(buf)
 
         self.weight.data = fn(self.weight.data)
-        self.bias.data = fn(self.bias.data)
+        if getattr(self.bias, 'data', None) is not None:
+            self.bias.data = fn(self.bias.data)

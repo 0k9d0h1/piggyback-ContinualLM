@@ -37,18 +37,21 @@ If you do not want to use any `decoder_head_mask` now, please set `decoder_head_
 num_heads)`.
 """
 
+
 class LoRAT5DenseReluDense(am.MultiTaskModule):
     def __init__(self, config):
         super().__init__()
-        self.wi = LoRAPiggybackLinear(config.d_model, config.d_ff, config.lora_r, lora_alpha=config.lora_alpha, config=config, bias=False)
-        self.wo = LoRAPiggybackLinear(config.d_ff, config.d_model, config.lora_r, lora_alpha=config.lora_alpha, config=config, bias=False)
+        self.wi = LoRAPiggybackLinear(
+            config.d_model, config.d_ff, config.lora_r, lora_alpha=config.lora_alpha, config=config, bias=False)
+        self.wo = LoRAPiggybackLinear(
+            config.d_ff, config.d_model, config.lora_r, lora_alpha=config.lora_alpha, config=config, bias=False)
         self.dropout = nn.Dropout(config.dropout_rate)
-        
+
     def adaptation(self, num_class, task_label):
         for module in self.modules():
             if 'adaptation' in dir(module) and module is not self:
                 module.adaptation(num_class, task_label)
-                
+
     def forward_single_task(self, hidden_states, task_label):
         hidden_states = self.wi(hidden_states, task_label)
         hidden_states = nn.functional.relu(hidden_states)
@@ -60,9 +63,12 @@ class LoRAT5DenseReluDense(am.MultiTaskModule):
 class LoRAT5DenseGatedGeluDense(am.MultiTaskModule):
     def __init__(self, config):
         super().__init__()
-        self.wi_0 = LoRAPiggybackLinear(config.d_model, config.d_ff, config.lora_r, lora_alpha=config.lora_alpha, config=config, bias=False)
-        self.wi_1 = LoRAPiggybackLinear(config.d_model, config.d_ff, config.lora_r, lora_alpha=config.lora_alpha, config=config, bias=False)
-        self.wo = LoRAPiggybackLinear(config.d_ff, config.d_model, config.lora_r, lora_alpha=config.lora_alpha, config=config, bias=False)
+        self.wi_0 = LoRAPiggybackLinear(
+            config.d_model, config.d_ff, config.lora_r, lora_alpha=config.lora_alpha, config=config, bias=False)
+        self.wi_1 = LoRAPiggybackLinear(
+            config.d_model, config.d_ff, config.lora_r, lora_alpha=config.lora_alpha, config=config, bias=False)
+        self.wo = LoRAPiggybackLinear(
+            config.d_ff, config.d_model, config.lora_r, lora_alpha=config.lora_alpha, config=config, bias=False)
         self.dropout = nn.Dropout(config.dropout_rate)
         self.gelu_act = ACT2FN["gelu_new"]
 
@@ -70,7 +76,7 @@ class LoRAT5DenseGatedGeluDense(am.MultiTaskModule):
         for module in self.modules():
             if 'adaptation' in dir(module) and module is not self:
                 module.adaptation(num_class, task_label)
-                
+
     def forward_single_task(self, hidden_states, task_label):
         hidden_gelu = self.gelu_act(self.wi_0(hidden_states, task_label))
         hidden_linear = self.wi_1(hidden_states, task_label)
@@ -93,7 +99,8 @@ class LoRAT5LayerFF(T5FFLayerAdaptersMixin, am.MultiTaskModule):
                 f"{self.config.feed_forward_proj} is not supported. Choose between `relu` and `gated-gelu`"
             )
 
-        self.layer_norm = T5LayerNorm(config.d_model, eps=config.layer_norm_epsilon)
+        self.layer_norm = T5LayerNorm(
+            config.d_model, eps=config.layer_norm_epsilon)
         self.dropout = nn.Dropout(config.dropout_rate)
         self._init_adapter_modules()
 
@@ -102,10 +109,14 @@ class LoRAT5LayerFF(T5FFLayerAdaptersMixin, am.MultiTaskModule):
             if 'adaptation' in dir(module) and module is not self:
                 module.adaptation(num_class, task_label)
                 
+    def forward(self, hidden_states, task_label):
+        return self.forward_single_task(hidden_states, task_label)
+
     def forward_single_task(self, hidden_states, task_label):
         forwarded_states = self.layer_norm(hidden_states)
         forwarded_states = self.DenseReluDense(forwarded_states, task_label)
-        hidden_states = self.adapter_layer_forward(hidden_states, self.dropout(forwarded_states), None)
+        hidden_states = self.adapter_layer_forward(
+            hidden_states, self.dropout(forwarded_states), None)
         return hidden_states
 
 
@@ -123,23 +134,29 @@ class LoRAT5Attention(am.MultiTaskModule):
         self.inner_dim = self.n_heads * self.key_value_proj_dim
 
         # Mesh TensorFlow initialization to avoid scaling before softmax
-        self.q = LoRAPiggybackLinear(self.d_model, self.inner_dim, config.lora_r, lora_alpha=config.lora_alpha, config=config, bias=False)
-        self.k = LoRAPiggybackLinear(self.d_model, self.inner_dim, config.lora_r, lora_alpha=config.lora_alpha, config=config, bias=False)
-        self.v = LoRAPiggybackLinear(self.d_model, self.inner_dim, config.lora_r, lora_alpha=config.lora_alpha, config=config, bias=False)
-        self.o = LoRAPiggybackLinear(self.inner_dim, self.d_model, config.lora_r, lora_alpha=config.lora_alpha, config=config, bias=False)
+        self.q = LoRAPiggybackLinear(self.d_model, self.inner_dim, config.lora_r,
+                                     lora_alpha=config.lora_alpha, config=config, bias=False)
+        self.k = LoRAPiggybackLinear(self.d_model, self.inner_dim, config.lora_r,
+                                     lora_alpha=config.lora_alpha, config=config, bias=False)
+        self.v = LoRAPiggybackLinear(self.d_model, self.inner_dim, config.lora_r,
+                                     lora_alpha=config.lora_alpha, config=config, bias=False)
+        self.o = LoRAPiggybackLinear(self.inner_dim, self.d_model, config.lora_r,
+                                     lora_alpha=config.lora_alpha, config=config, bias=False)
 
         if self.has_relative_attention_bias:
-            self.relative_attention_bias = nn.Embedding(self.relative_attention_num_buckets, self.n_heads)
+            self.relative_attention_bias = nn.Embedding(
+                self.relative_attention_num_buckets, self.n_heads)
         self.pruned_heads = set()
         self.gradient_checkpointing = False
 
-        self.prefix_tuning = PrefixTuningShim(location_key + "_prefix" if location_key else None, config)
+        self.prefix_tuning = PrefixTuningShim(
+            location_key + "_prefix" if location_key else None, config)
 
     def adaptation(self, num_class, task_label):
         for module in self.modules():
             if 'adaptation' in dir(module) and module is not self:
                 module.adaptation(num_class, task_label)
-                
+
     def prune_heads(self, heads):
         if len(heads) == 0:
             return
@@ -181,10 +198,13 @@ class LoRAT5Attention(am.MultiTaskModule):
         relative_buckets = 0
         if bidirectional:
             num_buckets //= 2
-            relative_buckets += (relative_position > 0).to(torch.long) * num_buckets
+            relative_buckets += (relative_position >
+                                 0).to(torch.long) * num_buckets
             relative_position = torch.abs(relative_position)
         else:
-            relative_position = -torch.min(relative_position, torch.zeros_like(relative_position))
+            relative_position = - \
+                torch.min(relative_position,
+                          torch.zeros_like(relative_position))
         # now relative_position is in the range [0, inf)
 
         # half of the buckets are for exact increments in positions
@@ -198,10 +218,12 @@ class LoRAT5Attention(am.MultiTaskModule):
             * (num_buckets - max_exact)
         ).to(torch.long)
         relative_postion_if_large = torch.min(
-            relative_postion_if_large, torch.full_like(relative_postion_if_large, num_buckets - 1)
+            relative_postion_if_large, torch.full_like(
+                relative_postion_if_large, num_buckets - 1)
         )
 
-        relative_buckets += torch.where(is_small, relative_position, relative_postion_if_large)
+        relative_buckets += torch.where(is_small,
+                                        relative_position, relative_postion_if_large)
         return relative_buckets
 
     def compute_bias(self, query_length, key_length):
@@ -212,14 +234,17 @@ class LoRAT5Attention(am.MultiTaskModule):
         memory_position = torch.arange(
             key_length, dtype=torch.long, device=self.relative_attention_bias.weight.device
         )[None, :]
-        relative_position = memory_position - context_position  # shape (query_length, key_length)
+        relative_position = memory_position - \
+            context_position  # shape (query_length, key_length)
         relative_position_bucket = self._relative_position_bucket(
             relative_position,  # shape (query_length, key_length)
             bidirectional=(not self.is_decoder),
             num_buckets=self.relative_attention_num_buckets,
         )
-        values = self.relative_attention_bias(relative_position_bucket)  # shape (query_length, key_length, num_heads)
-        values = values.permute([2, 0, 1]).unsqueeze(0)  # shape (1, num_heads, query_length, key_length)
+        # shape (query_length, key_length, num_heads)
+        values = self.relative_attention_bias(relative_position_bucket)
+        # shape (1, num_heads, query_length, key_length)
+        values = values.permute([2, 0, 1]).unsqueeze(0)
         return values
 
     def forward(
@@ -234,10 +259,10 @@ class LoRAT5Attention(am.MultiTaskModule):
         query_length=None,
         use_cache=False,
         output_attentions=False,
-        ):
-        
+    ):
+
         return self.forward_single_task(hidden_states, task_label, mask, key_value_states, position_bias, past_key_value, layer_head_mask, query_length, use_cache, output_attentions)
-    
+
     def forward_single_task(
         self,
         hidden_states,
@@ -267,7 +292,8 @@ class LoRAT5Attention(am.MultiTaskModule):
             ), f"past_key_value should have 2 past states: keys and values. Got { len(past_key_value)} past states"
             real_seq_length += past_key_value[0].shape[2] if query_length is None else query_length
 
-        key_length = real_seq_length if key_value_states is None else key_value_states.shape[1]
+        key_length = real_seq_length if key_value_states is None else key_value_states.shape[
+            1]
 
         def shape(states):
             """projection"""
@@ -292,26 +318,32 @@ class LoRAT5Attention(am.MultiTaskModule):
                 if key_value_states is None:
                     # self-attn
                     # (batch_size, n_heads, key_length, dim_per_head)
-                    hidden_states = torch.cat([past_key_value, hidden_states], dim=2)
+                    hidden_states = torch.cat(
+                        [past_key_value, hidden_states], dim=2)
                 else:
                     # cross-attn
                     hidden_states = past_key_value
             return hidden_states
 
         # get query states
-        query_states = shape(self.q(hidden_states, task_label))  # (batch_size, n_heads, seq_length, dim_per_head)
+        # (batch_size, n_heads, seq_length, dim_per_head)
+        query_states = shape(self.q(hidden_states, task_label))
 
         # get key/value states
         key_states = project(
-            hidden_states, self.k, key_value_states, past_key_value[0] if past_key_value is not None else None, task_label
+            hidden_states, self.k, key_value_states, past_key_value[
+                0] if past_key_value is not None else None, task_label
         )
         value_states = project(
-            hidden_states, self.v, key_value_states, past_key_value[1] if past_key_value is not None else None, task_label
+            hidden_states, self.v, key_value_states, past_key_value[
+                1] if past_key_value is not None else None, task_label
         )
 
-        present_key_value_state = (key_states, value_states) if (self.is_decoder and use_cache) else None
+        present_key_value_state = (key_states, value_states) if (
+            self.is_decoder and use_cache) else None
 
-        key_states, value_states, mask = self.prefix_tuning(key_states, value_states, mask)
+        key_states, value_states, mask = self.prefix_tuning(
+            key_states, value_states, mask)
         key_length = key_states.size(2)
 
         # compute scores
@@ -332,10 +364,11 @@ class LoRAT5Attention(am.MultiTaskModule):
             # if key and values are already calculated
             # we want only the last query position bias
             if past_key_value is not None:
-                position_bias = position_bias[:, :, -hidden_states.size(1) :, :]
+                position_bias = position_bias[:, :, -hidden_states.size(1):, :]
 
             if mask is not None:
-                position_bias = position_bias + mask  # (batch_size, n_heads, seq_length, key_length)
+                # (batch_size, n_heads, seq_length, key_length)
+                position_bias = position_bias + mask
 
         scores += position_bias
         attn_weights = nn.functional.softmax(scores.float(), dim=-1).type_as(
@@ -349,10 +382,12 @@ class LoRAT5Attention(am.MultiTaskModule):
         if layer_head_mask is not None:
             attn_weights = attn_weights * layer_head_mask
 
-        attn_output = unshape(torch.matmul(attn_weights, value_states))  # (batch_size, seq_length, dim)
+        # (batch_size, seq_length, dim)
+        attn_output = unshape(torch.matmul(attn_weights, value_states))
         attn_output = self.o(attn_output, task_label)
 
-        outputs = (attn_output,) + (present_key_value_state,) + (position_bias,)
+        outputs = (attn_output,) + \
+            (present_key_value_state,) + (position_bias,)
 
         if output_attentions:
             outputs = outputs + (attn_weights,)
@@ -366,7 +401,8 @@ class LoRAT5LayerSelfAttention(T5SelfAttentionLayerAdaptersMixin, am.MultiTaskMo
         self.SelfAttention = LoRAT5Attention(
             config, has_relative_attention_bias=has_relative_attention_bias, location_key=location_key
         )
-        self.layer_norm = T5LayerNorm(config.d_model, eps=config.layer_norm_epsilon)
+        self.layer_norm = T5LayerNorm(
+            config.d_model, eps=config.layer_norm_epsilon)
         self.dropout = nn.Dropout(config.dropout_rate)
         self._init_adapter_modules()
 
@@ -374,7 +410,7 @@ class LoRAT5LayerSelfAttention(T5SelfAttentionLayerAdaptersMixin, am.MultiTaskMo
         for module in self.modules():
             if 'adaptation' in dir(module) and module is not self:
                 module.adaptation(num_class, task_label)
-    
+
     def forward(
         self,
         hidden_states,
@@ -387,7 +423,7 @@ class LoRAT5LayerSelfAttention(T5SelfAttentionLayerAdaptersMixin, am.MultiTaskMo
         output_attentions=False,
     ):
         return self.forward_single_task(hidden_states, task_label, attention_mask, position_bias, layer_head_mask, past_key_value, use_cache, output_attentions)
-    
+
     def forward_single_task(
         self,
         hidden_states,
@@ -410,8 +446,10 @@ class LoRAT5LayerSelfAttention(T5SelfAttentionLayerAdaptersMixin, am.MultiTaskMo
             use_cache=use_cache,
             output_attentions=output_attentions,
         )
-        hidden_states = self.adapter_layer_forward(hidden_states, self.dropout(attention_output[0]), None)
-        outputs = (hidden_states,) + attention_output[1:]  # add attentions if we output them
+        hidden_states = self.adapter_layer_forward(
+            hidden_states, self.dropout(attention_output[0]), None)
+        # add attentions if we output them
+        outputs = (hidden_states,) + attention_output[1:]
         return outputs
 
 
@@ -419,8 +457,10 @@ class LoRAT5LayerCrossAttention(T5CrossAttentionLayerAdaptersMixin, am.MultiTask
     def __init__(self, config):
         super().__init__()
         self.config = config
-        self.EncDecAttention = LoRAT5Attention(config, has_relative_attention_bias=False, location_key="cross")
-        self.layer_norm = T5LayerNorm(config.d_model, eps=config.layer_norm_epsilon)
+        self.EncDecAttention = LoRAT5Attention(
+            config, has_relative_attention_bias=False, location_key="cross")
+        self.layer_norm = T5LayerNorm(
+            config.d_model, eps=config.layer_norm_epsilon)
         self.dropout = nn.Dropout(config.dropout_rate)
         self._init_adapter_modules()
 
@@ -428,7 +468,7 @@ class LoRAT5LayerCrossAttention(T5CrossAttentionLayerAdaptersMixin, am.MultiTask
         for module in self.modules():
             if 'adaptation' in dir(module) and module is not self:
                 module.adaptation(num_class, task_label)
-    
+
     def forward(
         self,
         hidden_states,
@@ -443,7 +483,7 @@ class LoRAT5LayerCrossAttention(T5CrossAttentionLayerAdaptersMixin, am.MultiTask
         output_attentions=False,
     ):
         return self.forward_single_task(hidden_states, key_value_states, task_label, attention_mask, position_bias, layer_head_mask, past_key_value, use_cache, query_length, output_attentions)
-    
+
     def forward_single_task(
         self,
         hidden_states,
@@ -470,8 +510,10 @@ class LoRAT5LayerCrossAttention(T5CrossAttentionLayerAdaptersMixin, am.MultiTask
             query_length=query_length,
             output_attentions=output_attentions,
         )
-        layer_output = self.adapter_layer_forward(hidden_states, self.dropout(attention_output[0]), None)
-        outputs = (layer_output,) + attention_output[1:]  # add attentions if we output them
+        layer_output = self.adapter_layer_forward(
+            hidden_states, self.dropout(attention_output[0]), None)
+        # add attentions if we output them
+        outputs = (layer_output,) + attention_output[1:]
         return outputs
 
 
@@ -495,7 +537,7 @@ class LoRAT5Block(am.MultiTaskModule):
         for module in self.modules():
             if 'adaptation' in dir(module) and module is not self:
                 module.adaptation(num_class, task_label)
-                
+
     def forward(
         self,
         hidden_states,
@@ -511,9 +553,9 @@ class LoRAT5Block(am.MultiTaskModule):
         use_cache=False,
         output_attentions=False,
         return_dict=True,
-        ):
+    ):
         return self.forward_single_task(hidden_states, task_label, attention_mask, position_bias, encoder_hidden_states, encoder_attention_mask, encoder_decoder_position_bias, layer_head_mask, cross_attn_layer_head_mask, past_key_value, use_cache, output_attentions, return_dict)
-                
+
     def forward_single_task(
         self,
         hidden_states,
@@ -558,12 +600,14 @@ class LoRAT5Block(am.MultiTaskModule):
             output_attentions=output_attentions,
         )
         hidden_states, present_key_value_state = self_attention_outputs[:2]
-        attention_outputs = self_attention_outputs[2:]  # Keep self-attention outputs and relative position weights
+        # Keep self-attention outputs and relative position weights
+        attention_outputs = self_attention_outputs[2:]
 
         # clamp inf values to enable fp16 training
         if hidden_states.dtype == torch.float16 and torch.isinf(hidden_states).any():
             clamp_value = torch.finfo(hidden_states.dtype).max - 1000
-            hidden_states = torch.clamp(hidden_states, min=-clamp_value, max=clamp_value)
+            hidden_states = torch.clamp(
+                hidden_states, min=-clamp_value, max=clamp_value)
 
         do_cross_attention = self.is_decoder and encoder_hidden_states is not None
         if do_cross_attention:
@@ -573,11 +617,10 @@ class LoRAT5Block(am.MultiTaskModule):
                 query_length = present_key_value_state[0].shape[2]
             else:
                 query_length = None
-
             cross_attention_outputs = self.layer[1](
                 hidden_states,
-                task_label,
                 key_value_states=encoder_hidden_states,
+                task_label=task_label,
                 attention_mask=encoder_attention_mask,
                 position_bias=encoder_decoder_position_bias,
                 layer_head_mask=cross_attn_layer_head_mask,
@@ -591,22 +634,25 @@ class LoRAT5Block(am.MultiTaskModule):
             # clamp inf values to enable fp16 training
             if hidden_states.dtype == torch.float16 and torch.isinf(hidden_states).any():
                 clamp_value = torch.finfo(hidden_states.dtype).max - 1000
-                hidden_states = torch.clamp(hidden_states, min=-clamp_value, max=clamp_value)
+                hidden_states = torch.clamp(
+                    hidden_states, min=-clamp_value, max=clamp_value)
 
             # Combine self attn and cross attn key value states
             if present_key_value_state is not None:
-                present_key_value_state = present_key_value_state + cross_attention_outputs[1]
+                present_key_value_state = present_key_value_state + \
+                    cross_attention_outputs[1]
 
             # Keep cross-attention outputs and relative position weights
             attention_outputs = attention_outputs + cross_attention_outputs[2:]
 
         # Apply Feed Forward layer
-        hidden_states = self.layer[-1](hidden_states)
+        hidden_states = self.layer[-1](hidden_states, task_label)
 
         # clamp inf values to enable fp16 training
         if hidden_states.dtype == torch.float16 and torch.isinf(hidden_states).any():
             clamp_value = torch.finfo(hidden_states.dtype).max - 1000
-            hidden_states = torch.clamp(hidden_states, min=-clamp_value, max=clamp_value)
+            hidden_states = torch.clamp(
+                hidden_states, min=-clamp_value, max=clamp_value)
 
         outputs = (hidden_states,)
 
@@ -615,7 +661,8 @@ class LoRAT5Block(am.MultiTaskModule):
         else:
             outputs = outputs + attention_outputs
 
-        return outputs  # hidden-states, present_key_value_states, (self-attention position bias), (self-attention weights), (cross-attention position bias), (cross-attention weights)
+        # hidden-states, present_key_value_states, (self-attention position bias), (self-attention weights), (cross-attention position bias), (cross-attention weights)
+        return outputs
 
 
 class LoRAT5Stack(InvertibleAdaptersMixin, T5PreTrainedModel):
@@ -626,9 +673,11 @@ class LoRAT5Stack(InvertibleAdaptersMixin, T5PreTrainedModel):
         self.is_decoder = config.is_decoder
 
         self.block = nn.ModuleList(
-            [LoRAT5Block(config, has_relative_attention_bias=bool(i == 0)) for i in range(config.num_layers)]
+            [LoRAT5Block(config, has_relative_attention_bias=bool(i == 0))
+             for i in range(config.num_layers)]
         )
-        self.final_layer_norm = T5LayerNorm(config.d_model, eps=config.layer_norm_epsilon)
+        self.final_layer_norm = T5LayerNorm(
+            config.d_model, eps=config.layer_norm_epsilon)
         self.dropout = nn.Dropout(config.dropout_rate)
 
         # Initialize weights and apply final processing
@@ -642,15 +691,17 @@ class LoRAT5Stack(InvertibleAdaptersMixin, T5PreTrainedModel):
         for module in self.modules():
             if 'adaptation' in dir(module) and module is not self:
                 module.adaptation(num_class, task_label)
-                
+
     def parallelize(self, device_map=None):
         # Check validity of device_map
         self.device_map = (
-            get_device_map(len(self.block), range(torch.cuda.device_count())) if device_map is None else device_map
+            get_device_map(len(self.block), range(
+                torch.cuda.device_count())) if device_map is None else device_map
         )
         assert_device_map(self.device_map, len(self.block))
         self.model_parallel = True
-        self.first_device = "cpu" if "cpu" in self.device_map.keys() else "cuda:" + str(min(self.device_map.keys()))
+        self.first_device = "cpu" if "cpu" in self.device_map.keys() else "cuda:" + \
+            str(min(self.device_map.keys()))
         self.last_device = "cuda:" + str(max(self.device_map.keys()))
         # Load onto devices
         for k, v in self.device_map.items():
@@ -679,7 +730,7 @@ class LoRAT5Stack(InvertibleAdaptersMixin, T5PreTrainedModel):
 
     def set_input_embeddings(self, new_embeddings):
         self.embed_tokens = new_embeddings
-        
+
     def forward(
         self,
         task_label,
@@ -755,7 +806,8 @@ class LoRAT5Stack(InvertibleAdaptersMixin, T5PreTrainedModel):
             input_shape = inputs_embeds.size()[:-1]
         else:
             err_msg_prefix = "decoder_" if self.is_decoder else ""
-            raise ValueError(f"You have to specify either {err_msg_prefix}input_ids or {err_msg_prefix}inputs_embeds")
+            raise ValueError(
+                f"You have to specify either {err_msg_prefix}input_ids or {err_msg_prefix}inputs_embeds")
 
         if inputs_embeds is None:
             assert self.embed_tokens is not None, "You have to initialize the model with valid token embeddings"
@@ -764,13 +816,15 @@ class LoRAT5Stack(InvertibleAdaptersMixin, T5PreTrainedModel):
         batch_size, seq_length = input_shape
 
         # required mask seq length can be calculated via length of past
-        mask_seq_length = past_key_values[0][0].shape[2] + seq_length if past_key_values is not None else seq_length
+        mask_seq_length = past_key_values[0][0].shape[2] + \
+            seq_length if past_key_values is not None else seq_length
 
         if use_cache is True:
             assert self.is_decoder, f"`use_cache` can only be set to `True` if {self} is used as a decoder"
 
         if attention_mask is None:
-            attention_mask = torch.ones(batch_size, mask_seq_length).to(inputs_embeds.device)
+            attention_mask = torch.ones(
+                batch_size, mask_seq_length).to(inputs_embeds.device)
         if self.is_decoder and encoder_attention_mask is None and encoder_hidden_states is not None:
             encoder_seq_length = encoder_hidden_states.shape[1]
             encoder_attention_mask = torch.ones(
@@ -783,22 +837,27 @@ class LoRAT5Stack(InvertibleAdaptersMixin, T5PreTrainedModel):
 
         # We can provide a self-attention mask of dimensions [batch_size, from_seq_length, to_seq_length]
         # ourselves in which case we just need to make it broadcastable to all heads.
-        extended_attention_mask = self.get_extended_attention_mask(attention_mask, input_shape, inputs_embeds.device)
+        extended_attention_mask = self.get_extended_attention_mask(
+            attention_mask, input_shape, inputs_embeds.device)
 
         # If a 2D or 3D attention mask is provided for the cross-attention
         # we need to make broadcastable to [batch_size, num_heads, seq_length, seq_length]
         if self.is_decoder and encoder_hidden_states is not None:
             encoder_batch_size, encoder_sequence_length, _ = encoder_hidden_states.size()
-            encoder_hidden_shape = (encoder_batch_size, encoder_sequence_length)
+            encoder_hidden_shape = (
+                encoder_batch_size, encoder_sequence_length)
             if encoder_attention_mask is None:
-                encoder_attention_mask = torch.ones(encoder_hidden_shape, device=inputs_embeds.device)
-            encoder_extended_attention_mask = self.invert_attention_mask(encoder_attention_mask)
+                encoder_attention_mask = torch.ones(
+                    encoder_hidden_shape, device=inputs_embeds.device)
+            encoder_extended_attention_mask = self.invert_attention_mask(
+                encoder_attention_mask)
         else:
             encoder_extended_attention_mask = None
 
         # Prepare head mask if needed
         head_mask = self.get_head_mask(head_mask, self.config.num_layers)
-        cross_attn_head_mask = self.get_head_mask(cross_attn_head_mask, self.config.num_layers)
+        cross_attn_head_mask = self.get_head_mask(
+            cross_attn_head_mask, self.config.num_layers)
         present_key_value_states = () if use_cache else None
         all_hidden_states = () if output_hidden_states else None
         all_attentions = () if output_attentions else None
@@ -822,15 +881,19 @@ class LoRAT5Stack(InvertibleAdaptersMixin, T5PreTrainedModel):
                 if position_bias is not None:
                     position_bias = position_bias.to(hidden_states.device)
                 if encoder_hidden_states is not None:
-                    encoder_hidden_states = encoder_hidden_states.to(hidden_states.device)
+                    encoder_hidden_states = encoder_hidden_states.to(
+                        hidden_states.device)
                 if encoder_extended_attention_mask is not None:
-                    encoder_extended_attention_mask = encoder_extended_attention_mask.to(hidden_states.device)
+                    encoder_extended_attention_mask = encoder_extended_attention_mask.to(
+                        hidden_states.device)
                 if encoder_decoder_position_bias is not None:
-                    encoder_decoder_position_bias = encoder_decoder_position_bias.to(hidden_states.device)
+                    encoder_decoder_position_bias = encoder_decoder_position_bias.to(
+                        hidden_states.device)
                 if layer_head_mask is not None:
                     layer_head_mask = layer_head_mask.to(hidden_states.device)
                 if cross_attn_layer_head_mask is not None:
-                    cross_attn_layer_head_mask = cross_attn_layer_head_mask.to(hidden_states.device)
+                    cross_attn_layer_head_mask = cross_attn_layer_head_mask.to(
+                        hidden_states.device)
             if output_hidden_states:
                 all_hidden_states = all_hidden_states + (hidden_states,)
 
@@ -894,10 +957,12 @@ class LoRAT5Stack(InvertibleAdaptersMixin, T5PreTrainedModel):
                 encoder_decoder_position_bias = layer_outputs[4 if output_attentions else 3]
             # append next layer key value states
             if use_cache:
-                present_key_value_states = present_key_value_states + (present_key_value_state,)
+                present_key_value_states = present_key_value_states + \
+                    (present_key_value_state,)
 
             if position_bias is not None:
-                position_bias = adjust_tensors_for_parallel(hidden_states, position_bias)[0]
+                position_bias = adjust_tensors_for_parallel(
+                    hidden_states, position_bias)[0]
             if encoder_decoder_position_bias is not None:
                 encoder_decoder_position_bias = adjust_tensors_for_parallel(
                     hidden_states, encoder_decoder_position_bias
@@ -906,7 +971,8 @@ class LoRAT5Stack(InvertibleAdaptersMixin, T5PreTrainedModel):
             if output_attentions:
                 all_attentions = all_attentions + (layer_outputs[3],)
                 if self.is_decoder:
-                    all_cross_attentions = all_cross_attentions + (layer_outputs[5],)
+                    all_cross_attentions = all_cross_attentions + \
+                        (layer_outputs[5],)
 
             # Model Parallel: If it's the last layer for that device, put things on the next device
             if self.model_parallel:
@@ -940,7 +1006,7 @@ class LoRAT5Stack(InvertibleAdaptersMixin, T5PreTrainedModel):
             attentions=all_attentions,
             cross_attentions=all_cross_attentions,
         )
-        
+
 
 class LoRAT5Model(T5ModelAdaptersMixin, T5PreTrainedModel):
     _keys_to_ignore_on_load_missing = [
@@ -982,10 +1048,11 @@ class LoRAT5Model(T5ModelAdaptersMixin, T5PreTrainedModel):
         for module in self.modules():
             if 'adaptation' in dir(module) and module is not self:
                 module.adaptation(num_class, task_label)
-                
+
     def parallelize(self, device_map=None):
         self.device_map = (
-            get_device_map(len(self.encoder.block), range(torch.cuda.device_count()))
+            get_device_map(len(self.encoder.block),
+                           range(torch.cuda.device_count()))
             if device_map is None
             else device_map
         )
@@ -1062,7 +1129,7 @@ class LoRAT5Model(T5ModelAdaptersMixin, T5PreTrainedModel):
             output_hidden_states=output_hidden_states,
             return_dict=return_dict,
         )
-        
+
     def forward_single_task(
         self,
         task_label,
@@ -1126,8 +1193,10 @@ class LoRAT5Model(T5ModelAdaptersMixin, T5PreTrainedModel):
         elif return_dict and not isinstance(encoder_outputs, BaseModelOutput):
             encoder_outputs = BaseModelOutput(
                 last_hidden_state=encoder_outputs[0],
-                hidden_states=encoder_outputs[1] if len(encoder_outputs) > 1 else None,
-                attentions=encoder_outputs[2] if len(encoder_outputs) > 2 else None,
+                hidden_states=encoder_outputs[1] if len(
+                    encoder_outputs) > 1 else None,
+                attentions=encoder_outputs[2] if len(
+                    encoder_outputs) > 2 else None,
             )
 
         hidden_states = encoder_outputs[0]
@@ -1138,11 +1207,13 @@ class LoRAT5Model(T5ModelAdaptersMixin, T5PreTrainedModel):
             torch.cuda.set_device(self.decoder.first_device)
             hidden_states = hidden_states.to(self.decoder.first_device)
             if decoder_input_ids is not None:
-                decoder_input_ids = decoder_input_ids.to(self.decoder.first_device)
+                decoder_input_ids = decoder_input_ids.to(
+                    self.decoder.first_device)
             if attention_mask is not None:
                 attention_mask = attention_mask.to(self.decoder.first_device)
             if decoder_attention_mask is not None:
-                decoder_attention_mask = decoder_attention_mask.to(self.decoder.first_device)
+                decoder_attention_mask = decoder_attention_mask.to(
+                    self.decoder.first_device)
 
         # Decode
         decoder_outputs = self.decoder(
@@ -1206,7 +1277,8 @@ class LoRAT5ForConditionalGeneration(ModelWithHeadsAdaptersMixin, T5ModelAdapter
         decoder_config.adapters = config.adapters
         self.decoder = LoRAT5Stack(decoder_config, self.shared)
 
-        self.lm_head = PretrainingMultiTaskClassifier(config.d_model, config.vocab_size, bias=False)
+        self.lm_head = LoRAPiggybackLinear(
+            config.d_model, config.vocab_size, config.lora_r, lora_alpha=config.lora_alpha, config=config, bias=False)
 
         self._init_adapter_modules()
 
@@ -1221,10 +1293,11 @@ class LoRAT5ForConditionalGeneration(ModelWithHeadsAdaptersMixin, T5ModelAdapter
         for module in self.modules():
             if 'adaptation' in dir(module) and module is not self:
                 module.adaptation(num_class, task_label)
-                
+
     def parallelize(self, device_map=None):
         self.device_map = (
-            get_device_map(len(self.encoder.block), range(torch.cuda.device_count()))
+            get_device_map(len(self.encoder.block),
+                           range(torch.cuda.device_count()))
             if device_map is None
             else device_map
         )
@@ -1302,7 +1375,7 @@ class LoRAT5ForConditionalGeneration(ModelWithHeadsAdaptersMixin, T5ModelAdapter
             output_attentions=output_attentions,
             output_hidden_states=output_hidden_states,
             return_dict=return_dict,)
-        
+
     def forward_single_task(
         self,
         task_label,
@@ -1379,12 +1452,13 @@ class LoRAT5ForConditionalGeneration(ModelWithHeadsAdaptersMixin, T5ModelAdapter
         elif return_dict and not isinstance(encoder_outputs, BaseModelOutput):
             encoder_outputs = BaseModelOutput(
                 last_hidden_state=encoder_outputs[0],
-                hidden_states=encoder_outputs[1] if len(encoder_outputs) > 1 else None,
-                attentions=encoder_outputs[2] if len(encoder_outputs) > 2 else None,
+                hidden_states=encoder_outputs[1] if len(
+                    encoder_outputs) > 1 else None,
+                attentions=encoder_outputs[2] if len(
+                    encoder_outputs) > 2 else None,
             )
 
         hidden_states = encoder_outputs[0]
-
         if self.model_parallel:
             torch.cuda.set_device(self.decoder.first_device)
 
@@ -1397,11 +1471,13 @@ class LoRAT5ForConditionalGeneration(ModelWithHeadsAdaptersMixin, T5ModelAdapter
             torch.cuda.set_device(self.decoder.first_device)
             hidden_states = hidden_states.to(self.decoder.first_device)
             if decoder_input_ids is not None:
-                decoder_input_ids = decoder_input_ids.to(self.decoder.first_device)
+                decoder_input_ids = decoder_input_ids.to(
+                    self.decoder.first_device)
             if attention_mask is not None:
                 attention_mask = attention_mask.to(self.decoder.first_device)
             if decoder_attention_mask is not None:
-                decoder_attention_mask = decoder_attention_mask.to(self.decoder.first_device)
+                decoder_attention_mask = decoder_attention_mask.to(
+                    self.decoder.first_device)
 
         # Decode
         decoder_outputs = self.decoder(
@@ -1433,7 +1509,8 @@ class LoRAT5ForConditionalGeneration(ModelWithHeadsAdaptersMixin, T5ModelAdapter
             # See https://github.com/tensorflow/mesh/blob/fa19d69eafc9a482aff0b59ddd96b025c0cb207d/mesh_tensorflow/transformer/transformer.py#L586
             sequence_output = sequence_output * (self.model_dim**-0.5)
 
-        projected_output = self.encoder.invertible_adapters_forward(sequence_output, rev=True)
+        projected_output = self.encoder.invertible_adapters_forward(
+            sequence_output, rev=True)
 
         self.invertible_adapters_forward(projected_output, rev=True)
 
@@ -1442,7 +1519,8 @@ class LoRAT5ForConditionalGeneration(ModelWithHeadsAdaptersMixin, T5ModelAdapter
         loss = None
         if labels is not None:
             loss_fct = CrossEntropyLoss(ignore_index=-100)
-            loss = loss_fct(lm_logits.view(-1, lm_logits.size(-1)), labels.view(-1))
+            loss = loss_fct(
+                lm_logits.view(-1, lm_logits.size(-1)), labels.view(-1))
             # TODO(thom): Add z_loss https://github.com/tensorflow/mesh/blob/fa19d69eafc9a482aff0b59ddd96b025c0cb207d/mesh_tensorflow/layers.py#L666
 
         if not return_dict:
@@ -1496,7 +1574,8 @@ class LoRAT5ForConditionalGeneration(ModelWithHeadsAdaptersMixin, T5ModelAdapter
         # if decoder past is not included in output
         # speedy decoding is disabled and no need to reorder
         if past is None:
-            logger.warning("You might want to consider setting `use_cache=True` to speed up decoding")
+            logger.warning(
+                "You might want to consider setting `use_cache=True` to speed up decoding")
             return past
 
         reordered_decoder_past = ()
@@ -1507,11 +1586,13 @@ class LoRAT5ForConditionalGeneration(ModelWithHeadsAdaptersMixin, T5ModelAdapter
             for layer_past_state in layer_past_states:
                 # need to set correct `past` for each of the four key / value states
                 reordered_layer_past_states = reordered_layer_past_states + (
-                    layer_past_state.index_select(0, beam_idx.to(layer_past_state.device)),
+                    layer_past_state.index_select(
+                        0, beam_idx.to(layer_past_state.device)),
                 )
 
             assert reordered_layer_past_states[0].shape == layer_past_states[0].shape
             assert len(reordered_layer_past_states) == len(layer_past_states)
 
-            reordered_decoder_past = reordered_decoder_past + (reordered_layer_past_states,)
+            reordered_decoder_past = reordered_decoder_past + \
+                (reordered_layer_past_states,)
         return reordered_decoder_past

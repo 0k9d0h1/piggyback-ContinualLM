@@ -199,12 +199,22 @@ class Appr(object):
             optimizer.step()
             lr_scheduler.step()
 
-            pred = outp.max(1)[1]
-
-            predictions = accelerator.gather(pred)
             references = accelerator.gather(inputs['labels'])
 
-            train_acc += (references == predictions).sum().item()
+            if "roberta" in self.args.base_model_name_or_path:
+                pred = outp.max(1)[1]
+                predictions = accelerator.gather(pred)
+                train_acc += (references == predictions).sum().item()
+            elif "t5" in self.args.base_model_name_or_path:
+                pred = outp.max(2)[1]
+                preds = self.args.tokenizer.batch_decode(pred, skip_special_tokens=True)
+                labels = self.args.tokenizer.batch_decode(references, skip_special_tokens=True)
+                print(preds)
+                print(labels)
+                
+                for pred, label in zip(preds, labels):
+                    train_acc += int(pred == label)
+
             training_loss += loss.item()
             total_num += references.size(0)
 

@@ -28,8 +28,8 @@ import torch
 import wandb
 from accelerate import Accelerator
 from torch.utils.data import DataLoader
-from transformers import RobertaTokenizer, set_seed, AdamW
-from dataloader.data import get_dataset, get_dataset_eval, dataset_class_num
+from transformers import RobertaTokenizer, set_seed, AdamW, T5Tokenizer
+from dataloader.data import get_dataset, get_dataset_eval, get_dataset_t5, dataset_class_num
 import random
 from transformers import (
     MODEL_MAPPING,
@@ -96,17 +96,23 @@ def main():
     accelerator.wait_for_everyone()
 
     # Get the datasets and process the data.
-    tokenizer = RobertaTokenizer.from_pretrained(args.model_name_or_path)
+    if "roberta" in args.base_model_name_or_path:
+        tokenizer = RobertaTokenizer.from_pretrained(args.model_name_or_path)
+    elif "t5" in args.base_model_name_or_path:
+        tokenizer = T5Tokenizer.from_pretrained(args.model_name_or_path)
     args.tokenizer = tokenizer
 
     max_length = args.max_seq_length
 
     logger.info('==> Preparing data..')
 
-    if args.hyperparameter_tune:
-        datasets = get_dataset_eval(args.dataset_name, tokenizer=tokenizer, args=args)
-    else:
-        datasets = get_dataset(args.dataset_name, tokenizer=tokenizer, args=args)
+    if "roberta" in args.base_model_name_or_path:
+        if args.hyperparameter_tune:
+            datasets = get_dataset_eval(args.dataset_name, tokenizer=tokenizer, args=args)
+        else:
+            datasets = get_dataset(args.dataset_name, tokenizer=tokenizer, args=args)
+    elif "t5" in args.base_model_name_or_path:
+        datasets = get_dataset_t5(args.dataset_name, tokenizer=tokenizer, args=args)
     print(f'Dataset: {args.dataset_name}')
 
     print(f'Size of training set: {len(datasets["train"])}')
@@ -114,16 +120,33 @@ def main():
 
     train_dataset = datasets['train']
     test_dataset = datasets['test']
+    
+    def tokenize_function(examples):
+        inputs = examples["text"]
+        targets = examples["labels"]
+        model_inputs = tokenizer(inputs, truncation=True, padding='max_length', max_length=max_length)
 
-    test_dataset = test_dataset.map(
-        lambda e: tokenizer(e['text'], truncation=True, padding='max_length', max_length=max_length), batched=True)
+        with tokenizer.as_target_tokenizer():
+            labels = tokenizer(targets, truncation=True, padding='max_length', max_length=max_length)
+
+        model_inputs["labels"] = labels["input_ids"]
+        return model_inputs
+
+    if "roberta" in args.base_model_name_or_path:
+        test_dataset = test_dataset.map(
+            lambda e: tokenizer(e['text'], truncation=True, padding='max_length', max_length=max_length), batched=True)
+    elif "t5" in args.base_model_name_or_path:
+        test_dataset = test_dataset.map(tokenize_function, batched=True)
     test_dataset.set_format(type='torch', columns=[
                             'input_ids', 'attention_mask', 'labels'])
     test_loader = DataLoader(test_dataset, batch_size=args.batch_size, shuffle=False, drop_last=False,
                              num_workers=8)
 
-    train_dataset = train_dataset.map(
-        lambda e: tokenizer(e['text'], truncation=True, padding='max_length', max_length=max_length), batched=True)
+    if "roberta" in args.base_model_name_or_path:
+        train_dataset = train_dataset.map(
+            lambda e: tokenizer(e['text'], truncation=True, padding='max_length', max_length=max_length), batched=True)
+    elif "t5" in args.base_model_name_or_path:
+        train_dataset = train_dataset.map(tokenize_function, batched=True)
     train_dataset.set_format(type='torch', columns=[
                              'input_ids', 'attention_mask', 'labels'])
     train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True, drop_last=False,
@@ -140,8 +163,8 @@ def main():
     logger.info('==> Building model..')
 
     model = utils.model.lookfor_model_finetune(args)
-    print(model)
-
+    # print(model)
+    
     appr = Appr(args)
     appr.train(model, accelerator, train_loader, test_loader)
 

@@ -40,9 +40,13 @@ class MyModel(nn.Module):
                 ):
 
         input_ids = inputs['input_ids']
-        inputs_ori_ids = inputs['inputs_ori_ids']
         labels = inputs['labels']
-        attention_mask = inputs['attention_mask']
+        if 'inputs_ori_ids' in inputs:
+            inputs_ori_ids = inputs['inputs_ori_ids']
+            attention_mask = inputs['attention_mask']
+        else:
+            attention_mask = None
+            
         contrast_loss = None
         distill_loss = None
         simcse_loss = None

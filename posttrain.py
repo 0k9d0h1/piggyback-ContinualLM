@@ -55,13 +55,13 @@ def main():
     args.device = torch.device(
         "cuda" if torch.cuda.is_available() and not args.no_cuda else "cpu")
     args = utils.model.prepare_sequence_posttrain(args)
-    
+
     wandb.init(project='piggyback_continualDAP_pretrain',
-                config=args)
-    wandb.run.name = "%s_%s_%d" % (
-        args.baseline, args.dataset_name, args.seed)
+               config=args)
+    wandb.run.name = "%s_%s_%s_%d" % (
+        args.base_model_name_or_path, args.baseline, args.dataset_name, args.seed)
     wandb.run.save()
-    
+
     from approaches.posttrain import Appr
 
     # Initialize the accelerator. We will let the accelerator handle device placement for us in this example.
@@ -106,7 +106,8 @@ def main():
     # tokenizer = AutoTokenizer.from_pretrained(
     #     args.model_name_or_path, use_fast=not args.use_slow_tokenizer)
     if "roberta" in args.base_model_name_or_path:
-        tokenizer = RobertaTokenizer.from_pretrained(args.base_model_name_or_path)
+        tokenizer = RobertaTokenizer.from_pretrained(
+            args.base_model_name_or_path)
     elif "t5" in args.base_model_name_or_path:
         tokenizer = T5Tokenizer.from_pretrained(args.base_model_name_or_path)
     args.tokenizer = tokenizer
@@ -114,6 +115,22 @@ def main():
     model = utils.model.lookfor_model_posttrain(args)
     print(model)
     accelerator.wait_for_everyone()
+
+    # Data collator
+    # This one will take care of randomly masking the tokens.
+    if "roberta" in args.base_model_name_or_path:
+        data_collator = utils.data.PTDataCollatorForLanguageModeling(
+            tokenizer=tokenizer, mlm_probability=args.mlm_probability)
+    elif "t5" in args.base_model_name_or_path:
+        before_mask_input_length, target_length = utils.data.compute_input_and_target_lengths(
+                inputs_length=args.max_seq_length,
+                noise_density=args.mlm_probability,
+                mean_noise_span_length=args.mean_noise_span_length,
+            )
+        args.before_mask_input_length = before_mask_input_length
+        args.target_length = target_length
+        data_collator = utils.data.DataCollatorForT5MLM(tokenizer=tokenizer, noise_density=args.mlm_probability, mean_noise_span_length=args.mean_noise_span_length,
+                                                        input_length=args.max_seq_length, target_length=args.target_length, pad_token_id=tokenizer.pad_token_id)
 
     if 'comb' in args.baseline:
         for t in range(args.pt_task + 1):
@@ -183,6 +200,8 @@ def main():
     # To speed up this part, we use multiprocessing. See the documentation of the map method for more information:
     # https://huggingface.co/docs/datasets/package_reference/main_classes.html#datasets.Dataset.map
 
+    if "t5" in args.base_model_name_or_path:
+        max_seq_length = before_mask_input_length
     with accelerator.main_process_first():
         tokenized_datasets = tokenized_datasets.map(
             utils.data.group_texts,
@@ -202,15 +221,6 @@ def main():
     for index in random.sample(range(len(train_dataset)), 1):
         logger.info(
             f"Sample {index} of the training set: {train_dataset[index]}. Decode to: {tokenizer.decode(train_dataset[index]['input_ids'])}")
-
-    # Data collator
-    # This one will take care of randomly masking the tokens.
-    if "roberta" in args.base_model_name_or_path:
-        data_collator = utils.data.PTDataCollatorForLanguageModeling(
-            tokenizer=tokenizer, mlm_probability=args.mlm_probability)
-    elif "t5" in args.base_model_name_or_path:
-        data_collator = utils.data.DataCollatorForT5MLM(tokenizer=tokenizer, noise_density=args.noise_density, mean_noise_span_length=args.mean_noise_span_length,
-                                                        input_length=args.max_seq_length, target_length=args.max_seq_length, pad_token_id=tokenizer.pad_token_id)
 
     print('train_dataset: ', len(train_dataset))
     if args.max_train_samples is not None:

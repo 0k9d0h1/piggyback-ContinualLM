@@ -141,34 +141,61 @@ def copy_weights(model, model_pretrained, data_idx=0):
     # Copy weights of pretrained model
     module_list = list(model_pretrained.modules())
     i = 0
+    if "Roberta" in str(type(model)):
+        for module in model.roberta.modules():
+            if 'Pooler' in str(type(module_list[i])):
+                break
 
-    for module in model.roberta.modules():
-        if 'Pooler' in str(type(module_list[i])):
-            break
+            if 'Linear' in str(type(module)):
+                while True:
+                    i += 1
+                    if 'Linear' in str(type(module_list[i])):
+                        break
+                print(str(type(module_list[i])))
+                module.weight.data.copy_(module_list[i].weight.data)
+                module.bias.data.copy_(module_list[i].bias.data)
 
-        if 'Linear' in str(type(module)):
-            while True:
-                i += 1
-                if 'Linear' in str(type(module_list[i])):
-                    break
-            module.weight.data.copy_(module_list[i].weight.data)
-            module.bias.data.copy_(module_list[i].bias.data)
+            elif 'Embedding' in str(type(module)) and 'Roberta' not in str(type(module)):
+                while True:
+                    i += 1
+                    if 'Embedding' in str(type(module_list[i])) and 'Roberta' not in str(type(module_list[i])):
+                        break
+                print(str(type(module_list[i])))
+                module.weight.data.copy_(module_list[i].weight.data)
 
-        elif 'Embedding' in str(type(module)) and 'Roberta' not in str(type(module)):
-            while True:
-                i += 1
-                if 'Embedding' in str(type(module_list[i])) and 'Roberta' not in str(type(module_list[i])):
-                    break
-            module.weight.data.copy_(module_list[i].weight.data)
+            elif 'LayerNorm' in str(type(module)):
+                while True:
+                    i += 1
+                    if 'LayerNorm' in str(type(module_list[i])):
+                        break
+                print(str(type(module_list[i])))
+                module.weight.data.copy_(module_list[i].weight.data)
+                module.bias.data.copy_(module_list[i].bias.data)
+    elif "T5" in str(type(model)):
+        for module in model.modules():
+            if 'Linear' in str(type(module)):
+                while True:
+                    i += 1
+                    if 'Linear' in str(type(module_list[i])):
+                        break
+                print(str(type(module_list[i])), module_list[i])
+                module.weight.data.copy_(module_list[i].weight.data)
 
-        elif 'LayerNorm' in str(type(module)):
-            while True:
-                i += 1
-                if 'LayerNorm' in str(type(module_list[i])):
-                    break
-            module.weight.data.copy_(module_list[i].weight.data)
-            module.bias.data.copy_(module_list[i].bias.data)
-            module.eval()
+            elif 'Embedding' in str(type(module)) and 'Roberta' not in str(type(module)):
+                while True:
+                    i += 1
+                    if 'Embedding' in str(type(module_list[i])) and 'Roberta' not in str(type(module_list[i])):
+                        break
+                print(str(type(module_list[i])), module_list[i])
+                module.weight.data.copy_(module_list[i].weight.data)
+
+            elif 'LayerNorm' in str(type(module)):
+                while True:
+                    i += 1
+                    if 'LayerNorm' in str(type(module_list[i])):
+                        break
+                print(str(type(module_list[i])), module_list[i])
+                module.weight.data.copy_(module_list[i].weight.data)
 
 
 def check(model, pretrained):

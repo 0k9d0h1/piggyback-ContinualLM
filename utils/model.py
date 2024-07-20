@@ -250,8 +250,8 @@ def prepare_sequence_posttrain(args):
         datas = f.readlines()[args.idrandom]
         data = datas.split()
 
-    output = f'{args.base_dir}/{args.base_model_name_or_path}_/seq{args.idrandom}/{args.max_samples}samples/{args.baseline}/{data[args.pt_task]}_roberta/'
-    ckpt = f'{args.base_dir}/{args.base_model_name_or_path}_/seq{args.idrandom}/{args.max_samples}samples/{args.baseline}/{data[args.pt_task-1]}_roberta/'
+    output = f'{args.base_dir}/{args.base_model_name_or_path}_/seq{args.idrandom}/{args.max_samples}samples/{args.baseline}/{data[args.pt_task]}_{args.base_model_name_or_path.split("-")[0]}/'
+    ckpt = f'{args.base_dir}/{args.base_model_name_or_path}_/seq{args.idrandom}/{args.max_samples}samples/{args.baseline}/{data[args.pt_task-1]}_{args.base_model_name_or_path.split("-")[0]}/'
 
     if 'dga' in args.baseline or 'das' in args.baseline:
         output_dir = f'{args.base_dir}/{args.base_model_name_or_path}_/seq{args.idrandom}/{args.max_samples}samples/{args.baseline}'
@@ -262,7 +262,7 @@ def prepare_sequence_posttrain(args):
                 for pre_t in range(args.pt_task + 1):
                     new_dir = f'{output}before_distill{pre_t}/'
                     os.makedirs(new_dir, exist_ok=True)
-                saved_output = f'{output_dir}/{data[0]}_roberta/before_distill0/'
+                saved_output = f'{output_dir}/{data[0]}_{args.base_model_name_or_path.split("-")[0]}/before_distill0/'
                 # only used in the first one (for the importance of general knoweledge)
                 args.saved_output_dir += [saved_output]
 
@@ -270,18 +270,18 @@ def prepare_sequence_posttrain(args):
                 for pre_t in range(args.pt_task + 1):
                     new_dir = f'{output}before_distill{pre_t}/'
                     os.makedirs(new_dir, exist_ok=True)
-                saved_output = f'{output_dir}/{data[args.pt_task]}_roberta/before_distill{args.pt_task}/'
+                saved_output = f'{output_dir}/{data[args.pt_task]}_{args.base_model_name_or_path.split("-")[0]}/before_distill{args.pt_task}/'
                 args.saved_output_dir += [saved_output]
 
             if 'after_mlm' in args.softmask_compute:
                 new_dir = f'{output}after_mlm{pre_t}/'
                 os.makedirs(new_dir, exist_ok=True)
                 args.saved_output_dir += [
-                    f'{output_dir}/{data[t]}_roberta/after_mlm{t}/' for t in range(args.pt_task)]
+                    f'{output_dir}/{data[t]}_{args.base_model_name_or_path.split("-")[0]}/after_mlm{t}/' for t in range(args.pt_task)]
 
     else:
         args.saved_output_dir = [
-            f'{args.base_dir}/{args.base_model_name_or_path}_/seq{args.idrandom}/{args.max_samples}samples/{args.baseline}/{args.dataset_name}/{data[t]}_roberta/' for t in range(args.pt_task + 1)]
+            f'{args.base_dir}/{args.base_model_name_or_path}_/seq{args.idrandom}/{args.max_samples}samples/{args.baseline}/{args.dataset_name}/{data[t]}_{args.base_model_name_or_path.split("-")[0]}/' for t in range(args.pt_task + 1)]
 
     print(
         f'The directory of saved models or saved importances: {args.saved_output_dir}')
@@ -299,12 +299,12 @@ def prepare_sequence_posttrain(args):
 
     # no pre-trained for the first
     if args.pt_task == 0 or 'one' in args.baseline or ('wiki' in args.baseline and args.pt_task == 1):
-        args.model_name_or_path = "roberta-base"
+        args.model_name_or_path = args.base_model_name_or_path
     else:
         args.model_name_or_path = ckpt
 
     if args.eval_only:
-        args.model_name_or_path = f'{args.base_dir}/{args.base_model_name_or_path}_/seq{args.idrandom}/{args.max_samples}samples/{args.baseline}/{data[args.pt_task]}_roberta/'
+        args.model_name_or_path = f'{args.base_dir}/{args.base_model_name_or_path}_/seq{args.idrandom}/{args.max_samples}samples/{args.baseline}/{data[args.pt_task]}_{args.base_model_name_or_path.split("-")[0]}/'
 
     print(f'Output directory: {args.output_dir}')
     print(f'Dataset: {args.dataset_name}')
@@ -339,9 +339,9 @@ def prepare_sequence_finetune(args):
 
     posttrain2endtask = {"pubmed_unsup": "chemprot_sup", "phone_unsup": "phone_sup", "ai_unsup": "scierc_sup",
                          "camera_unsup": "camera_sup", "acl_unsup": "aclarc_sup", "restaurant_unsup": "restaurant_sup"}
-    
-    output = f'{args.base_dir}/{args.base_model_name_or_path}_/seq{args.idrandom}/{args.max_samples}samples/{args.baseline}/{data[args.pt_task]}_roberta/'
-    ckpt = f'{args.base_dir}/{args.base_model_name_or_path}_/seq{args.idrandom}/{args.max_samples}samples/{args.baseline}/{data[args.pt_task]}_roberta/'
+
+    output = f'{args.base_dir}/{args.base_model_name_or_path}_/seq{args.idrandom}/{args.max_samples}samples/{args.baseline}/{data[args.pt_task]}_{args.base_model_name_or_path.split("-")[0]}/'
+    ckpt = f'{args.base_dir}/{args.base_model_name_or_path}_/seq{args.idrandom}/{args.max_samples}samples/{args.baseline}/{data[args.pt_task]}_{args.base_model_name_or_path.split("-")[0]}/'
 
     args.output_dir = output
 
@@ -353,7 +353,7 @@ def prepare_sequence_finetune(args):
     print(f'Output directory: {args.output_dir}')
     print(f'Dataset: {args.dataset_name}')
     print(f'Pretrained model: {args.model_name_or_path}')
-    
+
     if args.baseline == 'piggyback':
         if args.dataset_name == 'aclarc_sup':
             args.epoch = 20
@@ -561,7 +561,7 @@ def _lookfor_model_piggyback(args, training_type):
             config.mask_scale = 1e-2
         elif config.baseline == 'piggyback_nonzero':
             config.mask_scale = 5e-2
-            
+
         model = PiggybackRobertaForSequenceClassification(
             config, args, args.class_num)
         for i in range(args.ft_task + 1):
@@ -583,7 +583,7 @@ def _lookfor_model_piggyback(args, training_type):
             config.mask_scale = 1e-2
         elif config.baseline == 'piggyback_nonzero':
             config.mask_scale = 5e-2
-            
+
         model = PiggybackRobertaForMaskedLM(
             config, args)
         print(args.model_name_or_path, "\n\n\n\n")
@@ -607,7 +607,6 @@ def _lookfor_model_piggyback(args, training_type):
     return model
 
 
-
 def _lookfor_model_lora(args, training_type):
 
     if "roberta" in args.base_model_name_or_path:
@@ -618,7 +617,7 @@ def _lookfor_model_lora(args, training_type):
         model_pretrained = T5ForConditionalGeneration.from_pretrained(
             args.base_model_name_or_path)
         config = T5Config.from_pretrained(args.base_model_name_or_path)
-        
+
     config.training_type = training_type
     if training_type == 'finetune':
         config.finetune_type = args.finetune_type
@@ -631,7 +630,7 @@ def _lookfor_model_lora(args, training_type):
                 config, args, args.class_num)
         elif "t5" in args.base_model_name_or_path:
             model = LoRAT5ForConditionalGeneration(config)
-            
+
         for i in range(args.ft_task + 1):
             model.adaptation(args.class_num, i)
 
@@ -639,25 +638,44 @@ def _lookfor_model_lora(args, training_type):
             args.model_name_or_path, 'model.pt'), map_location='cpu')
         model.load_state_dict(model_state, strict=False)
 
-        if args.finetune_type == 'lora':
-            for n, p in model.roberta.named_parameters():
-                if 'lora' in n:
-                    p.requires_grad = True
-                else:
-                    p.requires_grad = False
-        elif args.finetune_type == 'lora_piggyback':
-            for n, p in model.roberta.named_parameters():
-                if 'mask' in n:
-                    p.requires_grad = True
-                else:
-                    p.requires_grad = False
-        elif args.finetune_type == 'full_finetune':
-            for n, p in model.roberta.named_parameters():
-                if 'lora' not in n:
-                    p.requires_grad = True
-                else:
-                    p.requires_grad = False
-            
+        if "roberta" in args.base_model_name_or_path:
+            if args.finetune_type == 'lora':
+                for n, p in model.roberta.named_parameters():
+                    if 'lora' in n:
+                        p.requires_grad = True
+                    else:
+                        p.requires_grad = False
+            elif args.finetune_type == 'lora_piggyback':
+                for n, p in model.roberta.named_parameters():
+                    if 'mask' in n:
+                        p.requires_grad = True
+                    else:
+                        p.requires_grad = False
+            elif args.finetune_type == 'full_finetune':
+                for n, p in model.roberta.named_parameters():
+                    if 'lora' not in n:
+                        p.requires_grad = True
+                    else:
+                        p.requires_grad = False
+        elif "t5" in args.base_model_name_or_path:
+            if args.finetune_type == 'lora':
+                for n, p in model.named_parameters():
+                    if 'lora' in n:
+                        p.requires_grad = True
+                    else:
+                        p.requires_grad = False
+            elif args.finetune_type == 'lora_piggyback':
+                for n, p in model.named_parameters():
+                    if 'mask' in n:
+                        p.requires_grad = True
+                    else:
+                        p.requires_grad = False
+            elif args.finetune_type == 'full_finetune':
+                for n, p in model.named_parameters():
+                    if 'lora' not in n:
+                        p.requires_grad = True
+                    else:
+                        p.requires_grad = False
 
     elif training_type == 'posttrain':
         config.lora_r = args.lora_r
@@ -678,17 +696,23 @@ def _lookfor_model_lora(args, training_type):
             #     f'{args.base_dir}/seq{args.idrandom}/{args.max_samples}samples/{args.baseline}/camera_unsup_roberta/', 'model.pt'), map_location='cpu')
             model.load_state_dict(model_state, strict=False)
 
-        for n, p in model.roberta.named_parameters():
-            if 'lora' in n:
-                p.requires_grad = True
-            else:
-                p.requires_grad = False
+        if "roberta" in args.base_model_name_or_path:
+            for n, p in model.roberta.named_parameters():
+                if 'lora' in n:
+                    p.requires_grad = True
+                else:
+                    p.requires_grad = False
+        elif "t5" in args.base_model_name_or_path:
+            for n, p in model.named_parameters():
+                if 'lora' in n:
+                    p.requires_grad = True
+                else:
+                    p.requires_grad = False
 
     copy_weights(model, model_pretrained)
     model = MyModel(model, teacher=None, args=args)
 
     return model
-
 
 
 def _lookfor_model_others(args, training_type):

@@ -82,7 +82,6 @@ class Appr(object):
         self.args.num_warmup_steps = int(
             float(self.args.warmup_proportion) * float(self.args.max_train_steps))  # 0.1
 
-
         lr_scheduler = get_scheduler(
             name=self.args.lr_scheduler_type,
             optimizer=optimizer,
@@ -155,7 +154,8 @@ class Appr(object):
                         self, model, outputs = compute_loss.compute(
                             self, model, batch, head_impt, intermediate_impt, output_impt, self_fisher, mask_pre, train_loader, step, accelerator)
                         loss = outputs.loss  # loss 1
-                        wandb.log({"Train_Loss/Task%s" % (self.args.pt_task): loss.item()})
+                        wandb.log({"Train_Loss/Task%s" %
+                                  (self.args.pt_task): loss.item()})
                         model = compute_gradient.compute(
                             self, model, head_impt, intermediate_impt, output_impt, batch, loss, buffer, mask_back, outputs, epoch, step, accelerator)
                         global_step += 1
@@ -173,7 +173,7 @@ class Appr(object):
 
         after_posttrain.compute(
             self, model, train_loader_subset, self_fisher, mask_pre, buffer, accelerator)
-        
+
         # if 'lora_sim' == self.args.baseline:
         #     for i in range(self.args.pt_task):
         #         completed_steps = 0
@@ -192,7 +192,7 @@ class Appr(object):
         #                 prev_cos_sim = torch.einsum('bk,k->b', n_sequence_output, n_prev_key)
         #                 # print(prev_cos_sim)
         #                 cossim.append(prev_cos_sim.detach().cpu())
-                            
+
         #                 completed_steps += 1
         #                 # break
         #                 if completed_steps >= 1000:
@@ -201,7 +201,7 @@ class Appr(object):
         #             print(torch.max(cossim), torch.min(cossim), torch.mean(cossim), torch.std(cossim), torch.median(cossim))
         #             import matplotlib.pyplot as plt
         #             import numpy as np
-                    
+
         #             cossim = cossim.numpy()
         #             plt.clf()
         #             plt.hist(cossim, bins=100)

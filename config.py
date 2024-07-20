@@ -151,6 +151,9 @@ def parseing_posttrain():
     parser.add_argument(
         "--mlm_probability", type=float, default=0.15, help="Ratio of tokens to mask for masked language modeling loss"
     )
+    parser.add_argument(
+        "--mean_noise_span_length", type=float, default=3.0
+    )
     parser.add_argument("--push_to_hub", action="store_true",
                         help="Whether or not to push the model to the Hub.")
     parser.add_argument(
@@ -362,6 +365,9 @@ def parseing_finetune():
                         help="['kd_origin','cls','replaced','contrastive','kd_generated']")
     parser.add_argument(
         "--mlm_probability", type=float, default=0.15, help="Ratio of tokens to mask for masked language modeling loss"
+    )
+    parser.add_argument(
+        "--mean_noise_span_length", type=float, default=3.0
     )
     parser.add_argument("--idrandom", type=int, help="which sequence to use")
     parser.add_argument("--pt_task", type=int, help="task id")

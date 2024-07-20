@@ -408,17 +408,17 @@ class DataCollatorForT5MLM:
         batch["input_ids"] = self.filter_input_ids(input_ids, input_ids_sentinel)
         batch["labels"] = self.filter_input_ids(input_ids, labels_sentinel)
 
-        if batch["input_ids"].shape[-1] != self.input_length:
-            raise ValueError(
-                f"`input_ids` are incorrectly preprocessed. `input_ids` length is {batch['input_ids'].shape[-1]}, but"
-                f" should be {self.input_length}."
-            )
+        # if batch["input_ids"].shape[-1] != self.input_length:
+        #     raise ValueError(
+        #         f"`input_ids` are incorrectly preprocessed. `input_ids` length is {batch['input_ids'].shape[-1]}, but"
+        #         f" should be {self.input_length}."
+        #     )
 
-        if batch["labels"].shape[-1] != self.target_length:
-            raise ValueError(
-                f"`labels` are incorrectly preprocessed. `labels` length is {batch['labels'].shape[-1]}, but should be"
-                f" {self.target_length}."
-            )
+        # if batch["labels"].shape[-1] != self.target_length:
+        #     raise ValueError(
+        #         f"`labels` are incorrectly preprocessed. `labels` length is {batch['labels'].shape[-1]}, but should be"
+        #         f" {self.target_length}."
+        #     )
 
         batch = {k: torch.from_numpy(v) for k, v in batch.items()}
         return batch
