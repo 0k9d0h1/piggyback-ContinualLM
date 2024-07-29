@@ -68,7 +68,8 @@ class Appr(object):
             f"Pretrained Model = {self.args.model_name_or_path},  Dataset name = {self.args.dataset_name}, seed = {self.args.seed}")
 
         if 'lora' in self.args.baseline:
-            os.makedirs(f'{self.args.output_dir}/../{self.args.finetune_type}', exist_ok=True)
+            os.makedirs(
+                f'{self.args.output_dir}/../{self.args.finetune_type}', exist_ok=True)
             summary_path = f'{self.args.output_dir}../{self.args.finetune_type}/{self.args.dataset_name}_finetune_summary'
         else:
             summary_path = f'{self.args.output_dir}../{self.args.dataset_name}_finetune_summary'
@@ -167,9 +168,10 @@ class Appr(object):
                 model_ori = accelerator.unwrap_model(model)
                 head_importance, intermediate_importance, output_importance = model_ori.transformer_mask()
                 res = model.model(**inputs, head_mask=head_importance, intermediate_mask=intermediate_importance,
-                                output_mask=output_importance)
+                                  output_mask=output_importance)
             elif 'piggyback' in self.args.baseline or 'lora' in self.args.baseline:
-                res = model.model(**inputs, task_label=self.args.ft_task, return_dict=True)
+                res = model.model(
+                    **inputs, task_label=self.args.ft_task, return_dict=True)
             else:
                 res = model.model(**inputs, return_dict=True)
 
@@ -177,7 +179,7 @@ class Appr(object):
             loss = res.loss
             optimizer.zero_grad()
             accelerator.backward(loss)
-            
+
             if 'lora_piggyback' == self.args.finetune_type:
                 for module in model.model.modules():
                     if 'Piggyback' in str(type(module)):
@@ -207,11 +209,13 @@ class Appr(object):
                 train_acc += (references == predictions).sum().item()
             elif "t5" in self.args.base_model_name_or_path:
                 pred = outp.max(2)[1]
-                preds = self.args.tokenizer.batch_decode(pred, skip_special_tokens=True)
-                labels = self.args.tokenizer.batch_decode(references, skip_special_tokens=True)
-                print(preds)
-                print(labels)
-                
+                preds = self.args.tokenizer.batch_decode(
+                    pred, skip_special_tokens=True)
+                labels = self.args.tokenizer.batch_decode(
+                    references, skip_special_tokens=True)
+                # print(preds)
+                # print(labels)
+
                 for pred, label in zip(preds, labels):
                     train_acc += int(pred == label)
 
@@ -219,13 +223,28 @@ class Appr(object):
             total_num += references.size(0)
 
             progress_bar.update(1)
-            
+
         wandb.log({"Train_Loss/Task%s" % (self.args.ft_task): training_loss / total_num,
                    "Train_Acc/Task%s" % (self.args.ft_task): train_acc / total_num})
-            # break
+        # break
         return train_acc / total_num, training_loss / total_num
 
     def eval(self, model, dataloader, accelerator):
+        if self.args.dataset_name == 'restaurant_sup':
+            label2idx = {'positive': 0, 'negative': 1, 'neutral': 2}
+        elif self.args.dataset_name == 'chemprot_sup':
+            label2idx = {'DOWNREGULATOR': 0, 'SUBSTRATE': 1, 'INDIRECT-UPREGULATOR': 2, 'INDIRECT-DOWNREGULATOR': 3,
+                         'AGONIST': 4, 'ACTIVATOR': 5, 'PRODUCT-OF': 6, 'AGONIST-ACTIVATOR': 7, 'INHIBITOR': 8,
+                         'UPREGULATOR': 9, 'SUBSTRATE_PRODUCT-OF': 10, 'AGONIST-INHIBITOR': 11, 'ANTAGONIST': 12}
+        elif self.args.dataset_name == 'aclarc_sup':
+            label2idx = {'Uses': 0, 'Future': 1, 'CompareOrContrast': 2,
+                         'Motivation': 3, 'Extends': 4, 'Background': 5}
+        elif self.args.dataset_name == 'scierc_sup':
+            label2idx = {'FEATURE-OF': 0, 'CONJUNCTION': 1, 'EVALUATE-FOR': 2, 'HYPONYM-OF': 3, 'USED-FOR': 4,
+                         'PART-OF': 5, 'COMPARE': 6}
+        elif self.args.dataset_name == 'camera_sup' or self.args.dataset_name == 'phone_sup':
+            label2idx = {'positive': 0, 'negative': 1}
+
         model.eval()
         label_list = []
         prediction_list = []
@@ -236,25 +255,61 @@ class Appr(object):
                             disable=not accelerator.is_local_main_process)
         with torch.no_grad():
             for batch, inputs in enumerate(dataloader):
-                input_ids = inputs['input_ids']
-                if 'piggyback' in self.args.baseline or 'lora' in self.args.baseline:
-                    res = model.model(**inputs, task_label=self.args.ft_task, return_dict=True)
-                else:
-                    res = model.model(**inputs, return_dict=True)
-
-                real_b=input_ids.size(0)
-                loss = res.loss
-                outp = res.logits
-                if self.args.problem_type != 'multi_label_classification':
-                    pred = outp.max(1)[1]
-                else:
-                    pred = outp.sigmoid() > 0.5
-
-                total_loss += loss.data.cpu().numpy().item()*real_b
-                total_num += real_b
-
-                predictions = accelerator.gather(pred)
                 references = accelerator.gather(inputs['labels'])
+
+                if "roberta" in self.args.base_model_name_or_path:
+                    input_ids = inputs['input_ids']
+                    if 'piggyback' in self.args.baseline or 'lora' in self.args.baseline:
+                        res = model.model(
+                            **inputs, task_label=self.args.ft_task, return_dict=True)
+                    else:
+                        res = model.model(**inputs, return_dict=True)
+
+                    real_b = input_ids.size(0)
+                    loss = res.loss
+                    outp = res.logits
+
+                    total_loss += loss.data.cpu().numpy().item()*real_b
+                    total_num += real_b
+                    if self.args.problem_type != 'multi_label_classification':
+                        pred = outp.max(1)[1]
+                    else:
+                        pred = outp.sigmoid() > 0.5
+                    predictions = accelerator.gather(pred)
+
+                elif "t5" in self.args.base_model_name_or_path:
+                    input_ids = inputs['input_ids']
+                    real_b = input_ids.size(0)
+                    if 'piggyback' in self.args.baseline or 'lora' in self.args.baseline:
+                        res = model.model.generate(
+                            input_ids, task_label=self.args.ft_task, return_dict_in_generate=True, output_scores=True)
+                    else:
+                        res = model.model.generate(
+                            input_ids, return_dict_in_generate=True, output_scores=True)
+                    outp = torch.stack(list(res.scores), dim=1)
+                    pred = outp.max(2)[1]
+                    preds = self.args.tokenizer.batch_decode(
+                        pred, skip_special_tokens=True)
+                    labels = self.args.tokenizer.batch_decode(
+                        references, skip_special_tokens=True)
+                    print(preds)
+                    print(labels)
+
+                    loss_fct = torch.nn.CrossEntropyLoss()
+                    outputs = torch.nn.functional.pad(
+                        outp, (0, outp.shape[1] - references.shape[1]), 'constant', self.args.tokenizer.pad_token_id)
+                    target_ids = torch.nn.functional.pad(
+                        references, (0, outp.shape[1] - references.shape[1]), 'constant', self.args.tokenizer.pad_token_id)
+                    loss = loss_fct(
+                        outputs.view(-1, outputs.size(-1)), target_ids.view(-1))
+                    total_loss += loss.data.cpu().numpy().item()*real_b
+                    total_num += real_b
+
+                    references = torch.Tensor(
+                        [label2idx[label] for label in labels])
+                    # prediction that is not in the label2idx will be assigned to the incorrect label
+                    predictions = torch.Tensor([label2idx.get(pred, len(
+                        label2idx) - 1 - label2idx[labels[i]]) for i, pred in enumerate(preds)])
 
                 label_list += references.cpu().numpy().tolist()  # we may use multi-node
                 prediction_list += predictions.cpu().numpy().tolist()
@@ -265,10 +320,10 @@ class Appr(object):
         macro_f1 = f1_score(label_list, prediction_list, average='macro')
         accuracy = sum([float(label_list[i] == prediction_list[i])
                        for i in range(len(label_list))]) * 1.0 / len(prediction_list)
-        
+
         wandb.log({"Eval_Loss/Task%s" % (self.args.ft_task): total_loss/total_num,
-            "Eval_Acc/Task%s" % (self.args.ft_task): accuracy,
-            "Eval_Micro_F1/Task%s" % (self.args.ft_task): micro_f1,
-            "Eval_Macro_F1/Task%s" % (self.args.ft_task): macro_f1, })
+                   "Eval_Acc/Task%s" % (self.args.ft_task): accuracy,
+                   "Eval_Micro_F1/Task%s" % (self.args.ft_task): micro_f1,
+                   "Eval_Macro_F1/Task%s" % (self.args.ft_task): macro_f1, })
 
         return micro_f1, macro_f1, accuracy, total_loss/total_num

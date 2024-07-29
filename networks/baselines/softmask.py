@@ -42,23 +42,36 @@ def impt_norm(impt):
     return impt
 
 
-def initial_impt(config):
+def initial_impt(args, config):
 
+    if 'roberta' in args.base_model_name_or_path:
+        n_encoder_layer, n_encoder_heads = config.num_hidden_layers, config.num_attention_heads
+        
+        intermediate_impt = torch.zeros(n_encoder_layer, config.intermediate_size).cuda()
+        intermediate_mask = torch.ones(n_encoder_layer, config.intermediate_size).cuda()
+        intermediate_mask.requires_grad_(requires_grad=True)
 
-    n_encoder_layer, n_encoder_heads = config.num_hidden_layers, config.num_attention_heads
+        output_impt = torch.zeros(n_encoder_layer, config.hidden_size).cuda()
+        output_mask = torch.ones(n_encoder_layer, config.hidden_size).cuda()
+        output_mask.requires_grad_(requires_grad=True)
 
-    intermediate_impt = torch.zeros(n_encoder_layer, config.intermediate_size).cuda()
-    intermediate_mask = torch.ones(n_encoder_layer, config.intermediate_size).cuda()
-    intermediate_mask.requires_grad_(requires_grad=True)
+        head_impt = torch.zeros(n_encoder_layer, n_encoder_heads).cuda()
+        head_mask = torch.ones(n_encoder_layer, n_encoder_heads).cuda()
+        head_mask.requires_grad_(requires_grad=True)
+    elif 't5' in args.base_model_name_or_path:
+        n_encoder_layer, n_encoder_heads = config.num_layers, config.num_heads
+        
+        intermediate_impt = torch.zeros(n_encoder_layer, config.d_ff).cuda()
+        intermediate_mask = torch.ones(n_encoder_layer, config.d_ff).cuda()
+        intermediate_mask.requires_grad_(requires_grad=True)
 
-    output_impt = torch.zeros(n_encoder_layer, config.hidden_size).cuda()
-    output_mask = torch.ones(n_encoder_layer, config.hidden_size).cuda()
-    output_mask.requires_grad_(requires_grad=True)
+        output_impt = torch.zeros(n_encoder_layer, config.d_model).cuda()
+        output_mask = torch.ones(n_encoder_layer, config.d_model).cuda()
+        output_mask.requires_grad_(requires_grad=True)
 
-    head_impt = torch.zeros(n_encoder_layer, n_encoder_heads).cuda()
-    head_mask = torch.ones(n_encoder_layer, n_encoder_heads).cuda()
-    head_mask.requires_grad_(requires_grad=True)
-
+        head_impt = torch.zeros(n_encoder_layer, n_encoder_heads).cuda()
+        head_mask = torch.ones(n_encoder_layer, n_encoder_heads).cuda()
+        head_mask.requires_grad_(requires_grad=True)
 
     tot_tokens = 0.0
 
@@ -71,7 +84,7 @@ def compute_impt(args,config, model,eval_dataloader,accelerator,prune_loss=None)
 
     # MLM/Distill loss *****************************
     head_impt, intermediate_impt, output_impt, \
-    head_mask, intermediate_mask, output_mask, tot_tokens = initial_impt(config)
+    head_mask, intermediate_mask, output_mask, tot_tokens = initial_impt(args, config)
 
 
     for step, inputs in enumerate(tqdm(eval_dataloader, desc=f"Iteration {prune_loss}")):
@@ -184,28 +197,61 @@ def soft_mask_gradient(model, pre_head_impt, pre_intermediate_impt,pre_output_im
             head_impt = head_impt.flatten()
             head_mask = 1 - head_impt
 
-            model_ori.model.roberta.encoder.layer[layer].attention.self.query.weight.grad *= head_mask
-            model_ori.model.roberta.encoder.layer[layer].attention.self.query.bias.grad *= head_mask
+            if 'roberta' in args.base_model_name_or_path:
+                model_ori.model.roberta.encoder.layer[layer].attention.self.query.weight.grad *= head_mask
+                model_ori.model.roberta.encoder.layer[layer].attention.self.query.bias.grad *= head_mask
 
-            model_ori.model.roberta.encoder.layer[layer].attention.self.key.weight.grad *= head_mask
-            model_ori.model.roberta.encoder.layer[layer].attention.self.key.bias.grad *= head_mask
+                model_ori.model.roberta.encoder.layer[layer].attention.self.key.weight.grad *= head_mask
+                model_ori.model.roberta.encoder.layer[layer].attention.self.key.bias.grad *= head_mask
 
-            model_ori.model.roberta.encoder.layer[layer].attention.self.value.weight.grad *= head_mask
-            model_ori.model.roberta.encoder.layer[layer].attention.self.value.bias.grad *= head_mask
+                model_ori.model.roberta.encoder.layer[layer].attention.self.value.weight.grad *= head_mask
+                model_ori.model.roberta.encoder.layer[layer].attention.self.value.bias.grad *= head_mask
 
-            model_ori.model.roberta.encoder.layer[layer].attention.output.dense.weight.grad *= head_mask
-            model_ori.model.roberta.encoder.layer[layer].attention.output.dense.bias.grad *= head_mask
+                model_ori.model.roberta.encoder.layer[layer].attention.output.dense.weight.grad *= head_mask
+                model_ori.model.roberta.encoder.layer[layer].attention.output.dense.bias.grad *= head_mask
+            elif 't5' in args.base_model_name_or_path:
+                model_ori.model.encoder.block[layer].layer[0].SelfAttention.q.weight.grad *= head_mask
+                model_ori.model.encoder.block[layer].layer[0].SelfAttention.k.weight.grad *= head_mask
+                model_ori.model.encoder.block[layer].layer[0].SelfAttention.v.weight.grad *= head_mask
+                model_ori.model.encoder.block[layer].layer[0].SelfAttention.o.weight.grad *= head_mask
+                
+                model_ori.model.decoder.block[layer].layer[0].SelfAttention.q.weight.grad *= head_mask
+                model_ori.model.decoder.block[layer].layer[0].SelfAttention.k.weight.grad *= head_mask
+                model_ori.model.decoder.block[layer].layer[0].SelfAttention.v.weight.grad *= head_mask
+                model_ori.model.decoder.block[layer].layer[0].SelfAttention.o.weight.grad *= head_mask
+                
+                model_ori.model.decoder.block[layer].layer[1].EncDecAttention.q.weight.grad *= head_mask
+                model_ori.model.decoder.block[layer].layer[1].EncDecAttention.k.weight.grad *= head_mask
+                model_ori.model.decoder.block[layer].layer[1].EncDecAttention.v.weight.grad *= head_mask
+                model_ori.model.decoder.block[layer].layer[1].EncDecAttention.o.weight.grad *= head_mask
+                
 
         if 'intermediate_mask' in args.layer_to_mask:
             intermediate_mask = (1 - pre_intermediate_impt[layer])
-            model_ori.model.roberta.encoder.layer[
-                layer].intermediate.dense.weight.grad *= intermediate_mask.unsqueeze(1)
-            model_ori.model.roberta.encoder.layer[
-                layer].intermediate.dense.bias.grad *= intermediate_mask
+            
+            if 'roberta' in args.base_model_name_or_path:
+                model_ori.model.roberta.encoder.layer[
+                    layer].intermediate.dense.weight.grad *= intermediate_mask.unsqueeze(1)
+                model_ori.model.roberta.encoder.layer[
+                    layer].intermediate.dense.bias.grad *= intermediate_mask
+            elif 't5' in args.base_model_name_or_path:
+                if getattr(model_ori.model.encoder.block[layer].layer[1].DenseReluDense, 'wi_0', None) is not None:
+                    model_ori.model.encoder.block[layer].layer[1].DenseReluDense.wi_0.weight.grad *= intermediate_mask.unsqueeze(1)
+                    model_ori.model.encoder.block[layer].layer[1].DenseReluDense.wi_1.weight.grad *= intermediate_mask.unsqueeze(1)
+                    model_ori.model.decoder.block[layer].layer[2].DenseReluDense.wi_0.weight.grad *= intermediate_mask.unsqueeze(1)
+                    model_ori.model.decoder.block[layer].layer[2].DenseReluDense.wi_1.weight.grad *= intermediate_mask.unsqueeze(1)
+                else:
+                    model_ori.model.encoder.block[layer].layer[1].DenseReluDense.wi.weight.grad *= intermediate_mask.unsqueeze(1)
+                    model_ori.model.decoder.block[layer].layer[2].DenseReluDense.wi.weight.grad *= intermediate_mask.unsqueeze(1)
 
         if 'output_mask' in args.layer_to_mask:
             output_mask = (1 - pre_output_impt[layer])
-            model_ori.model.roberta.encoder.layer[
-                layer].output.dense.weight.grad *= output_mask.unsqueeze(1)
-            model_ori.model.roberta.encoder.layer[layer].output.dense.bias.grad *= output_mask
+            
+            if 'roberta' in args.base_model_name_or_path:
+                model_ori.model.roberta.encoder.layer[
+                    layer].output.dense.weight.grad *= output_mask.unsqueeze(1)
+                model_ori.model.roberta.encoder.layer[layer].output.dense.bias.grad *= output_mask
+            elif 't5' in args.base_model_name_or_path:
+                model_ori.model.encoder.block[layer].layer[1].DenseReluDense.wo.weight.grad *= output_mask.unsqueeze(1)
+                model_ori.model.decoder.block[layer].layer[2].DenseReluDense.wo.weight.grad *= output_mask.unsqueeze(1)
 

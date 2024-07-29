@@ -10,10 +10,10 @@ from torch.utils.checkpoint import checkpoint
 from torch.nn import CrossEntropyLoss
 
 from .layers import LoRALinear, LoRAPiggybackLinear, MultiTaskClassifier, PretrainingMultiTaskClassifier
-from transformers.models.t5.modeling_t5 import T5ForConditionalGeneration, T5LayerNorm, T5PreTrainedModel
+from networks.adapters.mixins.t5 import T5FFLayerAdaptersMixin, T5CrossAttentionLayerAdaptersMixin, T5SelfAttentionLayerAdaptersMixin, T5ModelAdaptersMixin
+from transformers.models.t5.modeling_t5 import T5ForConditionalGeneration, T5LayerNorm, T5PreTrainedModel, T5DenseReluDense, T5DenseGatedGeluDense
 from transformers.models.t5.configuration_t5 import T5Config
 from transformers.activations import ACT2FN
-from transformers.adapters.mixins.t5 import T5FFLayerAdaptersMixin, T5CrossAttentionLayerAdaptersMixin, T5SelfAttentionLayerAdaptersMixin, T5ModelAdaptersMixin
 from transformers.adapters.prefix_tuning import PrefixTuningShim
 from transformers.adapters.model_mixin import InvertibleAdaptersMixin, ModelWithHeadsAdaptersMixin
 from transformers.adapters.composition import adjust_tensors_for_parallel
@@ -41,63 +41,114 @@ If you do not want to use any `decoder_head_mask` now, please set `decoder_head_
 num_heads)`.
 """
 
+# class MyT5DenseReluIntermediate(nn.Module):
+#     def __init__(self, config):
+#         super().__init__()
+#         self.wi = nn.Linear(config.d_model, config.d_ff, bias=False)
+#         self.dropout = nn.Dropout(config.dropout_rate)
 
-class LoRAT5DenseReluDense(am.MultiTaskModule):
+#     def forward(self, hidden_states, intermediate_mask):
+#         if intermediate_mask is not None:
+#             hidden_states = self.wi(hidden_states) * intermediate_mask
+#         else:
+#             hidden_states = self.wi(hidden_states)
+#         hidden_states = nn.functional.relu(hidden_states)
+#         hidden_states = self.dropout(hidden_states)
+#         return hidden_states
+    
+# class MyT5DenseGatedGeluIntermediate(nn.Module):
+#     def __init__(self, config):
+#         super().__init__()
+#         self.wi_0 = nn.Linear(config.d_model, config.d_ff, bias=False)
+#         self.wi_1 = nn.Linear(config.d_model, config.d_ff, bias=False)
+#         self.dropout = nn.Dropout(config.dropout_rate)
+#         self.gelu_act = ACT2FN["gelu_new"]
+
+#     def forward(self, hidden_states, intermediate_mask):
+#         if intermediate_mask is not None:
+#             hidden_gelu = self.gelu_act(self.wi_0(hidden_states) * intermediate_mask)
+#             hidden_linear = self.wi_1(hidden_states) * intermediate_mask
+#         else:
+#             hidden_gelu = self.gelu_act(self.wi_0(hidden_states))
+#             hidden_linear = self.wi_1(hidden_states)
+#         hidden_states = hidden_gelu * hidden_linear
+#         hidden_states = self.dropout(hidden_states)
+#         return hidden_states
+    
+# class MyT5DenseOutput(nn.Module):
+#     def __init__(self, config):
+#         super().__init__()
+#         self.wo = nn.Linear(config.d_ff, config.d_model, bias=False)
+        
+#     def forward(self, hidden_states, output_mask):
+#         if output_mask is not None:
+#             return self.wo(hidden_states) * output_mask
+#         else:
+#             return self.wo(hidden_states)
+
+class T5DenseReluDense(nn.Module):
     def __init__(self, config):
         super().__init__()
-        self.wi = LoRAPiggybackLinear(
-            config.d_model, config.d_ff, config.lora_r, lora_alpha=config.lora_alpha, config=config, bias=False)
-        self.wo = LoRAPiggybackLinear(
-            config.d_ff, config.d_model, config.lora_r, lora_alpha=config.lora_alpha, config=config, bias=False)
+        self.wi = nn.Linear(config.d_model, config.d_ff, bias=False)
+        self.wo = nn.Linear(config.d_ff, config.d_model, bias=False)
         self.dropout = nn.Dropout(config.dropout_rate)
 
-    def adaptation(self, num_class, task_label):
-        for module in self.modules():
-            if 'adaptation' in dir(module) and module is not self:
-                module.adaptation(num_class, task_label)
-
-    def forward_single_task(self, hidden_states, task_label):
-        hidden_states = self.wi(hidden_states, task_label)
+    def forward(self, hidden_states, intermediate_mask, output_mask):
+        if intermediate_mask is not None:
+            hidden_states = self.wi(hidden_states) * intermediate_mask
+        else:
+            hidden_states = self.wi(hidden_states)
         hidden_states = nn.functional.relu(hidden_states)
         hidden_states = self.dropout(hidden_states)
-        hidden_states = self.wo(hidden_states, task_label)
+        if output_mask is not None:
+            hidden_states = self.wo(hidden_states) * output_mask
+        else:
+            hidden_states = self.wo(hidden_states)
         return hidden_states
 
 
-class LoRAT5DenseGatedGeluDense(am.MultiTaskModule):
+class T5DenseGatedGeluDense(nn.Module):
     def __init__(self, config):
         super().__init__()
-        self.wi_0 = LoRAPiggybackLinear(
-            config.d_model, config.d_ff, config.lora_r, lora_alpha=config.lora_alpha, config=config, bias=False)
-        self.wi_1 = LoRAPiggybackLinear(
-            config.d_model, config.d_ff, config.lora_r, lora_alpha=config.lora_alpha, config=config, bias=False)
-        self.wo = LoRAPiggybackLinear(
-            config.d_ff, config.d_model, config.lora_r, lora_alpha=config.lora_alpha, config=config, bias=False)
+        self.wi_0 = nn.Linear(config.d_model, config.d_ff, bias=False)
+        self.wi_1 = nn.Linear(config.d_model, config.d_ff, bias=False)
+        self.wo = nn.Linear(config.d_ff, config.d_model, bias=False)
         self.dropout = nn.Dropout(config.dropout_rate)
         self.gelu_act = ACT2FN["gelu_new"]
 
-    def adaptation(self, num_class, task_label):
-        for module in self.modules():
-            if 'adaptation' in dir(module) and module is not self:
-                module.adaptation(num_class, task_label)
-
-    def forward_single_task(self, hidden_states, task_label):
-        hidden_gelu = self.gelu_act(self.wi_0(hidden_states, task_label))
-        hidden_linear = self.wi_1(hidden_states, task_label)
-        hidden_states = hidden_gelu * hidden_linear
+    def forward(self, hidden_states, intermediate_mask, output_mask):
+        hidden_gelu = self.gelu_act(self.wi_0(hidden_states))
+        hidden_linear = self.wi_1(hidden_states)
+        if intermediate_mask is not None:
+            hidden_states = hidden_gelu * hidden_linear * intermediate_mask
+        else:
+            hidden_states = hidden_gelu * hidden_linear
         hidden_states = self.dropout(hidden_states)
-        hidden_states = self.wo(hidden_states, task_label)
+        if output_mask is not None:
+            hidden_states = self.wo(hidden_states) * output_mask
+        else:
+            hidden_states = self.wo(hidden_states)
         return hidden_states
 
-
-class LoRAT5LayerFF(T5FFLayerAdaptersMixin, am.MultiTaskModule):
-    def __init__(self, config):
-        super().__init__()
+class MyT5LayerFF(T5FFLayerAdaptersMixin, nn.Module):
+    def __init__(self, config, args):
+        T5FFLayerAdaptersMixin.__init__(self, args)
+        nn.Module.__init__(self)
         self.config = config
+        # if config.feed_forward_proj == "relu":
+        #     self.DenseReluIntermediate = MyT5DenseReluIntermediate(config)
+        # elif config.feed_forward_proj == "gated-gelu":
+        #     self.DenseReluIntermediate = MyT5DenseGatedGeluIntermediate(config)
+        # else:
+        #     raise ValueError(
+        #         f"{self.config.feed_forward_proj} is not supported. Choose between `relu` and `gated-gelu`"
+        #     )
+        # self.DenseOutput = MyT5DenseOutput(config)
+        
         if config.feed_forward_proj == "relu":
-            self.DenseReluDense = LoRAT5DenseReluDense(config)
+            self.DenseReluDense = T5DenseReluDense(config)
         elif config.feed_forward_proj == "gated-gelu":
-            self.DenseReluDense = LoRAT5DenseGatedGeluDense(config)
+            self.DenseReluDense = T5DenseGatedGeluDense(config)
         else:
             raise ValueError(
                 f"{self.config.feed_forward_proj} is not supported. Choose between `relu` and `gated-gelu`"
@@ -108,23 +159,18 @@ class LoRAT5LayerFF(T5FFLayerAdaptersMixin, am.MultiTaskModule):
         self.dropout = nn.Dropout(config.dropout_rate)
         self._init_adapter_modules()
 
-    def adaptation(self, num_class, task_label):
-        for module in self.modules():
-            if 'adaptation' in dir(module) and module is not self:
-                module.adaptation(num_class, task_label)
-                
-    def forward(self, hidden_states, task_label):
-        return self.forward_single_task(hidden_states, task_label)
-
-    def forward_single_task(self, hidden_states, task_label):
+    def forward(self, hidden_states, intermediate_mask, output_mask, down_mask, up_mask, **kwargs):
         forwarded_states = self.layer_norm(hidden_states)
-        forwarded_states = self.DenseReluDense(forwarded_states, task_label)
+        # forwarded_states = self.DenseReluIntermediate(forwarded_states, intermediate_mask)
+        # forwarded_states = self.DenseOutput(forwarded_states, output_mask)
+        forwarded_states = self.DenseReluDense(forwarded_states, intermediate_mask, output_mask)
+        
         hidden_states = self.adapter_layer_forward(
-            hidden_states, self.dropout(forwarded_states), None)
+            hidden_states, self.dropout(forwarded_states), 'decoder' if self.config.is_decoder else 'encoder', down_mask, up_mask, self.layer_norm)
         return hidden_states
 
 
-class LoRAT5Attention(am.MultiTaskModule):
+class MyT5Attention(nn.Module):
     def __init__(self, config: T5Config, has_relative_attention_bias=False, location_key: Optional[str] = None):
         super().__init__()
         self.is_decoder = config.is_decoder
@@ -138,14 +184,10 @@ class LoRAT5Attention(am.MultiTaskModule):
         self.inner_dim = self.n_heads * self.key_value_proj_dim
 
         # Mesh TensorFlow initialization to avoid scaling before softmax
-        self.q = LoRAPiggybackLinear(self.d_model, self.inner_dim, config.lora_r,
-                                     lora_alpha=config.lora_alpha, config=config, bias=False)
-        self.k = LoRAPiggybackLinear(self.d_model, self.inner_dim, config.lora_r,
-                                     lora_alpha=config.lora_alpha, config=config, bias=False)
-        self.v = LoRAPiggybackLinear(self.d_model, self.inner_dim, config.lora_r,
-                                     lora_alpha=config.lora_alpha, config=config, bias=False)
-        self.o = LoRAPiggybackLinear(self.inner_dim, self.d_model, config.lora_r,
-                                     lora_alpha=config.lora_alpha, config=config, bias=False)
+        self.q = nn.Linear(self.d_model, self.inner_dim, bias=False)
+        self.k = nn.Linear(self.d_model, self.inner_dim, bias=False)
+        self.v = nn.Linear(self.d_model, self.inner_dim, bias=False)
+        self.o = nn.Linear(self.inner_dim, self.d_model, bias=False)
 
         if self.has_relative_attention_bias:
             self.relative_attention_bias = nn.Embedding(
@@ -155,12 +197,7 @@ class LoRAT5Attention(am.MultiTaskModule):
 
         self.prefix_tuning = PrefixTuningShim(
             location_key + "_prefix" if location_key else None, config)
-
-    def adaptation(self, num_class, task_label):
-        for module in self.modules():
-            if 'adaptation' in dir(module) and module is not self:
-                module.adaptation(num_class, task_label)
-
+        
     def prune_heads(self, heads):
         if len(heads) == 0:
             return
@@ -254,23 +291,6 @@ class LoRAT5Attention(am.MultiTaskModule):
     def forward(
         self,
         hidden_states,
-        task_label,
-        mask=None,
-        key_value_states=None,
-        position_bias=None,
-        past_key_value=None,
-        layer_head_mask=None,
-        query_length=None,
-        use_cache=False,
-        output_attentions=False,
-    ):
-
-        return self.forward_single_task(hidden_states, task_label, mask, key_value_states, position_bias, past_key_value, layer_head_mask, query_length, use_cache, output_attentions)
-
-    def forward_single_task(
-        self,
-        hidden_states,
-        task_label,
         mask=None,
         key_value_states=None,
         position_bias=None,
@@ -307,16 +327,16 @@ class LoRAT5Attention(am.MultiTaskModule):
             """reshape"""
             return states.transpose(1, 2).contiguous().view(batch_size, -1, self.inner_dim)
 
-        def project(hidden_states, proj_layer, key_value_states, past_key_value, task_label):
+        def project(hidden_states, proj_layer, key_value_states, past_key_value):
             """projects hidden states correctly to key/query states"""
             if key_value_states is None:
                 # self-attn
                 # (batch_size, n_heads, seq_length, dim_per_head)
-                hidden_states = shape(proj_layer(hidden_states, task_label))
+                hidden_states = shape(proj_layer(hidden_states))
             elif past_key_value is None:
                 # cross-attn
                 # (batch_size, n_heads, seq_length, dim_per_head)
-                hidden_states = shape(proj_layer(key_value_states, task_label))
+                hidden_states = shape(proj_layer(key_value_states))
 
             if past_key_value is not None:
                 if key_value_states is None:
@@ -331,16 +351,16 @@ class LoRAT5Attention(am.MultiTaskModule):
 
         # get query states
         # (batch_size, n_heads, seq_length, dim_per_head)
-        query_states = shape(self.q(hidden_states, task_label))
+        query_states = shape(self.q(hidden_states))
 
         # get key/value states
         key_states = project(
             hidden_states, self.k, key_value_states, past_key_value[
-                0] if past_key_value is not None else None, task_label
+                0] if past_key_value is not None else None
         )
         value_states = project(
             hidden_states, self.v, key_value_states, past_key_value[
-                1] if past_key_value is not None else None, task_label
+                1] if past_key_value is not None else None
         )
 
         present_key_value_state = (key_states, value_states) if (
@@ -388,7 +408,7 @@ class LoRAT5Attention(am.MultiTaskModule):
 
         # (batch_size, seq_length, dim)
         attn_output = unshape(torch.matmul(attn_weights, value_states))
-        attn_output = self.o(attn_output, task_label)
+        attn_output = self.o(attn_output)
 
         outputs = (attn_output,) + \
             (present_key_value_state,) + (position_bias,)
@@ -398,11 +418,12 @@ class LoRAT5Attention(am.MultiTaskModule):
         return outputs
 
 
-class LoRAT5LayerSelfAttention(T5SelfAttentionLayerAdaptersMixin, am.MultiTaskModule):
-    def __init__(self, config, has_relative_attention_bias=False, location_key: Optional[str] = None):
-        super().__init__()
+class MyT5LayerSelfAttention(T5SelfAttentionLayerAdaptersMixin, nn.Module):
+    def __init__(self, config, args, has_relative_attention_bias=False, location_key: Optional[str] = None):
+        T5SelfAttentionLayerAdaptersMixin.__init__(self, args)
+        nn.Module.__init__(self)
         self.config = config
-        self.SelfAttention = LoRAT5Attention(
+        self.SelfAttention = MyT5Attention(
             config, has_relative_attention_bias=has_relative_attention_bias, location_key=location_key
         )
         self.layer_norm = T5LayerNorm(
@@ -410,39 +431,22 @@ class LoRAT5LayerSelfAttention(T5SelfAttentionLayerAdaptersMixin, am.MultiTaskMo
         self.dropout = nn.Dropout(config.dropout_rate)
         self._init_adapter_modules()
 
-    def adaptation(self, num_class, task_label):
-        for module in self.modules():
-            if 'adaptation' in dir(module) and module is not self:
-                module.adaptation(num_class, task_label)
-
     def forward(
         self,
         hidden_states,
-        task_label,
         attention_mask=None,
         position_bias=None,
         layer_head_mask=None,
         past_key_value=None,
         use_cache=False,
         output_attentions=False,
-    ):
-        return self.forward_single_task(hidden_states, task_label, attention_mask, position_bias, layer_head_mask, past_key_value, use_cache, output_attentions)
-
-    def forward_single_task(
-        self,
-        hidden_states,
-        task_label,
-        attention_mask=None,
-        position_bias=None,
-        layer_head_mask=None,
-        past_key_value=None,
-        use_cache=False,
-        output_attentions=False,
+        down_mask=None,
+        up_mask=None,
+        **kwargs
     ):
         normed_hidden_states = self.layer_norm(hidden_states)
         attention_output = self.SelfAttention(
             normed_hidden_states,
-            task_label,
             mask=attention_mask,
             position_bias=position_bias,
             layer_head_mask=layer_head_mask,
@@ -451,33 +455,28 @@ class LoRAT5LayerSelfAttention(T5SelfAttentionLayerAdaptersMixin, am.MultiTaskMo
             output_attentions=output_attentions,
         )
         hidden_states = self.adapter_layer_forward(
-            hidden_states, self.dropout(attention_output[0]), None)
+            hidden_states, self.dropout(attention_output[0]), 'decoder' if self.config.is_decoder else 'encoder', down_mask, up_mask, self.layer_norm)
         # add attentions if we output them
         outputs = (hidden_states,) + attention_output[1:]
         return outputs
 
 
-class LoRAT5LayerCrossAttention(T5CrossAttentionLayerAdaptersMixin, am.MultiTaskModule):
-    def __init__(self, config):
-        super().__init__()
+class MyT5LayerCrossAttention(T5CrossAttentionLayerAdaptersMixin, nn.Module):
+    def __init__(self, config, args):
+        T5CrossAttentionLayerAdaptersMixin.__init__(self, args)
+        nn.Module.__init__(self)
         self.config = config
-        self.EncDecAttention = LoRAT5Attention(
+        self.EncDecAttention = MyT5Attention(
             config, has_relative_attention_bias=False, location_key="cross")
         self.layer_norm = T5LayerNorm(
             config.d_model, eps=config.layer_norm_epsilon)
         self.dropout = nn.Dropout(config.dropout_rate)
         self._init_adapter_modules()
 
-    def adaptation(self, num_class, task_label):
-        for module in self.modules():
-            if 'adaptation' in dir(module) and module is not self:
-                module.adaptation(num_class, task_label)
-
     def forward(
         self,
         hidden_states,
         key_value_states,
-        task_label,
         attention_mask=None,
         position_bias=None,
         layer_head_mask=None,
@@ -485,26 +484,13 @@ class LoRAT5LayerCrossAttention(T5CrossAttentionLayerAdaptersMixin, am.MultiTask
         use_cache=False,
         query_length=None,
         output_attentions=False,
-    ):
-        return self.forward_single_task(hidden_states, key_value_states, task_label, attention_mask, position_bias, layer_head_mask, past_key_value, use_cache, query_length, output_attentions)
-
-    def forward_single_task(
-        self,
-        hidden_states,
-        key_value_states,
-        task_label,
-        attention_mask=None,
-        position_bias=None,
-        layer_head_mask=None,
-        past_key_value=None,
-        use_cache=False,
-        query_length=None,
-        output_attentions=False,
+        down_mask=None,
+        up_mask=None,
+        **kwargs
     ):
         normed_hidden_states = self.layer_norm(hidden_states)
         attention_output = self.EncDecAttention(
             normed_hidden_states,
-            task_label,
             mask=attention_mask,
             key_value_states=key_value_states,
             position_bias=position_bias,
@@ -515,37 +501,31 @@ class LoRAT5LayerCrossAttention(T5CrossAttentionLayerAdaptersMixin, am.MultiTask
             output_attentions=output_attentions,
         )
         layer_output = self.adapter_layer_forward(
-            hidden_states, self.dropout(attention_output[0]), None)
+            hidden_states, self.dropout(attention_output[0]), 'decoder' if self.config.is_decoder else 'encoder', down_mask, up_mask, self.layer_norm)
         # add attentions if we output them
         outputs = (layer_output,) + attention_output[1:]
         return outputs
 
 
-class LoRAT5Block(am.MultiTaskModule):
-    def __init__(self, config, has_relative_attention_bias=False):
+class MyT5Block(nn.Module):
+    def __init__(self, config, args, has_relative_attention_bias=False):
         super().__init__()
         self.is_decoder = config.is_decoder
         self.layer = nn.ModuleList()
         location_key = "self" if self.is_decoder else "encoder"
         self.layer.append(
-            LoRAT5LayerSelfAttention(
-                config, has_relative_attention_bias=has_relative_attention_bias, location_key=location_key
+            MyT5LayerSelfAttention(
+                config, args, has_relative_attention_bias=has_relative_attention_bias, location_key=location_key
             )
         )
         if self.is_decoder:
-            self.layer.append(LoRAT5LayerCrossAttention(config))
+            self.layer.append(MyT5LayerCrossAttention(config, args))
 
-        self.layer.append(LoRAT5LayerFF(config))
-
-    def adaptation(self, num_class, task_label):
-        for module in self.modules():
-            if 'adaptation' in dir(module) and module is not self:
-                module.adaptation(num_class, task_label)
+        self.layer.append(MyT5LayerFF(config, args))
 
     def forward(
         self,
         hidden_states,
-        task_label,
         attention_mask=None,
         position_bias=None,
         encoder_hidden_states=None,
@@ -557,24 +537,11 @@ class LoRAT5Block(am.MultiTaskModule):
         use_cache=False,
         output_attentions=False,
         return_dict=True,
-    ):
-        return self.forward_single_task(hidden_states, task_label, attention_mask, position_bias, encoder_hidden_states, encoder_attention_mask, encoder_decoder_position_bias, layer_head_mask, cross_attn_layer_head_mask, past_key_value, use_cache, output_attentions, return_dict)
-
-    def forward_single_task(
-        self,
-        hidden_states,
-        task_label,
-        attention_mask=None,
-        position_bias=None,
-        encoder_hidden_states=None,
-        encoder_attention_mask=None,
-        encoder_decoder_position_bias=None,
-        layer_head_mask=None,
-        cross_attn_layer_head_mask=None,
-        past_key_value=None,
-        use_cache=False,
-        output_attentions=False,
-        return_dict=True,
+        output_mask=None,
+        intermediate_mask=None,
+        down_mask=None,
+        up_mask=None,
+        **kwargs
     ):
 
         if past_key_value is not None:
@@ -595,13 +562,14 @@ class LoRAT5Block(am.MultiTaskModule):
 
         self_attention_outputs = self.layer[0](
             hidden_states,
-            task_label,
             attention_mask=attention_mask,
             position_bias=position_bias,
             layer_head_mask=layer_head_mask,
             past_key_value=self_attn_past_key_value,
             use_cache=use_cache,
             output_attentions=output_attentions,
+            down_mask=down_mask,
+            up_mask=up_mask,
         )
         hidden_states, present_key_value_state = self_attention_outputs[:2]
         # Keep self-attention outputs and relative position weights
@@ -624,7 +592,6 @@ class LoRAT5Block(am.MultiTaskModule):
             cross_attention_outputs = self.layer[1](
                 hidden_states,
                 key_value_states=encoder_hidden_states,
-                task_label=task_label,
                 attention_mask=encoder_attention_mask,
                 position_bias=encoder_decoder_position_bias,
                 layer_head_mask=cross_attn_layer_head_mask,
@@ -632,6 +599,8 @@ class LoRAT5Block(am.MultiTaskModule):
                 query_length=query_length,
                 use_cache=use_cache,
                 output_attentions=output_attentions,
+                down_mask=down_mask,
+                up_mask=up_mask,
             )
             hidden_states = cross_attention_outputs[0]
 
@@ -650,7 +619,7 @@ class LoRAT5Block(am.MultiTaskModule):
             attention_outputs = attention_outputs + cross_attention_outputs[2:]
 
         # Apply Feed Forward layer
-        hidden_states = self.layer[-1](hidden_states, task_label)
+        hidden_states = self.layer[-1](hidden_states, intermediate_mask=intermediate_mask, output_mask=output_mask, down_mask=down_mask, up_mask=up_mask)
 
         # clamp inf values to enable fp16 training
         if hidden_states.dtype == torch.float16 and torch.isinf(hidden_states).any():
@@ -669,15 +638,15 @@ class LoRAT5Block(am.MultiTaskModule):
         return outputs
 
 
-class LoRAT5Stack(InvertibleAdaptersMixin, T5PreTrainedModel):
-    def __init__(self, config, embed_tokens=None):
+class MyT5Stack(InvertibleAdaptersMixin, T5PreTrainedModel):
+    def __init__(self, config, args, embed_tokens=None):
         super().__init__(config)
 
         self.embed_tokens = embed_tokens
         self.is_decoder = config.is_decoder
 
         self.block = nn.ModuleList(
-            [LoRAT5Block(config, has_relative_attention_bias=bool(i == 0))
+            [MyT5Block(config, args, has_relative_attention_bias=bool(i == 0))
              for i in range(config.num_layers)]
         )
         self.final_layer_norm = T5LayerNorm(
@@ -690,11 +659,6 @@ class LoRAT5Stack(InvertibleAdaptersMixin, T5PreTrainedModel):
         self.model_parallel = False
         self.device_map = None
         self.gradient_checkpointing = False
-
-    def adaptation(self, num_class, task_label):
-        for module in self.modules():
-            if 'adaptation' in dir(module) and module is not self:
-                module.adaptation(num_class, task_label)
 
     def parallelize(self, device_map=None):
         # Check validity of device_map
@@ -737,7 +701,6 @@ class LoRAT5Stack(InvertibleAdaptersMixin, T5PreTrainedModel):
 
     def forward(
         self,
-        task_label,
         input_ids=None,
         attention_mask=None,
         encoder_hidden_states=None,
@@ -750,38 +713,11 @@ class LoRAT5Stack(InvertibleAdaptersMixin, T5PreTrainedModel):
         output_attentions=None,
         output_hidden_states=None,
         return_dict=None,
-    ):
-        return self.forward_single_task(
-            task_label,
-            input_ids=input_ids,
-            attention_mask=attention_mask,
-            encoder_hidden_states=encoder_hidden_states,
-            encoder_attention_mask=encoder_attention_mask,
-            inputs_embeds=inputs_embeds,
-            head_mask=head_mask,
-            cross_attn_head_mask=cross_attn_head_mask,
-            past_key_values=past_key_values,
-            use_cache=use_cache,
-            output_attentions=output_attentions,
-            output_hidden_states=output_hidden_states,
-            return_dict=return_dict,
-        )
-
-    def forward_single_task(
-        self,
-        task_label,
-        input_ids=None,
-        attention_mask=None,
-        encoder_hidden_states=None,
-        encoder_attention_mask=None,
-        inputs_embeds=None,
-        head_mask=None,
-        cross_attn_head_mask=None,
-        past_key_values=None,
-        use_cache=None,
-        output_attentions=None,
-        output_hidden_states=None,
-        return_dict=None,
+        output_mask=None,
+        intermediate_mask=None,
+        down_mask=None,
+        up_mask=None,
+        **kwargs
     ):
         # Model parallel
         if self.model_parallel:
@@ -875,6 +811,11 @@ class LoRAT5Stack(InvertibleAdaptersMixin, T5PreTrainedModel):
 
         for i, (layer_module, past_key_value) in enumerate(zip(self.block, past_key_values)):
             layer_head_mask = head_mask[i]
+            layer_output_mask = output_mask[i] if output_mask is not None else None
+            layer_intermediate_mask = intermediate_mask[i] if intermediate_mask is not None else None
+            layer_down_mask = down_mask[i] if down_mask is not None else None
+            layer_up_mask = up_mask[i] if up_mask is not None else None
+            
             cross_attn_layer_head_mask = cross_attn_head_mask[i]
             # Model parallel
             if self.model_parallel:
@@ -929,7 +870,6 @@ class LoRAT5Stack(InvertibleAdaptersMixin, T5PreTrainedModel):
             else:
                 layer_outputs = layer_module(
                     hidden_states,
-                    task_label,
                     attention_mask=extended_attention_mask,
                     position_bias=position_bias,
                     encoder_hidden_states=encoder_hidden_states,
@@ -940,6 +880,10 @@ class LoRAT5Stack(InvertibleAdaptersMixin, T5PreTrainedModel):
                     past_key_value=past_key_value,
                     use_cache=use_cache,
                     output_attentions=output_attentions,
+                    output_mask=layer_output_mask,
+                    intermediate_mask=layer_intermediate_mask,
+                    down_mask=layer_down_mask,
+                    up_mask=layer_up_mask
                 )
 
             # layer_outputs is a tuple with:
@@ -1010,248 +954,16 @@ class LoRAT5Stack(InvertibleAdaptersMixin, T5PreTrainedModel):
             attentions=all_attentions,
             cross_attentions=all_cross_attentions,
         )
+        
+# Warning message for FutureWarning: head_mask was separated into two input args - head_mask, decoder_head_mask
+__HEAD_MASK_WARNING_MSG = """
+The input argument `head_mask` was split into two arguments `head_mask` and `decoder_head_mask`. Currently,
+`decoder_head_mask` is set to copy `head_mask`, but this feature is deprecated and will be removed in future versions.
+If you do not want to use any `decoder_head_mask` now, please set `decoder_head_mask = torch.ones(num_layers,
+num_heads)`.
+"""
 
-
-class LoRAT5Model(T5ModelAdaptersMixin, T5PreTrainedModel):
-    _keys_to_ignore_on_load_missing = [
-        r"encoder\.embed_tokens\.weight",
-        r"decoder\.embed_tokens\.weight",
-    ]
-    _keys_to_ignore_on_load_unexpected = [
-        r"decoder\.block\.0\.layer\.1\.EncDecAttention\.relative_attention_bias\.weight",
-    ]
-
-    def __init__(self, config: T5Config):
-        super().__init__(config)
-        self.shared = nn.Embedding(config.vocab_size, config.d_model)
-
-        encoder_config = copy.deepcopy(config)
-        encoder_config.is_decoder = False
-        encoder_config.use_cache = False
-        encoder_config.is_encoder_decoder = False
-        encoder_config.adapters = config.adapters
-        self.encoder = LoRAT5Stack(encoder_config, self.shared)
-
-        decoder_config = copy.deepcopy(config)
-        decoder_config.is_decoder = True
-        decoder_config.is_encoder_decoder = False
-        decoder_config.num_layers = config.num_decoder_layers
-        decoder_config.adapters = config.adapters
-        self.decoder = LoRAT5Stack(decoder_config, self.shared)
-
-        self._init_adapter_modules()
-
-        # Initialize weights and apply final processing
-        self.post_init()
-
-        # Model parallel
-        self.model_parallel = False
-        self.device_map = None
-
-    def adaptation(self, num_class, task_label):
-        for module in self.modules():
-            if 'adaptation' in dir(module) and module is not self:
-                module.adaptation(num_class, task_label)
-
-    def parallelize(self, device_map=None):
-        self.device_map = (
-            get_device_map(len(self.encoder.block),
-                           range(torch.cuda.device_count()))
-            if device_map is None
-            else device_map
-        )
-        assert_device_map(self.device_map, len(self.encoder.block))
-        self.encoder.parallelize(self.device_map)
-        self.decoder.parallelize(self.device_map)
-        self.model_parallel = True
-
-    def deparallelize(self):
-        self.encoder.deparallelize()
-        self.decoder.deparallelize()
-        self.encoder = self.encoder.to("cpu")
-        self.decoder = self.decoder.to("cpu")
-        self.model_parallel = False
-        self.device_map = None
-        torch.cuda.empty_cache()
-
-    def get_input_embeddings(self):
-        return self.shared
-
-    def set_input_embeddings(self, new_embeddings):
-        self.shared = new_embeddings
-        self.encoder.set_input_embeddings(new_embeddings)
-        self.decoder.set_input_embeddings(new_embeddings)
-
-    def get_encoder(self):
-        return self.encoder
-
-    def get_decoder(self):
-        return self.decoder
-
-    def _prune_heads(self, heads_to_prune):
-        """
-        Prunes heads of the model. heads_to_prune: dict of {layer_num: list of heads to prune in this layer} See base
-        class PreTrainedModel
-        """
-        for layer, heads in heads_to_prune.items():
-            self.encoder.layer[layer].attention.prune_heads(heads)
-
-    def forward(
-        self,
-        task_label,
-        input_ids=None,
-        attention_mask=None,
-        decoder_input_ids=None,
-        decoder_attention_mask=None,
-        head_mask=None,
-        decoder_head_mask=None,
-        cross_attn_head_mask=None,
-        encoder_outputs=None,
-        past_key_values=None,
-        inputs_embeds=None,
-        decoder_inputs_embeds=None,
-        use_cache=None,
-        output_attentions=None,
-        output_hidden_states=None,
-        return_dict=None,
-    ):
-        return self.forward_single_task(
-            task_label,
-            input_ids=input_ids,
-            attention_mask=attention_mask,
-            decoder_input_ids=decoder_input_ids,
-            decoder_attention_mask=decoder_attention_mask,
-            head_mask=head_mask,
-            decoder_head_mask=decoder_head_mask,
-            cross_attn_head_mask=cross_attn_head_mask,
-            encoder_outputs=encoder_outputs,
-            past_key_values=past_key_values,
-            inputs_embeds=inputs_embeds,
-            decoder_inputs_embeds=decoder_inputs_embeds,
-            use_cache=use_cache,
-            output_attentions=output_attentions,
-            output_hidden_states=output_hidden_states,
-            return_dict=return_dict,
-        )
-
-    def forward_single_task(
-        self,
-        task_label,
-        input_ids=None,
-        attention_mask=None,
-        decoder_input_ids=None,
-        decoder_attention_mask=None,
-        head_mask=None,
-        decoder_head_mask=None,
-        cross_attn_head_mask=None,
-        encoder_outputs=None,
-        past_key_values=None,
-        inputs_embeds=None,
-        decoder_inputs_embeds=None,
-        use_cache=None,
-        output_attentions=None,
-        output_hidden_states=None,
-        return_dict=None,
-    ):
-        r"""
-        Returns:
-
-        Example:
-
-        ```python
-        >>> from transformers import T5Tokenizer, T5Model
-
-        >>> tokenizer = T5Tokenizer.from_pretrained("t5-small")
-        >>> model = T5Model.from_pretrained("t5-small")
-
-        >>> input_ids = tokenizer(
-        ...     "Studies have been shown that owning a dog is good for you", return_tensors="pt"
-        >>> ).input_ids  # Batch size 1
-        >>> decoder_input_ids = tokenizer("Studies show that", return_tensors="pt").input_ids  # Batch size 1
-
-        >>> # forward pass
-        >>> outputs = model(input_ids=input_ids, decoder_input_ids=decoder_input_ids)
-        >>> last_hidden_states = outputs.last_hidden_state
-        ```"""
-        use_cache = use_cache if use_cache is not None else self.config.use_cache
-        return_dict = return_dict if return_dict is not None else self.config.use_return_dict
-
-        # FutureWarning: head_mask was separated into two input args - head_mask, decoder_head_mask
-        if head_mask is not None and decoder_head_mask is None:
-            if self.config.num_layers == self.config.num_decoder_layers:
-                warnings.warn(__HEAD_MASK_WARNING_MSG, FutureWarning)
-                decoder_head_mask = head_mask
-
-        # Encode if needed (training, first prediction pass)
-        if encoder_outputs is None:
-            encoder_outputs = self.encoder(
-                task_label=task_label,
-                input_ids=input_ids,
-                attention_mask=attention_mask,
-                inputs_embeds=inputs_embeds,
-                head_mask=head_mask,
-                output_attentions=output_attentions,
-                output_hidden_states=output_hidden_states,
-                return_dict=return_dict,
-            )
-        elif return_dict and not isinstance(encoder_outputs, BaseModelOutput):
-            encoder_outputs = BaseModelOutput(
-                last_hidden_state=encoder_outputs[0],
-                hidden_states=encoder_outputs[1] if len(
-                    encoder_outputs) > 1 else None,
-                attentions=encoder_outputs[2] if len(
-                    encoder_outputs) > 2 else None,
-            )
-
-        hidden_states = encoder_outputs[0]
-        if self.model_parallel:
-            torch.cuda.set_device(self.decoder.first_device)
-        # Set device for model parallelism
-        if self.model_parallel:
-            torch.cuda.set_device(self.decoder.first_device)
-            hidden_states = hidden_states.to(self.decoder.first_device)
-            if decoder_input_ids is not None:
-                decoder_input_ids = decoder_input_ids.to(
-                    self.decoder.first_device)
-            if attention_mask is not None:
-                attention_mask = attention_mask.to(self.decoder.first_device)
-            if decoder_attention_mask is not None:
-                decoder_attention_mask = decoder_attention_mask.to(
-                    self.decoder.first_device)
-
-        # Decode
-        decoder_outputs = self.decoder(
-            task_label=task_label,
-            input_ids=decoder_input_ids,
-            attention_mask=decoder_attention_mask,
-            inputs_embeds=decoder_inputs_embeds,
-            past_key_values=past_key_values,
-            encoder_hidden_states=hidden_states,
-            encoder_attention_mask=attention_mask,
-            head_mask=decoder_head_mask,
-            cross_attn_head_mask=cross_attn_head_mask,
-            use_cache=use_cache,
-            output_attentions=output_attentions,
-            output_hidden_states=output_hidden_states,
-            return_dict=return_dict,
-        )
-
-        if not return_dict:
-            return decoder_outputs + encoder_outputs
-
-        return Seq2SeqModelOutput(
-            last_hidden_state=decoder_outputs.last_hidden_state,
-            past_key_values=decoder_outputs.past_key_values,
-            decoder_hidden_states=decoder_outputs.hidden_states,
-            decoder_attentions=decoder_outputs.attentions,
-            cross_attentions=decoder_outputs.cross_attentions,
-            encoder_last_hidden_state=encoder_outputs.last_hidden_state,
-            encoder_hidden_states=encoder_outputs.hidden_states,
-            encoder_attentions=encoder_outputs.attentions,
-        )
-
-
-class LoRAT5ForConditionalGeneration(ModelWithHeadsAdaptersMixin, T5ModelAdaptersMixin, T5PreTrainedModel):
+class MyT5ForConditionalGeneration(ModelWithHeadsAdaptersMixin, T5ModelAdaptersMixin, T5PreTrainedModel):
     _keys_to_ignore_on_load_missing = [
         r"encoder\.embed_tokens\.weight",
         r"decoder\.embed_tokens\.weight",
@@ -1261,9 +973,10 @@ class LoRAT5ForConditionalGeneration(ModelWithHeadsAdaptersMixin, T5ModelAdapter
         r"decoder\.block\.0\.layer\.1\.EncDecAttention\.relative_attention_bias\.weight",
     ]
 
-    def __init__(self, config):
+    def __init__(self, config, args=None):
         super().__init__(config)
         self.model_dim = config.d_model
+        self.args = args
 
         self.shared = nn.Embedding(config.vocab_size, config.d_model)
 
@@ -1272,19 +985,17 @@ class LoRAT5ForConditionalGeneration(ModelWithHeadsAdaptersMixin, T5ModelAdapter
         encoder_config.use_cache = False
         encoder_config.is_encoder_decoder = False
         encoder_config.adapters = config.adapters
-        self.encoder = LoRAT5Stack(encoder_config, self.shared)
+        self.encoder = MyT5Stack(encoder_config, args, self.shared)
 
         decoder_config = copy.deepcopy(config)
         decoder_config.is_decoder = True
         decoder_config.is_encoder_decoder = False
         decoder_config.num_layers = config.num_decoder_layers
         decoder_config.adapters = config.adapters
-        self.decoder = LoRAT5Stack(decoder_config, self.shared)
+        self.decoder = MyT5Stack(decoder_config, args, self.shared)
 
-        self.lm_head = LoRAPiggybackLinear(
-            config.d_model, config.vocab_size, config.lora_r, lora_alpha=config.lora_alpha, config=config, bias=False)
-
-        self._init_adapter_modules()
+        self.lm_head = nn.Linear(
+            config.d_model, config.vocab_size, bias=False)
 
         # Initialize weights and apply final processing
         self.post_init()
@@ -1292,11 +1003,6 @@ class LoRAT5ForConditionalGeneration(ModelWithHeadsAdaptersMixin, T5ModelAdapter
         # Model parallel
         self.model_parallel = False
         self.device_map = None
-
-    def adaptation(self, num_class, task_label):
-        for module in self.modules():
-            if 'adaptation' in dir(module) and module is not self:
-                module.adaptation(num_class, task_label)
 
     def parallelize(self, device_map=None):
         self.device_map = (
@@ -1343,7 +1049,6 @@ class LoRAT5ForConditionalGeneration(ModelWithHeadsAdaptersMixin, T5ModelAdapter
 
     def forward(
         self,
-        task_label,
         input_ids=None,
         attention_mask=None,
         decoder_input_ids=None,
@@ -1360,45 +1065,12 @@ class LoRAT5ForConditionalGeneration(ModelWithHeadsAdaptersMixin, T5ModelAdapter
         output_attentions=None,
         output_hidden_states=None,
         return_dict=None,
-    ):
-        return self.forward_single_task(
-            task_label,
-            input_ids=input_ids,
-            attention_mask=attention_mask,
-            decoder_input_ids=decoder_input_ids,
-            decoder_attention_mask=decoder_attention_mask,
-            head_mask=head_mask,
-            decoder_head_mask=decoder_head_mask,
-            cross_attn_head_mask=cross_attn_head_mask,
-            encoder_outputs=encoder_outputs,
-            past_key_values=past_key_values,
-            inputs_embeds=inputs_embeds,
-            decoder_inputs_embeds=decoder_inputs_embeds,
-            labels=labels,
-            use_cache=use_cache,
-            output_attentions=output_attentions,
-            output_hidden_states=output_hidden_states,
-            return_dict=return_dict,)
-
-    def forward_single_task(
-        self,
-        task_label,
-        input_ids=None,
-        attention_mask=None,
-        decoder_input_ids=None,
-        decoder_attention_mask=None,
-        head_mask=None,
-        decoder_head_mask=None,
-        cross_attn_head_mask=None,
-        encoder_outputs=None,
-        past_key_values=None,
-        inputs_embeds=None,
-        decoder_inputs_embeds=None,
-        labels=None,
-        use_cache=None,
-        output_attentions=None,
-        output_hidden_states=None,
-        return_dict=None,
+        intermediate_mask=None,
+        output_mask=None,
+        down_mask=None,
+        up_mask=None,
+        my_loss=None,
+        only_return_output=None
     ):
         r"""
         labels (`torch.LongTensor` of shape `(batch_size,)`, *optional*):
@@ -1437,14 +1109,12 @@ class LoRAT5ForConditionalGeneration(ModelWithHeadsAdaptersMixin, T5ModelAdapter
         # FutureWarning: head_mask was separated into two input args - head_mask, decoder_head_mask
         if head_mask is not None and decoder_head_mask is None:
             if self.config.num_layers == self.config.num_decoder_layers:
-                warnings.warn(__HEAD_MASK_WARNING_MSG, FutureWarning)
                 decoder_head_mask = head_mask
 
         # Encode if needed (training, first prediction pass)
         if encoder_outputs is None:
             # Convert encoder inputs in embeddings if needed
             encoder_outputs = self.encoder(
-                task_label=task_label,
                 input_ids=input_ids,
                 attention_mask=attention_mask,
                 inputs_embeds=inputs_embeds,
@@ -1452,6 +1122,10 @@ class LoRAT5ForConditionalGeneration(ModelWithHeadsAdaptersMixin, T5ModelAdapter
                 output_attentions=output_attentions,
                 output_hidden_states=output_hidden_states,
                 return_dict=return_dict,
+                output_mask=output_mask,
+                intermediate_mask=intermediate_mask,
+                down_mask=down_mask,
+                up_mask=up_mask,
             )
         elif return_dict and not isinstance(encoder_outputs, BaseModelOutput):
             encoder_outputs = BaseModelOutput(
@@ -1485,7 +1159,6 @@ class LoRAT5ForConditionalGeneration(ModelWithHeadsAdaptersMixin, T5ModelAdapter
 
         # Decode
         decoder_outputs = self.decoder(
-            task_label=task_label,
             input_ids=decoder_input_ids,
             attention_mask=decoder_attention_mask,
             inputs_embeds=decoder_inputs_embeds,
@@ -1498,8 +1171,14 @@ class LoRAT5ForConditionalGeneration(ModelWithHeadsAdaptersMixin, T5ModelAdapter
             output_attentions=output_attentions,
             output_hidden_states=output_hidden_states,
             return_dict=return_dict,
+            output_mask=output_mask,
+            intermediate_mask=intermediate_mask,
+            down_mask=down_mask,
+            up_mask=up_mask,
         )
-
+        if only_return_output:
+            return decoder_outputs
+        
         sequence_output = decoder_outputs[0]
 
         # Set device for model parallelism
@@ -1518,7 +1197,7 @@ class LoRAT5ForConditionalGeneration(ModelWithHeadsAdaptersMixin, T5ModelAdapter
 
         self.invertible_adapters_forward(projected_output, rev=True)
 
-        lm_logits = self.lm_head(projected_output, task_label)
+        lm_logits = self.lm_head(projected_output)
 
         loss = None
         if labels is not None:
@@ -1526,6 +1205,9 @@ class LoRAT5ForConditionalGeneration(ModelWithHeadsAdaptersMixin, T5ModelAdapter
             loss = loss_fct(
                 lm_logits.view(-1, lm_logits.size(-1)), labels.view(-1))
             # TODO(thom): Add z_loss https://github.com/tensorflow/mesh/blob/fa19d69eafc9a482aff0b59ddd96b025c0cb207d/mesh_tensorflow/layers.py#L666
+            
+        if my_loss is not None:
+            loss += my_loss
 
         if not return_dict:
             output = (lm_logits,) + decoder_outputs[1:] + encoder_outputs
@@ -1600,229 +1282,3 @@ class LoRAT5ForConditionalGeneration(ModelWithHeadsAdaptersMixin, T5ModelAdapter
             reordered_decoder_past = reordered_decoder_past + \
                 (reordered_layer_past_states,)
         return reordered_decoder_past
-
-    def greedy_search(
-        self,
-        input_ids: torch.LongTensor,
-        task_label,
-        logits_processor: Optional[LogitsProcessorList] = None,
-        stopping_criteria: Optional[StoppingCriteriaList] = None,
-        max_length: Optional[int] = None,
-        pad_token_id: Optional[int] = None,
-        eos_token_id: Optional[int] = None,
-        output_attentions: Optional[bool] = None,
-        output_hidden_states: Optional[bool] = None,
-        output_scores: Optional[bool] = None,
-        return_dict_in_generate: Optional[bool] = None,
-        synced_gpus: Optional[bool] = False,
-        **model_kwargs,
-    ) -> Union[GreedySearchOutput, torch.LongTensor]:
-        r"""
-        Generates sequences for models with a language modeling head using greedy decoding.
-
-        Parameters:
-
-            input_ids (`torch.LongTensor` of shape `(batch_size, sequence_length)`):
-                The sequence used as a prompt for the generation.
-            logits_processor (`LogitsProcessorList`, *optional*):
-                An instance of [`LogitsProcessorList`]. List of instances of class derived from [`LogitsProcessor`]
-                used to modify the prediction scores of the language modeling head applied at each generation step.
-            stopping_criteria (`StoppingCriteriaList`, *optional*):
-                An instance of [`StoppingCriteriaList`]. List of instances of class derived from [`StoppingCriteria`]
-                used to tell if the generation loop should stop.
-
-            max_length (`int`, *optional*, defaults to 20):
-                **DEPRECATED**. Use `logits_processor` or `stopping_criteria` directly to cap the number of generated
-                tokens. The maximum length of the sequence to be generated.
-            pad_token_id (`int`, *optional*):
-                The id of the *padding* token.
-            eos_token_id (`int`, *optional*):
-                The id of the *end-of-sequence* token.
-            output_attentions (`bool`, *optional*, defaults to `False`):
-                Whether or not to return the attentions tensors of all attention layers. See `attentions` under
-                returned tensors for more details.
-            output_hidden_states (`bool`, *optional*, defaults to `False`):
-                Whether or not to return the hidden states of all layers. See `hidden_states` under returned tensors
-                for more details.
-            output_scores (`bool`, *optional*, defaults to `False`):
-                Whether or not to return the prediction scores. See `scores` under returned tensors for more details.
-            return_dict_in_generate (`bool`, *optional*, defaults to `False`):
-                Whether or not to return a [`~file_utils.ModelOutput`] instead of a plain tuple.
-            synced_gpus (`bool`, *optional*, defaults to `False`):
-                Whether to continue running the while loop until max_length (needed for ZeRO stage 3)
-            model_kwargs:
-                Additional model specific keyword arguments will be forwarded to the `forward` function of the model.
-                If model is an encoder-decoder model the kwargs should include `encoder_outputs`.
-
-        Return:
-            [`~generation_utils.GreedySearchDecoderOnlyOutput`], [`~generation_utils.GreedySearchEncoderDecoderOutput`]
-            or `torch.LongTensor`: A `torch.LongTensor` containing the generated tokens (default behaviour) or a
-            [`~generation_utils.GreedySearchDecoderOnlyOutput`] if `model.config.is_encoder_decoder=False` and
-            `return_dict_in_generate=True` or a [`~generation_utils.GreedySearchEncoderDecoderOutput`] if
-            `model.config.is_encoder_decoder=True`.
-
-        Examples:
-
-        ```python
-        >>> from transformers import (
-        ...     AutoTokenizer,
-        ...     AutoModelForCausalLM,
-        ...     LogitsProcessorList,
-        ...     MinLengthLogitsProcessor,
-        ... )
-
-        >>> tokenizer = AutoTokenizer.from_pretrained("gpt2")
-        >>> model = AutoModelForCausalLM.from_pretrained("gpt2")
-
-        >>> # set pad_token_id to eos_token_id because GPT2 does not have a EOS token
-        >>> model.config.pad_token_id = model.config.eos_token_id
-
-        >>> input_prompt = "Today is a beautiful day, and"
-        >>> input_ids = tokenizer(input_prompt, return_tensors="pt").input_ids
-
-        >>> # instantiate logits processors
-        >>> logits_processor = LogitsProcessorList(
-        ...     [
-        ...         MinLengthLogitsProcessor(15, eos_token_id=model.config.eos_token_id),
-        ...     ]
-        ... )
-
-        >>> outputs = model.greedy_search(input_ids, logits_processor=logits_processor)
-
-        >>> print("Generated:", tokenizer.batch_decode(outputs, skip_special_tokens=True))
-        ```"""
-        # init values
-        logits_processor = logits_processor if logits_processor is not None else LogitsProcessorList()
-        stopping_criteria = stopping_criteria if stopping_criteria is not None else StoppingCriteriaList()
-        if max_length is not None:
-            warnings.warn(
-                "`max_length` is deprecated in this function, use `stopping_criteria=StoppingCriteriaList(MaxLengthCriteria(max_length=max_length))` instead.",
-                UserWarning,
-            )
-            stopping_criteria = validate_stopping_criteria(stopping_criteria, max_length)
-        pad_token_id = pad_token_id if pad_token_id is not None else self.config.pad_token_id
-        eos_token_id = eos_token_id if eos_token_id is not None else self.config.eos_token_id
-        output_scores = output_scores if output_scores is not None else self.config.output_scores
-        output_attentions = output_attentions if output_attentions is not None else self.config.output_attentions
-        output_hidden_states = (
-            output_hidden_states if output_hidden_states is not None else self.config.output_hidden_states
-        )
-        return_dict_in_generate = (
-            return_dict_in_generate if return_dict_in_generate is not None else self.config.return_dict_in_generate
-        )
-
-        # init attention / hidden states / scores tuples
-        scores = () if (return_dict_in_generate and output_scores) else None
-        decoder_attentions = () if (return_dict_in_generate and output_attentions) else None
-        cross_attentions = () if (return_dict_in_generate and output_attentions) else None
-        decoder_hidden_states = () if (return_dict_in_generate and output_hidden_states) else None
-
-        # if model is an encoder-decoder, retrieve encoder attention weights and hidden states
-        if return_dict_in_generate and self.config.is_encoder_decoder:
-            encoder_attentions = model_kwargs["encoder_outputs"].get("attentions") if output_attentions else None
-            encoder_hidden_states = (
-                model_kwargs["encoder_outputs"].get("hidden_states") if output_hidden_states else None
-            )
-
-        # keep track of which sequences are already finished
-        unfinished_sequences = input_ids.new(input_ids.shape[0]).fill_(1)
-        cur_len = input_ids.shape[-1]
-
-        this_peer_finished = False  # used by synced_gpus only
-        while True:
-
-            if synced_gpus:
-                # Under synced_gpus the `forward` call must continue until all gpus complete their sequence.
-                # The following logic allows an early break if all peers finished generating their sequence
-                this_peer_finished_flag = torch.tensor(0.0 if this_peer_finished else 1.0).to(input_ids.device)
-                # send 0.0 if we finished, 1.0 otherwise
-                dist.all_reduce(this_peer_finished_flag, op=dist.ReduceOp.SUM)
-                # did all peers finish? the reduced sum will be 0.0 then
-                if this_peer_finished_flag.item() == 0.0:
-                    break
-
-            # prepare model inputs
-            model_inputs = self.prepare_inputs_for_generation(input_ids, **model_kwargs)
-            # forward pass to get next token
-            outputs = self(
-                **model_inputs,
-                task_label=task_label,
-                return_dict=True,
-                output_attentions=output_attentions,
-                output_hidden_states=output_hidden_states,
-            )
-
-            if synced_gpus and this_peer_finished:
-                cur_len = cur_len + 1
-                continue  # don't waste resources running the code we don't need
-
-            next_token_logits = outputs.logits[:, -1, :]
-
-            # Store scores, attentions and hidden_states when required
-            if return_dict_in_generate:
-                if output_scores:
-                    scores += (next_token_logits,)
-                if output_attentions:
-                    decoder_attentions += (
-                        (outputs.decoder_attentions,) if self.config.is_encoder_decoder else (outputs.attentions,)
-                    )
-                    if self.config.is_encoder_decoder:
-                        cross_attentions += (outputs.cross_attentions,)
-
-                if output_hidden_states:
-                    decoder_hidden_states += (
-                        (outputs.decoder_hidden_states,)
-                        if self.config.is_encoder_decoder
-                        else (outputs.hidden_states,)
-                    )
-
-            # pre-process distribution
-            next_tokens_scores = logits_processor(input_ids, next_token_logits)
-
-            # argmax
-            next_tokens = torch.argmax(next_tokens_scores, dim=-1)
-
-            # finished sentences should have their next token be a padding token
-            if eos_token_id is not None:
-                if pad_token_id is None:
-                    raise ValueError("If `eos_token_id` is defined, make sure that `pad_token_id` is defined.")
-                next_tokens = next_tokens * unfinished_sequences + pad_token_id * (1 - unfinished_sequences)
-
-            # update generated ids, model inputs, and length for next step
-            input_ids = torch.cat([input_ids, next_tokens[:, None]], dim=-1)
-            model_kwargs = self._update_model_kwargs_for_generation(
-                outputs, model_kwargs, is_encoder_decoder=self.config.is_encoder_decoder
-            )
-            cur_len = cur_len + 1
-
-            # if eos_token was found in one sentence, set sentence to finished
-            if eos_token_id is not None:
-                unfinished_sequences = unfinished_sequences.mul((next_tokens != eos_token_id).long())
-
-            # stop when each sentence is finished, or if we exceed the maximum length
-            if unfinished_sequences.max() == 0 or stopping_criteria(input_ids, scores):
-                if not synced_gpus:
-                    break
-                else:
-                    this_peer_finished = True
-
-        if return_dict_in_generate:
-            if self.config.is_encoder_decoder:
-                return GreedySearchEncoderDecoderOutput(
-                    sequences=input_ids,
-                    scores=scores,
-                    encoder_attentions=encoder_attentions,
-                    encoder_hidden_states=encoder_hidden_states,
-                    decoder_attentions=decoder_attentions,
-                    cross_attentions=cross_attentions,
-                    decoder_hidden_states=decoder_hidden_states,
-                )
-            else:
-                return GreedySearchDecoderOnlyOutput(
-                    sequences=input_ids,
-                    scores=scores,
-                    attentions=decoder_attentions,
-                    hidden_states=decoder_hidden_states,
-                )
-        else:
-            return input_ids

@@ -24,8 +24,10 @@ class MyModel(nn.Module):
         self.cos = nn.CosineSimilarity()
         self.tanh = torch.nn.Tanh()
         self.softmax = torch.nn.Softmax(dim=1)
+        # self.frequency_table = torch.Tensor(
+        #     [1 for _ in range(args.ntasks)]).float().cuda()
         self.frequency_table = torch.Tensor(
-            [1 for _ in range(args.ntasks)]).float().cuda()
+            [1 for _ in range(args.ntasks)]).float()
         self.kd_loss = utils.model.DistillKL(1)
         self.dropout = nn.Dropout(0.1)
         self.contrast = utils.model.MyContrastive()
@@ -41,10 +43,10 @@ class MyModel(nn.Module):
 
         input_ids = inputs['input_ids']
         labels = inputs['labels']
-        if 'inputs_ori_ids' in inputs:
-            inputs_ori_ids = inputs['inputs_ori_ids']
+        inputs_ori_ids = inputs['inputs_ori_ids']
+        if 'roberta' in self.args.base_model_name_or_path:
             attention_mask = inputs['attention_mask']
-        else:
+        elif 't5' in self.args.base_model_name_or_path:
             attention_mask = None
             
         contrast_loss = None
@@ -67,8 +69,12 @@ class MyModel(nn.Module):
                                            intermediate_mask=intermediate_mask,
                                            output_hidden_states=True, output_attentions=True)
 
-            loss = self.kd_loss(
-                teacher_outputs.hidden_states[-1], outputs.hidden_states[-1])
+            if 'roberta' in self.args.base_model_name_or_path:
+                loss = self.kd_loss(
+                    teacher_outputs.hidden_states[-1], outputs.hidden_states[-1])
+            elif 't5' in self.args.base_model_name_or_path:
+                loss = self.kd_loss(
+                    teacher_outputs.decoder_hidden_states[-1], outputs.decoder_hidden_states[-1])
 
         elif prune_loss is not None and 'mlm' in prune_loss:  # detect importance with MLM as L_impt
             outputs = self.model(input_ids=inputs_ori_ids, labels=labels, attention_mask=attention_mask,
@@ -100,9 +106,12 @@ class MyModel(nn.Module):
                     teacher_ori = self.teacher(input_ids=inputs_ori_ids, labels=labels, attention_mask=attention_mask,
                                                output_hidden_states=True)
 
-                    distill_loss = self.kd_loss(
-                        teacher_ori.hidden_states[-1], student_ori.hidden_states[-1])
-
+                    if 'roberta' in self.args.base_model_name_or_path:
+                        distill_loss = self.kd_loss(
+                            teacher_ori.hidden_states[-1], student_ori.hidden_states[-1])
+                    elif 't5' in self.args.base_model_name_or_path:
+                        distill_loss = self.kd_loss(
+                            teacher_ori.decoder_hidden_states[-1], student_ori.decoder_hidden_states[-1])
                 outputs = self.model(input_ids=input_ids, labels=labels, attention_mask=attention_mask,
                                      output_hidden_states=True)
 
@@ -157,7 +166,10 @@ class MyModel(nn.Module):
                                                      intermediate_mask=intermediate_mask,
                                                      output_hidden_states=True)
 
-                        pre_pooled_output = pre_outputs.hidden_states[-1]
+                        if 'roberta' in self.args.base_model_name_or_path:
+                            pre_pooled_output = pre_outputs.hidden_states[-1]
+                        elif 't5' in self.args.base_model_name_or_path:
+                            pre_pooled_output = pre_outputs.decoder_hidden_states[-1]
                         mean_pre_pooled_output = torch.mean(
                             pre_pooled_output, dim=1)
 
@@ -169,7 +181,10 @@ class MyModel(nn.Module):
 
                     pre_pooled_outputs = torch.cat(pre_pooled_outputs, -1)
 
-                    cur_pooled_outputs = outputs.hidden_states[-1]
+                    if 'roberta' in self.args.base_model_name_or_path:
+                        cur_pooled_outputs = outputs.hidden_states[-1]
+                    elif 't5' in self.args.base_model_name_or_path:
+                        cur_pooled_outputs = outputs.decoder_hidden_states[-1]
                     mean_cur_pooled_output = torch.mean(
                         cur_pooled_outputs, dim=1)
 
@@ -194,14 +209,21 @@ class MyModel(nn.Module):
             elif 'simcse' in self.args.baseline:
                 inputs_ori_ids_dup = inputs_ori_ids.repeat(2, 1)
                 labels_dup = labels.repeat(2, 1)
-                attention_mask_dup = attention_mask.repeat(2, 1)
+                if attention_mask is not None:
+                    attention_mask_dup = attention_mask.repeat(2, 1)
+                else:
+                    attention_mask_dup = None
 
                 outputs_ori = self.model(input_ids=inputs_ori_ids_dup, labels=labels_dup,
                                          attention_mask=attention_mask_dup,
                                          output_hidden_states=True)
 
-                outputs_ori_hidden_state = outputs_ori.hidden_states[-1].view(
-                    -1, 2, 164, 768)
+                if 'roberta' in self.args.base_model_name_or_path:
+                    outputs_ori_hidden_state = outputs_ori.hidden_states[-1].view(
+                        -1, 2, 164, 768)
+                elif 't5' in self.args.base_model_name_or_path:
+                    outputs_ori_hidden_state = outputs_ori.decoder_hidden_states[-1].view(
+                        -1, 2, self.args.target_length, 768)
 
                 z1 = outputs_ori_hidden_state[:, 0]
                 z2 = outputs_ori_hidden_state[:, 1]
@@ -212,7 +234,10 @@ class MyModel(nn.Module):
             elif ('dga' in self.args.baseline or 'das' in self.args.baseline) and not prune_loss:
                 inputs_ori_ids_dup = inputs_ori_ids.repeat(2, 1)
                 labels_dup = labels.repeat(2, 1)
-                attention_mask_dup = attention_mask.repeat(2, 1)
+                if attention_mask is not None:
+                    attention_mask_dup = attention_mask.repeat(2, 1)
+                else:
+                    attention_mask_dup = None
                 outputs_ori = self.model(input_ids=inputs_ori_ids_dup, labels=labels_dup,
                                          attention_mask=attention_mask_dup,
                                          output_hidden_states=True)
@@ -223,12 +248,19 @@ class MyModel(nn.Module):
                                          output_mask=output_mask,
                                          output_hidden_states=True)
 
-                outputs_ori_hidden_state = outputs_ori.hidden_states[-1].view(
-                    -1, 2, 164, 768)
+                if 'roberta' in self.args.base_model_name_or_path:
+                    outputs_ori_hidden_state = outputs_ori.hidden_states[-1].view(
+                        -1, 2, 164, 768)
+                elif 't5' in self.args.base_model_name_or_path:
+                    outputs_ori_hidden_state = outputs_ori.decoder_hidden_states[-1].view(
+                        -1, 2, self.args.target_length, 768)
 
                 z1 = outputs_ori_hidden_state[:, 0]
                 z2 = outputs_ori_hidden_state[:, 1]
-                z3 = outputs_pre.hidden_states[-1]
+                if 'roberta' in self.args.base_model_name_or_path:
+                    z3 = outputs_pre.hidden_states[-1]
+                elif 't5' in self.args.base_model_name_or_path:
+                    z3 = outputs_pre.decoder_hidden_states[-1]
 
                 mean_z1 = torch.mean(z1, dim=1)
                 mean_z2 = torch.mean(z2, dim=1)
@@ -242,9 +274,13 @@ class MyModel(nn.Module):
                 outputs_teacher = self.teacher(input_ids=inputs_ori_ids, labels=labels, attention_mask=attention_mask,
                                                output_hidden_states=True)
 
-                z1 = outputs_teacher.hidden_states[-1]  # anchor: masks
-                # positive samples: original
-                z2 = outputs_ori.hidden_states[-1]
+                if 'roberta' in self.args.base_model_name_or_path:
+                    z1 = outputs_teacher.hidden_states[-1]  # anchor: masks
+                    # positive samples: original
+                    z2 = outputs_ori.hidden_states[-1]
+                elif 't5' in self.args.base_model_name_or_path:
+                    z1 = outputs_teacher.decoder_hidden_states[-1]
+                    z2 = outputs_ori.decoder_hidden_states[-1]
                 tacl_loss = utils.model.tacl_loss(z1, z2, (labels == -100).long(),
                                                   eps=0.0)  # contrasive_labels: bsz x seqlen; masked positions with 0., otherwise 1.
 
@@ -252,9 +288,13 @@ class MyModel(nn.Module):
                 outputs_ori = self.model(input_ids=inputs_ori_ids, labels=labels, attention_mask=attention_mask,
                                          output_hidden_states=True)
 
-                inputs_embeds = getattr(
-                    self.model, 'roberta').embeddings(inputs_ori_ids)
-                z1 = outputs_ori.hidden_states[-1]  # anchor: masks
+                if 'roberta' in self.args.base_model_name_or_path:
+                    inputs_embeds = getattr(
+                        self.model, 'roberta').embeddings(inputs_ori_ids)
+                    z1 = outputs_ori.hidden_states[-1]  # anchor: masks
+                elif 't5' in self.args.base_model_name_or_path:
+                    inputs_embeds = self.model.shared(inputs_ori_ids)
+                    z1 = outputs_ori.decoder_hidden_states[-1]
 
                 global_z1 = z1 - inputs_embeds
 
@@ -280,7 +320,10 @@ class MyModel(nn.Module):
                 outputs_mask = self.model(input_ids=input_ids, labels=labels, attention_mask=attention_mask,
                                           output_hidden_states=True)
 
-                ngram_z1 = outputs_ori.hidden_states[-1]
+                if 'roberta' in self.args.base_model_name_or_path:
+                    ngram_z1 = outputs_ori.hidden_states[-1]
+                elif 't5' in self.args.base_model_name_or_path:
+                    ngram_z1 = outputs_ori.decoder_hidden_states[-1]
                 # z1 = ngram_z1[new_ids]# trick to index a 3D tensor using 2D tensor https://stackoverflow.com/questions/55628014/indexing-a-3d-tensor-using-a-2d-tensor
                 # z1 = z1.view(ngram_z1.size(0),-1,ngram_z1.size(-1)) # cannot do this, becuase each sequence has a different span
 
@@ -294,7 +337,10 @@ class MyModel(nn.Module):
 
                 mean_z1 = torch.stack(mean_z1).squeeze(1)
 
-                z2 = outputs_mask.hidden_states[-1]
+                if 'roberta' in self.args.base_model_name_or_path:
+                    z2 = outputs_mask.hidden_states[-1]
+                elif 't5' in self.args.base_model_name_or_path:
+                    z2 = outputs_mask.decoder_hidden_states[-1]
                 mean_z2 = torch.mean(z2, dim=1)
 
                 infoword_loss = simcse.sequence_level_contrast(

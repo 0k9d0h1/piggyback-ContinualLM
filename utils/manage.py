@@ -139,7 +139,9 @@ class MonitoringMaskPlugin(SupervisedPlugin):
 
 def copy_weights(model, model_pretrained, data_idx=0):
     # Copy weights of pretrained model
-    module_list = list(model_pretrained.modules())
+    # module_list = list(model_pretrained.modules())
+    module_name_list = list(n for n, m in model_pretrained.named_modules())
+    module_list = list(m for n, m in model_pretrained.named_modules())
     i = 0
     if "Roberta" in str(type(model)):
         for module in model.roberta.modules():
@@ -172,13 +174,14 @@ def copy_weights(model, model_pretrained, data_idx=0):
                 module.weight.data.copy_(module_list[i].weight.data)
                 module.bias.data.copy_(module_list[i].bias.data)
     elif "T5" in str(type(model)):
-        for module in model.modules():
+        for n, module in model.named_modules():
             if 'Linear' in str(type(module)):
                 while True:
                     i += 1
                     if 'Linear' in str(type(module_list[i])):
                         break
-                print(str(type(module_list[i])), module_list[i])
+                # print(str(type(module_list[i])), module_list[i])
+                print(n, module_name_list[i])
                 module.weight.data.copy_(module_list[i].weight.data)
 
             elif 'Embedding' in str(type(module)) and 'Roberta' not in str(type(module)):

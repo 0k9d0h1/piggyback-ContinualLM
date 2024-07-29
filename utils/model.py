@@ -15,6 +15,7 @@ from networks.transformers.roberta import MyRobertaForSequenceClassification, My
 from networks.transformers.roberta_piggyback import PiggybackRobertaForSequenceClassification, PiggybackRobertaForMaskedLM
 from networks.transformers.roberta_LoRA import LoRARobertaForSequenceClassification, LoRARobertaForMaskedLM
 from networks.transformers.T5_LoRA import LoRAT5ForConditionalGeneration
+from networks.transformers.T5 import MyT5ForConditionalGeneration
 from networks.prompt.tuning import MyRobertaForSequenceClassificationSoftPromptTunning, MyRobertaForMaskedLMSoftPromptTunning
 from networks.posttrain.model import MyModel
 from transformers.models.roberta.modeling_roberta import RobertaForSequenceClassification
@@ -354,121 +355,142 @@ def prepare_sequence_finetune(args):
     print(f'Dataset: {args.dataset_name}')
     print(f'Pretrained model: {args.model_name_or_path}')
 
-    if args.baseline == 'piggyback':
-        if args.dataset_name == 'aclarc_sup':
-            args.epoch = 20
-            args.lr = 3.5e-5
-            args.weight_decay = 0
-        elif args.dataset_name == 'restaurant_sup':
-            args.epoch = 15
-            args.lr = 3e-5
-            args.weight_decay = 0
-        elif args.dataset_name == 'phone_sup':
-            args.epoch = 30
-            args.lr = 1.5e-5
-            args.weight_decay = 0.003
-        elif args.dataset_name == 'scierc_sup':
-            args.epoch = 25
-            args.lr = 4e-5
-            args.weight_decay = 0
-        elif args.dataset_name == 'chemprot_sup':
-            args.epoch = 25
-            args.lr = 4e-5
-            args.weight_decay = 0
-        elif args.dataset_name == 'camera_sup':
-            args.epoch = 30
-            args.lr = 1.5e-5
-            args.weight_decay = 0.003
-    elif args.baseline == 'piggyback_nonzero':
-        if args.dataset_name == 'aclarc_sup':
-            args.epoch = 8
-            args.lr = 1.2e-5
-            args.weight_decay = 0
-        elif args.dataset_name == 'restaurant_sup':
-            args.epoch = 15
-            args.lr = 3e-5
-            args.weight_decay = 0
-        elif args.dataset_name == 'phone_sup':
-            args.epoch = 15
-            args.lr = 3e-5
-            args.weight_decay = 0.003
-        elif args.dataset_name == 'scierc_sup':
-            args.epoch = 10
-            args.lr = 3e-5
-            args.weight_decay = 0
-        elif args.dataset_name == 'chemprot_sup':
-            args.epoch = 8
-            args.lr = 2.3e-5
-            args.weight_decay = 0
-        elif args.dataset_name == 'camera_sup':
-            args.epoch = 15
-            args.lr = 3e-5
-            args.weight_decay = 0.003
-    elif args.finetune_type == 'lora_piggyback':
-        if args.hyperparameter_tune:
-            pass
-        else:
+    if args.base_model_name_or_path == 'roberta-base':
+        if args.baseline == 'piggyback':
             if args.dataset_name == 'aclarc_sup':
-                args.epoch = 10
-                args.lr = 0.0000825563281269546
-                args.weight_decay = 0.013997436347693602
+                args.epoch = 20
+                args.lr = 3.5e-5
+                args.weight_decay = 0
             elif args.dataset_name == 'restaurant_sup':
-                args.epoch = 5
-                args.lr = 0.0000562138452426044
-                args.weight_decay = 0.02051551571669142
+                args.epoch = 15
+                args.lr = 3e-5
+                args.weight_decay = 0
             elif args.dataset_name == 'phone_sup':
-                args.epoch = 23
-                args.lr = 0.00009916564272175414
-                args.weight_decay = 0.04497327262904149
+                args.epoch = 30
+                args.lr = 1.5e-5
+                args.weight_decay = 0.003
             elif args.dataset_name == 'scierc_sup':
-                args.epoch = 34
-                args.lr = 0.00001897132489990663
-                args.weight_decay = 0.0018982691934866672
+                args.epoch = 25
+                args.lr = 4e-5
+                args.weight_decay = 0
+            elif args.dataset_name == 'chemprot_sup':
+                args.epoch = 25
+                args.lr = 4e-5
+                args.weight_decay = 0
+            elif args.dataset_name == 'camera_sup':
+                args.epoch = 30
+                args.lr = 1.5e-5
+                args.weight_decay = 0.003
+        elif args.baseline == 'piggyback_nonzero':
+            if args.dataset_name == 'aclarc_sup':
+                args.epoch = 8
+                args.lr = 1.2e-5
+                args.weight_decay = 0
+            elif args.dataset_name == 'restaurant_sup':
+                args.epoch = 15
+                args.lr = 3e-5
+                args.weight_decay = 0
+            elif args.dataset_name == 'phone_sup':
+                args.epoch = 15
+                args.lr = 3e-5
+                args.weight_decay = 0.003
+            elif args.dataset_name == 'scierc_sup':
+                args.epoch = 10
+                args.lr = 3e-5
+                args.weight_decay = 0
             elif args.dataset_name == 'chemprot_sup':
                 args.epoch = 8
-                args.lr = 0.00005023402861391314
-                args.weight_decay = 0.016548869151454117
+                args.lr = 2.3e-5
+                args.weight_decay = 0
             elif args.dataset_name == 'camera_sup':
-                args.epoch = 16
-                args.lr = 0.00009128966095587548
-                args.weight_decay = 0.02544224709650889
-    elif args.finetune_type == 'full_finetune':
-        if args.hyperparameter_tune:
-            pass
+                args.epoch = 15
+                args.lr = 3e-5
+                args.weight_decay = 0.003
+        elif args.finetune_type == 'lora_piggyback':
+            if args.hyperparameter_tune:
+                pass
+            else:
+                if args.dataset_name == 'aclarc_sup':
+                    args.epoch = 10
+                    args.lr = 0.0000825563281269546
+                    args.weight_decay = 0.013997436347693602
+                elif args.dataset_name == 'restaurant_sup':
+                    args.epoch = 5
+                    args.lr = 0.0000562138452426044
+                    args.weight_decay = 0.02051551571669142
+                elif args.dataset_name == 'phone_sup':
+                    args.epoch = 23
+                    args.lr = 0.00009916564272175414
+                    args.weight_decay = 0.04497327262904149
+                elif args.dataset_name == 'scierc_sup':
+                    args.epoch = 34
+                    args.lr = 0.00001897132489990663
+                    args.weight_decay = 0.0018982691934866672
+                elif args.dataset_name == 'chemprot_sup':
+                    args.epoch = 8
+                    args.lr = 0.00005023402861391314
+                    args.weight_decay = 0.016548869151454117
+                elif args.dataset_name == 'camera_sup':
+                    args.epoch = 16
+                    args.lr = 0.00009128966095587548
+                    args.weight_decay = 0.02544224709650889
+        elif args.finetune_type == 'full_finetune':
+            if args.hyperparameter_tune:
+                pass
+            else:
+                if args.dataset_name == 'aclarc_sup':
+                    args.epoch = 10
+                    args.lr = 0.00001758603631446087
+                    args.weight_decay = 0.028795229455204106
+                elif args.dataset_name == 'restaurant_sup':
+                    args.epoch = 5
+                    args.lr = 0.00000851786023623331
+                    args.weight_decay = 0.030024549247204775
+                elif args.dataset_name == 'phone_sup':
+                    args.epoch = 23
+                    args.lr = 0.00004574757302938677
+                    args.weight_decay = 0.045907177806925395
+                elif args.dataset_name == 'scierc_sup':
+                    args.epoch = 20
+                    args.lr = 0.0000160773225582201
+                    args.weight_decay = 0.006517616029196202
+                elif args.dataset_name == 'chemprot_sup':
+                    args.epoch = 12
+                    args.lr = 0.00001671028533878026
+                    args.weight_decay = 0.0018589965753565147
+                elif args.dataset_name == 'camera_sup':
+                    args.epoch = 9
+                    args.lr = 0.00006373191389078576
+                    args.weight_decay = 0.015424987277841556
         else:
-            if args.dataset_name == 'aclarc_sup':
+            if args.dataset_name in ['aclarc_sup']:
                 args.epoch = 10
-                args.lr = 0.00001758603631446087
-                args.weight_decay = 0.028795229455204106
-            elif args.dataset_name == 'restaurant_sup':
+            elif args.dataset_name in ["hoc_multi", "scierc_sup", "covidintent_sup", 'restaurant_sup', "laptop_sup"]:
                 args.epoch = 5
-                args.lr = 0.00000851786023623331
-                args.weight_decay = 0.030024549247204775
-            elif args.dataset_name == 'phone_sup':
-                args.epoch = 23
-                args.lr = 0.00004574757302938677
-                args.weight_decay = 0.045907177806925395
-            elif args.dataset_name == 'scierc_sup':
-                args.epoch = 20
-                args.lr = 0.0000160773225582201
-                args.weight_decay = 0.006517616029196202
-            elif args.dataset_name == 'chemprot_sup':
-                args.epoch = 12
-                args.lr = 0.00001671028533878026
-                args.weight_decay = 0.0018589965753565147
-            elif args.dataset_name == 'camera_sup':
-                args.epoch = 9
-                args.lr = 0.00006373191389078576
-                args.weight_decay = 0.015424987277841556
-    else:
-        if args.dataset_name in ['aclarc_sup']:
-            args.epoch = 10
-        elif args.dataset_name in ["hoc_multi", "scierc_sup", "covidintent_sup", 'restaurant_sup', "laptop_sup"]:
-            args.epoch = 5
-        elif args.dataset_name in ['phone_sup', "camera_sup"]:
-            args.epoch = 15
-        elif args.dataset_name in ['chemprot_sup', 'rct_sample_sup', 'electric_sup', 'hyperpartisan_sup']:
-            args.epoch = 10
+            elif args.dataset_name in ['phone_sup', "camera_sup"]:
+                args.epoch = 15
+            elif args.dataset_name in ['chemprot_sup', 'rct_sample_sup', 'electric_sup', 'hyperpartisan_sup']:
+                args.epoch = 10
+    elif args.base_model_name_or_path == 't5-base':
+        if args.baseline == 'lora':
+            if args.finetune_type == 'lora_piggyback':
+                if args.hyperparameter_tune:
+                    pass
+                else:
+                    args.epoch = 10
+                    args.lr = 5e-4
+            elif args.finetune_type == 'full_finetune':
+                if args.hyperparameter_tune:
+                    pass
+                else:
+                    args.epoch = 10
+                    args.lr = 1e-3
+        elif args.baseline == 'das':
+            if args.hyperparameter_tune:
+                pass
+            else:
+                args.epoch = 10
+                args.lr = 1e-3
 
     args.s = args.smax
 
@@ -477,17 +499,41 @@ def prepare_sequence_finetune(args):
 
 def _lookfor_model_prompt(args, training_type):
 
-    if training_type == 'finetune':
-        MODEL = MyRobertaForSequenceClassificationSoftPromptTunning
-    elif training_type == 'posttrain':
-        MODEL = MyRobertaForMaskedLMSoftPromptTunning
+    if 'roberta' in args.base_model_name_or_path:
+        if training_type == 'finetune':
+            MODEL = MyRobertaForSequenceClassification
 
-    model = MODEL.from_pretrained(
-        args.model_name_or_path,
-        from_tf=bool(".ckpt" in args.model_name_or_path),
-        num_labels=args.class_num,
-        args=args
-    )
+        elif training_type == 'posttrain':
+            MODEL = MyRobertaForMaskedLM
+
+        model = MODEL.from_pretrained(
+            args.model_name_or_path,
+            from_tf=bool(".ckpt" in args.model_name_or_path),
+            num_labels=args.class_num,
+            args=args
+        )
+
+        teacher = MODEL.from_pretrained(
+            args.model_name_or_path,
+            from_tf=bool(".ckpt" in args.model_name_or_path),
+            num_labels=args.class_num,
+            args=args
+        )
+
+    elif 't5' in args.base_model_name_or_path:
+        MODEL = MyT5ForConditionalGeneration
+
+        model = MODEL.from_pretrained(
+            args.model_name_or_path,
+            from_tf=bool(".ckpt" in args.model_name_or_path),
+            args=args
+        )
+
+        teacher = MODEL.from_pretrained(
+            args.model_name_or_path,
+            from_tf=bool(".ckpt" in args.model_name_or_path),
+            args=args
+        )
 
     for n, p in model.named_parameters():
         if 'classifier' in n:
@@ -498,13 +544,6 @@ def _lookfor_model_prompt(args, training_type):
     if 'one' in args.baseline or args.pt_task == 0:
         model.initialize_soft_prompt(n_tokens=args.n_tokens)
 
-    teacher = model.from_pretrained(
-        args.model_name_or_path,
-        from_tf=bool(".ckpt" in args.model_name_or_path),
-        num_labels=args.class_num,
-        args=args
-    )
-
     model = MyModel(model, teacher=teacher, args=args)
 
     return model
@@ -512,18 +551,41 @@ def _lookfor_model_prompt(args, training_type):
 
 def _lookfor_model_adapter(args, training_type):
 
-    if training_type == 'finetune':
-        MODEL = MyRobertaForSequenceClassification
+    if 'roberta' in args.base_model_name_or_path:
+        if training_type == 'finetune':
+            MODEL = MyRobertaForSequenceClassification
 
-    elif training_type == 'posttrain':
-        MODEL = MyRobertaForMaskedLM
+        elif training_type == 'posttrain':
+            MODEL = MyRobertaForMaskedLM
 
-    model = MODEL.from_pretrained(
-        args.model_name_or_path,
-        from_tf=bool(".ckpt" in args.model_name_or_path),
-        num_labels=args.class_num,
-        args=args
-    )
+        model = MODEL.from_pretrained(
+            args.model_name_or_path,
+            from_tf=bool(".ckpt" in args.model_name_or_path),
+            num_labels=args.class_num,
+            args=args
+        )
+
+        teacher = MODEL.from_pretrained(
+            args.model_name_or_path,
+            from_tf=bool(".ckpt" in args.model_name_or_path),
+            num_labels=args.class_num,
+            args=args
+        )
+
+    elif 't5' in args.base_model_name_or_path:
+        MODEL = MyT5ForConditionalGeneration
+
+        model = MODEL.from_pretrained(
+            args.model_name_or_path,
+            from_tf=bool(".ckpt" in args.model_name_or_path),
+            args=args
+        )
+
+        teacher = MODEL.from_pretrained(
+            args.model_name_or_path,
+            from_tf=bool(".ckpt" in args.model_name_or_path),
+            args=args
+        )
 
     if 'one' in args.baseline or args.pt_task == 0:
         model.add_adapter('adapter')  # no mh_adapter by default
@@ -539,12 +601,6 @@ def _lookfor_model_adapter(args, training_type):
             if 'self_attns' in n:  # classic
                 p.requires_grad = True
 
-    teacher = MODEL.from_pretrained(
-        args.model_name_or_path,
-        from_tf=bool(".ckpt" in args.model_name_or_path),
-        num_labels=args.class_num,
-        args=args
-    )
     model = MyModel(model, teacher=teacher, args=args)
 
     return model
@@ -717,25 +773,64 @@ def _lookfor_model_lora(args, training_type):
 
 def _lookfor_model_others(args, training_type):
 
-    if training_type == 'finetune':
-        MODEL = MyRobertaForSequenceClassification
+    if 'roberta' in args.base_model_name_or_path:
+        if training_type == 'finetune':
+            MODEL = MyRobertaForSequenceClassification
 
-    elif training_type == 'posttrain':
-        MODEL = MyRobertaForMaskedLM
+        elif training_type == 'posttrain':
+            MODEL = MyRobertaForMaskedLM
 
-    model = MODEL.from_pretrained(
-        args.model_name_or_path,
-        from_tf=bool(".ckpt" in args.model_name_or_path),
-        num_labels=args.class_num,
-        args=args
-    )
+        model = MODEL.from_pretrained(
+            args.model_name_or_path,
+            from_tf=bool(".ckpt" in args.model_name_or_path),
+            num_labels=args.class_num,
+            args=args
+        )
 
-    teacher = MODEL.from_pretrained(
-        args.model_name_or_path,
-        from_tf=bool(".ckpt" in args.model_name_or_path),
-        num_labels=args.class_num,
-        args=args
-    )
+        teacher = MODEL.from_pretrained(
+            args.model_name_or_path,
+            from_tf=bool(".ckpt" in args.model_name_or_path),
+            num_labels=args.class_num,
+            args=args
+        )
+
+    elif 't5' in args.base_model_name_or_path:
+        MODEL = MyT5ForConditionalGeneration
+
+        model = MODEL.from_pretrained(
+                args.model_name_or_path,
+                from_tf=bool(".ckpt" in args.model_name_or_path),
+                args=args
+            )
+        teacher = MODEL.from_pretrained(
+                args.model_name_or_path,
+                from_tf=bool(".ckpt" in args.model_name_or_path),
+                args=args
+        )
+
+        # if ".ckpt" in args.model_name_or_path:
+        #     model = MODEL.from_pretrained(
+        #         args.model_name_or_path,
+        #         from_tf=bool(".ckpt" in args.model_name_or_path),
+        #         args=args
+        #     )
+
+        #     teacher = MODEL.from_pretrained(
+        #         args.model_name_or_path,
+        #         from_tf=bool(".ckpt" in args.model_name_or_path),
+        #         args=args
+        #     )
+        # else:
+        #     model_pretrained = T5ForConditionalGeneration.from_pretrained(
+        #         args.base_model_name_or_path)
+        #     config = T5Config.from_pretrained(args.base_model_name_or_path)
+
+        #     model = MyT5ForConditionalGeneration(config)
+        #     teacher = MyT5ForConditionalGeneration(config)
+
+        #     copy_weights(model, model_pretrained)
+        #     copy_weights(teacher, model_pretrained)
+
     for param in teacher.parameters():  # nothing is trainable in teacher
         param.requires_grad = False
 

@@ -29,7 +29,7 @@ import wandb
 from accelerate import Accelerator
 from torch.utils.data import DataLoader
 from transformers import RobertaTokenizer, set_seed, AdamW, T5Tokenizer
-from dataloader.data import get_dataset, get_dataset_eval, get_dataset_t5, dataset_class_num
+from dataloader.data import get_dataset, get_dataset_eval, get_dataset_t5, get_dataset_t5_eval, dataset_class_num
 import random
 from transformers import (
     MODEL_MAPPING,
@@ -43,19 +43,26 @@ from transformers import (
 # Set up logger
 logger = logging.getLogger(__name__)
 
+dataset2max_length = {'restaurant_sup': 2,
+                      'chemprot_sup': 12,
+                      'aclarc_sup': 6,
+                      'scierc_sup': 9,
+                      'camera_sup': 2,
+                      'phone_sup': 2}
+
 
 def main():
     args = parseing_finetune()
     args = utils.model.prepare_sequence_finetune(args)
     args.device = torch.device(
         "cuda" if torch.cuda.is_available() and not args.no_cuda else "cpu")
-    
+
     if args.hyperparameter_tune:
-        wandb.init(project='piggyback_continualDAP_sweep',
-               config=args)
+        wandb.init(project='piggyback_continualDAP_%s_sweep' % (args.base_model_name_or_path),
+                   config=args)
     else:
-        wandb.init(project='piggyback_continualDAP',
-                config=args)
+        wandb.init(project='piggyback_continualDAP_%s' % (args.base_model_name_or_path),
+                   config=args)
     wandb.run.name = "%s_%s_%s_%d" % (
         args.baseline, args.finetune_type, args.dataset_name, args.seed)
     wandb.run.save()
@@ -97,9 +104,10 @@ def main():
 
     # Get the datasets and process the data.
     if "roberta" in args.base_model_name_or_path:
-        tokenizer = RobertaTokenizer.from_pretrained(args.model_name_or_path)
+        tokenizer = RobertaTokenizer.from_pretrained(
+            args.base_model_name_or_path)
     elif "t5" in args.base_model_name_or_path:
-        tokenizer = T5Tokenizer.from_pretrained(args.model_name_or_path)
+        tokenizer = T5Tokenizer.from_pretrained(args.base_model_name_or_path)
     args.tokenizer = tokenizer
 
     max_length = args.max_seq_length
@@ -108,11 +116,18 @@ def main():
 
     if "roberta" in args.base_model_name_or_path:
         if args.hyperparameter_tune:
-            datasets = get_dataset_eval(args.dataset_name, tokenizer=tokenizer, args=args)
+            datasets = get_dataset_eval(
+                args.dataset_name, tokenizer=tokenizer, args=args)
         else:
-            datasets = get_dataset(args.dataset_name, tokenizer=tokenizer, args=args)
+            datasets = get_dataset(
+                args.dataset_name, tokenizer=tokenizer, args=args)
     elif "t5" in args.base_model_name_or_path:
-        datasets = get_dataset_t5(args.dataset_name, tokenizer=tokenizer, args=args)
+        if args.hyperparameter_tune:
+            datasets = get_dataset_t5_eval(
+                args.dataset_name, tokenizer=tokenizer, args=args)
+        else:
+            datasets = get_dataset_t5(
+                args.dataset_name, tokenizer=tokenizer, args=args)
     print(f'Dataset: {args.dataset_name}')
 
     print(f'Size of training set: {len(datasets["train"])}')
@@ -120,14 +135,16 @@ def main():
 
     train_dataset = datasets['train']
     test_dataset = datasets['test']
-    
+
     def tokenize_function(examples):
         inputs = examples["text"]
         targets = examples["labels"]
-        model_inputs = tokenizer(inputs, truncation=True, padding='max_length', max_length=max_length)
+        model_inputs = tokenizer(
+            inputs, truncation=True, padding='max_length', max_length=max_length)
 
         with tokenizer.as_target_tokenizer():
-            labels = tokenizer(targets, truncation=True, padding='max_length', max_length=max_length)
+            labels = tokenizer(targets, truncation=True, padding='max_length',
+                               max_length=dataset2max_length[args.dataset_name])
 
         model_inputs["labels"] = labels["input_ids"]
         return model_inputs
@@ -164,7 +181,7 @@ def main():
 
     model = utils.model.lookfor_model_finetune(args)
     # print(model)
-    
+
     appr = Appr(args)
     appr.train(model, accelerator, train_loader, test_loader)
 
