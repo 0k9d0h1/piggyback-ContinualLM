@@ -41,51 +41,6 @@ If you do not want to use any `decoder_head_mask` now, please set `decoder_head_
 num_heads)`.
 """
 
-# class MyT5DenseReluIntermediate(nn.Module):
-#     def __init__(self, config):
-#         super().__init__()
-#         self.wi = nn.Linear(config.d_model, config.d_ff, bias=False)
-#         self.dropout = nn.Dropout(config.dropout_rate)
-
-#     def forward(self, hidden_states, intermediate_mask):
-#         if intermediate_mask is not None:
-#             hidden_states = self.wi(hidden_states) * intermediate_mask
-#         else:
-#             hidden_states = self.wi(hidden_states)
-#         hidden_states = nn.functional.relu(hidden_states)
-#         hidden_states = self.dropout(hidden_states)
-#         return hidden_states
-    
-# class MyT5DenseGatedGeluIntermediate(nn.Module):
-#     def __init__(self, config):
-#         super().__init__()
-#         self.wi_0 = nn.Linear(config.d_model, config.d_ff, bias=False)
-#         self.wi_1 = nn.Linear(config.d_model, config.d_ff, bias=False)
-#         self.dropout = nn.Dropout(config.dropout_rate)
-#         self.gelu_act = ACT2FN["gelu_new"]
-
-#     def forward(self, hidden_states, intermediate_mask):
-#         if intermediate_mask is not None:
-#             hidden_gelu = self.gelu_act(self.wi_0(hidden_states) * intermediate_mask)
-#             hidden_linear = self.wi_1(hidden_states) * intermediate_mask
-#         else:
-#             hidden_gelu = self.gelu_act(self.wi_0(hidden_states))
-#             hidden_linear = self.wi_1(hidden_states)
-#         hidden_states = hidden_gelu * hidden_linear
-#         hidden_states = self.dropout(hidden_states)
-#         return hidden_states
-    
-# class MyT5DenseOutput(nn.Module):
-#     def __init__(self, config):
-#         super().__init__()
-#         self.wo = nn.Linear(config.d_ff, config.d_model, bias=False)
-        
-#     def forward(self, hidden_states, output_mask):
-#         if output_mask is not None:
-#             return self.wo(hidden_states) * output_mask
-#         else:
-#             return self.wo(hidden_states)
-
 class T5DenseReluDense(nn.Module):
     def __init__(self, config):
         super().__init__()
@@ -135,15 +90,6 @@ class MyT5LayerFF(T5FFLayerAdaptersMixin, nn.Module):
         T5FFLayerAdaptersMixin.__init__(self, args)
         nn.Module.__init__(self)
         self.config = config
-        # if config.feed_forward_proj == "relu":
-        #     self.DenseReluIntermediate = MyT5DenseReluIntermediate(config)
-        # elif config.feed_forward_proj == "gated-gelu":
-        #     self.DenseReluIntermediate = MyT5DenseGatedGeluIntermediate(config)
-        # else:
-        #     raise ValueError(
-        #         f"{self.config.feed_forward_proj} is not supported. Choose between `relu` and `gated-gelu`"
-        #     )
-        # self.DenseOutput = MyT5DenseOutput(config)
         
         if config.feed_forward_proj == "relu":
             self.DenseReluDense = T5DenseReluDense(config)
@@ -161,12 +107,10 @@ class MyT5LayerFF(T5FFLayerAdaptersMixin, nn.Module):
 
     def forward(self, hidden_states, intermediate_mask, output_mask, down_mask, up_mask, **kwargs):
         forwarded_states = self.layer_norm(hidden_states)
-        # forwarded_states = self.DenseReluIntermediate(forwarded_states, intermediate_mask)
-        # forwarded_states = self.DenseOutput(forwarded_states, output_mask)
         forwarded_states = self.DenseReluDense(forwarded_states, intermediate_mask, output_mask)
         
         hidden_states = self.adapter_layer_forward(
-            hidden_states, self.dropout(forwarded_states), 'decoder' if self.config.is_decoder else 'encoder', down_mask, up_mask, self.layer_norm)
+            hidden_states, self.dropout(forwarded_states), 'decoder' if self.config.is_decoder else 'encoder', down_mask, up_mask, None)
         return hidden_states
 
 
@@ -455,7 +399,7 @@ class MyT5LayerSelfAttention(T5SelfAttentionLayerAdaptersMixin, nn.Module):
             output_attentions=output_attentions,
         )
         hidden_states = self.adapter_layer_forward(
-            hidden_states, self.dropout(attention_output[0]), 'decoder' if self.config.is_decoder else 'encoder', down_mask, up_mask, self.layer_norm)
+            hidden_states, self.dropout(attention_output[0]), 'decoder' if self.config.is_decoder else 'encoder', down_mask, up_mask, None)
         # add attentions if we output them
         outputs = (hidden_states,) + attention_output[1:]
         return outputs
@@ -501,7 +445,7 @@ class MyT5LayerCrossAttention(T5CrossAttentionLayerAdaptersMixin, nn.Module):
             output_attentions=output_attentions,
         )
         layer_output = self.adapter_layer_forward(
-            hidden_states, self.dropout(attention_output[0]), 'decoder' if self.config.is_decoder else 'encoder', down_mask, up_mask, self.layer_norm)
+            hidden_states, self.dropout(attention_output[0]), 'decoder' if self.config.is_decoder else 'encoder', down_mask, up_mask, None)
         # add attentions if we output them
         outputs = (layer_output,) + attention_output[1:]
         return outputs

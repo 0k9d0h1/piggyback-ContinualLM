@@ -292,8 +292,6 @@ class Appr(object):
                         pred, skip_special_tokens=True)
                     labels = self.args.tokenizer.batch_decode(
                         references, skip_special_tokens=True)
-                    print(preds)
-                    print(labels)
 
                     loss_fct = torch.nn.CrossEntropyLoss()
                     outputs = torch.nn.functional.pad(

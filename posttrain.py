@@ -234,7 +234,7 @@ def main():
         num_workers=0
     )
 
-    train_dataloader_subset_dataset = train_dataset.select(range(int(1e2)))
+    train_dataloader_subset_dataset = train_dataset.select(range(int(1e4)))
 
     train_dataloader_subset = DataLoader(
         train_dataloader_subset_dataset, shuffle=True, collate_fn=data_collator, batch_size=32,
