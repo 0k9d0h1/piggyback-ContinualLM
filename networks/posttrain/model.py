@@ -24,10 +24,10 @@ class MyModel(nn.Module):
         self.cos = nn.CosineSimilarity()
         self.tanh = torch.nn.Tanh()
         self.softmax = torch.nn.Softmax(dim=1)
-        # self.frequency_table = torch.Tensor(
-        #     [1 for _ in range(args.ntasks)]).float().cuda()
         self.frequency_table = torch.Tensor(
-            [1 for _ in range(args.ntasks)]).float()
+            [1 for _ in range(args.ntasks)]).float().cuda()
+        # self.frequency_table = torch.Tensor(
+        #     [1 for _ in range(args.ntasks)]).float()
         self.kd_loss = utils.model.DistillKL(1)
         self.dropout = nn.Dropout(0.1)
         self.contrast = utils.model.MyContrastive()
@@ -43,12 +43,15 @@ class MyModel(nn.Module):
 
         input_ids = inputs['input_ids']
         labels = inputs['labels']
-        inputs_ori_ids = inputs['inputs_ori_ids']
-        if 'roberta' in self.args.base_model_name_or_path:
-            attention_mask = inputs['attention_mask']
-        elif 't5' in self.args.base_model_name_or_path:
+        if inputs.get('inputs_ori_ids') is not None:
+            inputs_ori_ids = inputs['inputs_ori_ids']
+        else:
+            inputs_ori_ids = None
+        if 't5' in self.args.base_model_name_or_path:
             attention_mask = None
-            
+        else:
+            attention_mask = inputs['attention_mask']
+
         contrast_loss = None
         distill_loss = None
         simcse_loss = None
@@ -95,7 +98,7 @@ class MyModel(nn.Module):
 
                 outputs = self.model(inputs_embeds=inputs_embeds, labels=labels, attention_mask=attention_mask,
                                      output_hidden_states=True)
-            elif 'piggyback' in self.args.baseline or 'lora' in self.args.baseline:
+            elif ('piggyback' in self.args.baseline or 'lora' in self.args.baseline) and 'Llama' not in self.args.base_model_name_or_path:
                 outputs = self.model(input_ids=input_ids, labels=labels,
                                      attention_mask=attention_mask, task_label=task_label, output_hidden_states=True)
             else:

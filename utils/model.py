@@ -12,14 +12,14 @@ from torch import nn
 from networks.baselines.supsup import MultitaskMaskLinear
 
 from networks.transformers.roberta import MyRobertaForSequenceClassification, MyRobertaForMaskedLM
-from networks.transformers.roberta_piggyback import PiggybackRobertaForSequenceClassification, PiggybackRobertaForMaskedLM
 from networks.transformers.roberta_LoRA import LoRARobertaForSequenceClassification, LoRARobertaForMaskedLM
 from networks.transformers.T5_LoRA import LoRAT5ForConditionalGeneration
 from networks.transformers.T5 import MyT5ForConditionalGeneration
-from networks.prompt.tuning import MyRobertaForSequenceClassificationSoftPromptTunning, MyRobertaForMaskedLMSoftPromptTunning
+from networks.transformers.llama_LoRA import LoRALlamaForSequenceClassification
 from networks.posttrain.model import MyModel
-from transformers.models.roberta.modeling_roberta import RobertaForSequenceClassification
 from transformers.models.t5.modeling_t5 import T5ForConditionalGeneration
+from transformers.models.llama.modeling_llama import LlamaForCausalLM, LlamaConfig, LlamaForSequenceClassification
+from peft import LoraConfig, get_peft_model, set_peft_model_state_dict
 from .manage import copy_weights
 import utils
 from transformers import (
@@ -491,6 +491,9 @@ def prepare_sequence_finetune(args):
             else:
                 args.epoch = 10
                 args.lr = 1e-3
+    elif args.base_model_name_or_path == 'meta-llama/Llama-2-7b-hf':
+        args.epoch = 10
+        args.lr = 2e-5
 
     args.s = args.smax
 
@@ -606,166 +609,238 @@ def _lookfor_model_adapter(args, training_type):
     return model
 
 
-def _lookfor_model_piggyback(args, training_type):
+# def _lookfor_model_piggyback(args, training_type):
 
-    model_pretrained = RobertaModel.from_pretrained(
-        args.base_model_name_or_path)
-    config = RobertaConfig.from_pretrained(args.base_model_name_or_path)
-    if training_type == 'finetune':
-        config.baseline = args.baseline
-        if config.baseline == 'piggyback':
-            config.mask_scale = 1e-2
-        elif config.baseline == 'piggyback_nonzero':
-            config.mask_scale = 5e-2
+#     model_pretrained = RobertaModel.from_pretrained(
+#         args.base_model_name_or_path)
+#     config = RobertaConfig.from_pretrained(args.base_model_name_or_path)
+#     if training_type == 'finetune':
+#         config.baseline = args.baseline
+#         if config.baseline == 'piggyback':
+#             config.mask_scale = 1e-2
+#         elif config.baseline == 'piggyback_nonzero':
+#             config.mask_scale = 5e-2
 
-        model = PiggybackRobertaForSequenceClassification(
-            config, args, args.class_num)
-        for i in range(args.ft_task + 1):
-            model.adaptation(args.class_num, i)
+#         model = PiggybackRobertaForSequenceClassification(
+#             config, args, args.class_num)
+#         for i in range(args.ft_task + 1):
+#             model.adaptation(args.class_num, i)
 
-        model_state = torch.load(os.path.join(
-            args.model_name_or_path, 'model.pt'), map_location='cpu')
-        model.load_state_dict(model_state, strict=False)
+#         model_state = torch.load(os.path.join(
+#             args.model_name_or_path, 'model.pt'), map_location='cpu')
+#         model.load_state_dict(model_state, strict=False)
 
-        for n, p in model.named_parameters():
-            if 'mask' not in n:
-                p.requires_grad = True
-            else:
-                p.requires_grad = False
+#         for n, p in model.named_parameters():
+#             if 'mask' not in n:
+#                 p.requires_grad = True
+#             else:
+#                 p.requires_grad = False
 
-    elif training_type == 'posttrain':
-        config.baseline = args.baseline
-        if config.baseline == 'piggyback':
-            config.mask_scale = 1e-2
-        elif config.baseline == 'piggyback_nonzero':
-            config.mask_scale = 5e-2
+#     elif training_type == 'posttrain':
+#         config.baseline = args.baseline
+#         if config.baseline == 'piggyback':
+#             config.mask_scale = 1e-2
+#         elif config.baseline == 'piggyback_nonzero':
+#             config.mask_scale = 5e-2
 
-        model = PiggybackRobertaForMaskedLM(
-            config, args)
-        print(args.model_name_or_path, "\n\n\n\n")
-        if "piggyback" in args.model_name_or_path:
-            for i in range(args.pt_task + 1):
-                model.adaptation(0, i)
+#         model = PiggybackRobertaForMaskedLM(
+#             config, args)
+#         print(args.model_name_or_path, "\n\n\n\n")
+#         if "piggyback" in args.model_name_or_path:
+#             for i in range(args.pt_task + 1):
+#                 model.adaptation(0, i)
 
-            model_state = torch.load(os.path.join(
-                args.model_name_or_path, 'model.pt'), map_location='cpu')
-            model.load_state_dict(model_state, strict=False)
+#             model_state = torch.load(os.path.join(
+#                 args.model_name_or_path, 'model.pt'), map_location='cpu')
+#             model.load_state_dict(model_state, strict=False)
 
-        for n, p in model.roberta.named_parameters():
-            if 'mask' in n:
-                p.requires_grad = True
-            else:
-                p.requires_grad = False
+#         for n, p in model.roberta.named_parameters():
+#             if 'mask' in n:
+#                 p.requires_grad = True
+#             else:
+#                 p.requires_grad = False
 
-    copy_weights(model, model_pretrained)
-    model = MyModel(model, teacher=None, args=args)
+#     copy_weights(model, model_pretrained)
+#     model = MyModel(model, teacher=None, args=args)
 
-    return model
+#     return model
 
 
 def _lookfor_model_lora(args, training_type):
-
-    if "roberta" in args.base_model_name_or_path:
-        model_pretrained = RobertaModel.from_pretrained(
-            args.base_model_name_or_path)
-        config = RobertaConfig.from_pretrained(args.base_model_name_or_path)
-    elif "t5" in args.base_model_name_or_path:
-        model_pretrained = T5ForConditionalGeneration.from_pretrained(
-            args.base_model_name_or_path)
-        config = T5Config.from_pretrained(args.base_model_name_or_path)
-
-    config.training_type = training_type
-    if training_type == 'finetune':
-        config.finetune_type = args.finetune_type
-        config.lora_r = args.lora_r
-        config.lora_alpha = args.lora_alpha
-        config.baseline = args.baseline
-
+    if "Llama" not in args.base_model_name_or_path:
         if "roberta" in args.base_model_name_or_path:
-            model = LoRARobertaForSequenceClassification(
-                config, args, args.class_num)
+            model_pretrained = RobertaModel.from_pretrained(
+                args.base_model_name_or_path)
+            config = RobertaConfig.from_pretrained(
+                args.base_model_name_or_path)
         elif "t5" in args.base_model_name_or_path:
-            model = LoRAT5ForConditionalGeneration(config)
+            model_pretrained = T5ForConditionalGeneration.from_pretrained(
+                args.base_model_name_or_path)
+            config = T5Config.from_pretrained(args.base_model_name_or_path)
 
-        for i in range(args.ft_task + 1):
-            model.adaptation(args.class_num, i)
+        config.training_type = training_type
+        if training_type == 'finetune':
+            config.finetune_type = args.finetune_type
+            config.lora_r = args.lora_r
+            config.lora_alpha = args.lora_alpha
+            config.baseline = args.baseline
 
-        model_state = torch.load(os.path.join(
-            args.model_name_or_path, 'model.pt'), map_location='cpu')
-        model.load_state_dict(model_state, strict=False)
+            if "roberta" in args.base_model_name_or_path:
+                model = LoRARobertaForSequenceClassification(
+                    config, args, args.class_num)
+            elif "t5" in args.base_model_name_or_path:
+                model = LoRAT5ForConditionalGeneration(config)
 
-        if "roberta" in args.base_model_name_or_path:
-            if args.finetune_type == 'lora':
-                for n, p in model.roberta.named_parameters():
-                    if 'lora' in n:
-                        p.requires_grad = True
-                    else:
-                        p.requires_grad = False
-            elif args.finetune_type == 'lora_piggyback':
-                for n, p in model.roberta.named_parameters():
-                    if 'mask' in n:
-                        p.requires_grad = True
-                    else:
-                        p.requires_grad = False
-            elif args.finetune_type == 'full_finetune':
-                for n, p in model.roberta.named_parameters():
-                    if 'lora' not in n:
-                        p.requires_grad = True
-                    else:
-                        p.requires_grad = False
-        elif "t5" in args.base_model_name_or_path:
-            if args.finetune_type == 'lora':
-                for n, p in model.named_parameters():
-                    if 'lora' in n:
-                        p.requires_grad = True
-                    else:
-                        p.requires_grad = False
-            elif args.finetune_type == 'lora_piggyback':
-                for n, p in model.named_parameters():
-                    if 'mask' in n:
-                        p.requires_grad = True
-                    else:
-                        p.requires_grad = False
-            elif args.finetune_type == 'full_finetune':
-                for n, p in model.named_parameters():
-                    if 'lora' not in n:
-                        p.requires_grad = True
-                    else:
-                        p.requires_grad = False
-
-    elif training_type == 'posttrain':
-        config.lora_r = args.lora_r
-        config.lora_alpha = args.lora_alpha
-        config.baseline = args.baseline
-        if "roberta" in args.base_model_name_or_path:
-            model = LoRARobertaForMaskedLM(config, args)
-        elif "t5" in args.base_model_name_or_path:
-            model = LoRAT5ForConditionalGeneration(config)
-
-        if "lora" in args.model_name_or_path:
-            for i in range(args.pt_task + 1):
-                model.adaptation(0, i)
+            for i in range(args.ft_task + 1):
+                model.adaptation(args.class_num, i)
 
             model_state = torch.load(os.path.join(
                 args.model_name_or_path, 'model.pt'), map_location='cpu')
-            # model_state = torch.load(os.path.join(
-            #     f'{args.base_dir}/seq{args.idrandom}/{args.max_samples}samples/{args.baseline}/camera_unsup_roberta/', 'model.pt'), map_location='cpu')
             model.load_state_dict(model_state, strict=False)
 
-        if "roberta" in args.base_model_name_or_path:
-            for n, p in model.roberta.named_parameters():
-                if 'lora' in n:
-                    p.requires_grad = True
-                else:
-                    p.requires_grad = False
-        elif "t5" in args.base_model_name_or_path:
-            for n, p in model.named_parameters():
+            if "roberta" in args.base_model_name_or_path:
+                if args.finetune_type == 'lora':
+                    for n, p in model.roberta.named_parameters():
+                        if 'lora' in n:
+                            p.requires_grad = True
+                        else:
+                            p.requires_grad = False
+                elif args.finetune_type == 'lora_piggyback':
+                    for n, p in model.roberta.named_parameters():
+                        if 'mask' in n:
+                            p.requires_grad = True
+                        else:
+                            p.requires_grad = False
+                elif args.finetune_type == 'full_finetune':
+                    for n, p in model.roberta.named_parameters():
+                        if 'lora' not in n:
+                            p.requires_grad = True
+                        else:
+                            p.requires_grad = False
+            elif "t5" in args.base_model_name_or_path:
+                if args.finetune_type == 'lora':
+                    for n, p in model.named_parameters():
+                        if 'lora' in n:
+                            p.requires_grad = True
+                        else:
+                            p.requires_grad = False
+                elif args.finetune_type == 'lora_piggyback':
+                    for n, p in model.named_parameters():
+                        if 'mask' in n:
+                            p.requires_grad = True
+                        else:
+                            p.requires_grad = False
+                elif args.finetune_type == 'full_finetune':
+                    for n, p in model.named_parameters():
+                        if 'lora' not in n:
+                            p.requires_grad = True
+                        else:
+                            p.requires_grad = False
+
+        elif training_type == 'posttrain':
+            config.lora_r = args.lora_r
+            config.lora_alpha = args.lora_alpha
+            config.baseline = args.baseline
+            if "roberta" in args.base_model_name_or_path:
+                model = LoRARobertaForMaskedLM(config, args)
+            elif "t5" in args.base_model_name_or_path:
+                model = LoRAT5ForConditionalGeneration(config)
+
+            if "lora" in args.model_name_or_path:
+                for i in range(args.pt_task + 1):
+                    model.adaptation(0, i)
+
+                model_state = torch.load(os.path.join(
+                    args.model_name_or_path, 'model.pt'), map_location='cpu')
+                # model_state = torch.load(os.path.join(
+                #     f'{args.base_dir}/seq{args.idrandom}/{args.max_samples}samples/{args.baseline}/camera_unsup_roberta/', 'model.pt'), map_location='cpu')
+                model.load_state_dict(model_state, strict=False)
+
+            if "roberta" in args.base_model_name_or_path:
+                for n, p in model.roberta.named_parameters():
+                    if 'lora' in n:
+                        p.requires_grad = True
+                    else:
+                        p.requires_grad = False
+            elif "t5" in args.base_model_name_or_path:
+                for n, p in model.named_parameters():
+                    if 'lora' in n:
+                        p.requires_grad = True
+                    else:
+                        p.requires_grad = False
+
+        copy_weights(model, model_pretrained)
+    else:
+        if training_type == 'finetune':
+            config = LlamaConfig.from_pretrained(args.base_model_name_or_path)
+            config.lora_r = args.lora_r
+            config.lora_alpha = args.lora_alpha
+            config.training_type = training_type
+            config.baseline = args.baseline
+            config.finetune_type = args.finetune_type
+            config.target_modules = args.target_modules
+            config.num_labels = args.class_num
+            config.pad_token_id = args.tokenizer.eos_token_id
+
+            model = LoRALlamaForSequenceClassification.from_pretrained(
+                args.base_model_name_or_path, config=config)
+
+            sequence_path = f'./sequences/{args.sequence_file}'
+            with open(sequence_path, 'r') as f:
+                datas = f.readlines()[args.idrandom]
+                data = datas.split()
+            for id in range(args.pt_task + 1):
+                model.adaptation(0, id)
+
+                ckpt = f'{args.base_dir}/{args.base_model_name_or_path}_/seq{args.idrandom}/{args.max_samples}samples/{args.baseline}/{data[id]}_{args.base_model_name_or_path.split("-")[0]}/'
+                state_dict = torch.load(f'{ckpt}/model.pt')
+                for n in list(state_dict.keys()):
+                    state_dict[n[17:-7]+'s.'+str(id)] = state_dict.pop(n)
+
+                model.load_state_dict(state_dict, strict=False)
+
+            if args.finetune_type == 'merge':
+                with torch.no_grad():
+                    for n, module in model.named_modules():
+                        if 'LoRAPiggybackLinear' in str(type(module)):
+                            module.lora_As_stacked = torch.stack(
+                                [module.lora_As[str(id)] for id in range(args.pt_task+1)], dim=0).cuda()
+                            module.lora_Bs_stacked = torch.stack(
+                                [module.lora_Bs[str(id)] for id in range(args.pt_task+1)], dim=0).cuda()
+                            module.mergeratios = nn.Parameter(
+                                torch.ones(args.pt_task+1).cuda())
+                            # set one for module.mergeratios[args.ft_task], else zero
+                            module.mergeratios.data.fill_(0)
+                            module.mergeratios[args.ft_task] = 1
+                            module.mergeratios.requires_grad = True
+
+                for n, p in model.model.named_parameters():
+                    print(n)
+                    if ('q_proj' in n or 'v_proj' in n) and ('lora' not in n and 'attn' in n) or 'mergeratios' in n:
+                        p.requires_grad = True
+                    # if 'lora' not in n:
+                    #     p.requires_grad = True
+                    else:
+                        p.requires_grad = False
+
+        elif training_type == 'posttrain':
+            model = LlamaForCausalLM.from_pretrained(
+                args.base_model_name_or_path)
+            lora_config = LoraConfig(r=args.lora_r,
+                                     lora_alpha=args.lora_alpha,
+                                     target_modules=args.target_modules,
+                                     lora_dropout=0.1,
+                                     bias="none"
+                                     )
+            model = get_peft_model(model, lora_config)
+
+            for n, p in model.model.named_parameters():
+                print(n)
                 if 'lora' in n:
                     p.requires_grad = True
                 else:
                     p.requires_grad = False
 
-    copy_weights(model, model_pretrained)
     model = MyModel(model, teacher=None, args=args)
 
     return model
@@ -798,14 +873,14 @@ def _lookfor_model_others(args, training_type):
         MODEL = MyT5ForConditionalGeneration
 
         model = MODEL.from_pretrained(
-                args.model_name_or_path,
-                from_tf=bool(".ckpt" in args.model_name_or_path),
-                args=args
-            )
+            args.model_name_or_path,
+            from_tf=bool(".ckpt" in args.model_name_or_path),
+            args=args
+        )
         teacher = MODEL.from_pretrained(
-                args.model_name_or_path,
-                from_tf=bool(".ckpt" in args.model_name_or_path),
-                args=args
+            args.model_name_or_path,
+            from_tf=bool(".ckpt" in args.model_name_or_path),
+            args=args
         )
 
         # if ".ckpt" in args.model_name_or_path:

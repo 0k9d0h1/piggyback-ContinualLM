@@ -39,7 +39,7 @@ def compute(self, model, batch, head_impt, intermediate_impt, output_impt, self_
                         head_mask=head_impt,
                         intermediate_mask=intermediate_impt,
                         output_mask=output_impt)
-    elif 'piggyback' in self.args.baseline or 'lora' in self.args.baseline:
+    elif ('piggyback' in self.args.baseline or 'lora' in self.args.baseline) and 'Llama' not in self.args.base_model_name_or_path:
         outputs = model(batch, task_label=self.args.pt_task)
     else:
         outputs = model(batch)

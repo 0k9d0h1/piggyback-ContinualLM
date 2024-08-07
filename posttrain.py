@@ -30,6 +30,7 @@ from transformers import (
     RobertaTokenizer,
     T5Tokenizer,
     BertTokenizer,
+    LlamaTokenizer,
     DataCollatorForLanguageModeling,
     get_scheduler,
     SchedulerType,
@@ -67,7 +68,7 @@ def main():
     # Initialize the accelerator. We will let the accelerator handle device placement for us in this example.
     ddp_kwargs = DistributedDataParallelKwargs(find_unused_parameters=True)
     accelerator = Accelerator(
-        fp16=args.fp16, kwargs_handlers=[ddp_kwargs])
+        mixed_precision='fp16' if args.fp16 else None, kwargs_handlers=[ddp_kwargs])
     # Make one log on every process with the configuration for debugging.
     logging.basicConfig(
         format="%(asctime)s - %(levelname)s - %(name)s - %(message)s",
@@ -110,6 +111,11 @@ def main():
             args.base_model_name_or_path)
     elif "t5" in args.base_model_name_or_path:
         tokenizer = T5Tokenizer.from_pretrained(args.base_model_name_or_path)
+    elif "Llama" in args.base_model_name_or_path:
+        tokenizer = LlamaTokenizer.from_pretrained(
+            args.base_model_name_or_path)
+        # Add a new pad token to the tokenizer
+        tokenizer.pad_token = tokenizer.eos_token
     args.tokenizer = tokenizer
 
     model = utils.model.lookfor_model_posttrain(args)
@@ -123,14 +129,17 @@ def main():
             tokenizer=tokenizer, mlm_probability=args.mlm_probability)
     elif "t5" in args.base_model_name_or_path:
         before_mask_input_length, target_length = utils.data.compute_input_and_target_lengths(
-                inputs_length=args.max_seq_length,
-                noise_density=args.mlm_probability,
-                mean_noise_span_length=args.mean_noise_span_length,
-            )
+            inputs_length=args.max_seq_length,
+            noise_density=args.mlm_probability,
+            mean_noise_span_length=args.mean_noise_span_length,
+        )
         args.before_mask_input_length = before_mask_input_length
         args.target_length = target_length
         data_collator = utils.data.DataCollatorForT5MLM(tokenizer=tokenizer, noise_density=args.mlm_probability, mean_noise_span_length=args.mean_noise_span_length,
                                                         input_length=args.max_seq_length, target_length=args.target_length, pad_token_id=tokenizer.pad_token_id)
+    elif "Llama" in args.base_model_name_or_path:
+        data_collator = DataCollatorForLanguageModeling(
+            tokenizer=tokenizer, mlm=False)
 
     if 'comb' in args.baseline:
         for t in range(args.pt_task + 1):

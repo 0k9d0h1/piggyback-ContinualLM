@@ -28,7 +28,7 @@ import torch
 import wandb
 from accelerate import Accelerator
 from torch.utils.data import DataLoader
-from transformers import RobertaTokenizer, set_seed, AdamW, T5Tokenizer
+from transformers import RobertaTokenizer, set_seed, AdamW, T5Tokenizer, LlamaTokenizer
 from dataloader.data import get_dataset, get_dataset_eval, get_dataset_t5, get_dataset_t5_eval, dataset_class_num
 import random
 from transformers import (
@@ -58,11 +58,19 @@ def main():
         "cuda" if torch.cuda.is_available() and not args.no_cuda else "cpu")
 
     if args.hyperparameter_tune:
-        wandb.init(project='piggyback_continualDAP_%s_sweep' % (args.base_model_name_or_path),
-                   config=args)
+        if 'Llama' in args.base_model_name_or_path:
+            wandb.init(project='piggyback_continualDAP_llama_sweep',
+                       config=args)
+        else:
+            wandb.init(project='piggyback_continualDAP_%s_sweep' % (args.base_model_name_or_path),
+                       config=args)
     else:
-        wandb.init(project='piggyback_continualDAP_%s' % (args.base_model_name_or_path),
-                   config=args)
+        if 'Llama' in args.base_model_name_or_path:
+            wandb.init(project='piggyback_continualDAP_llama',
+                       config=args)
+        else:
+            wandb.init(project='piggyback_continualDAP_%s' % (args.base_model_name_or_path),
+                       config=args)
     wandb.run.name = "%s_%s_%s_%d" % (
         args.baseline, args.finetune_type, args.dataset_name, args.seed)
     wandb.run.save()
@@ -108,13 +116,19 @@ def main():
             args.base_model_name_or_path)
     elif "t5" in args.base_model_name_or_path:
         tokenizer = T5Tokenizer.from_pretrained(args.base_model_name_or_path)
+    elif "Llama" in args.base_model_name_or_path:
+        tokenizer = LlamaTokenizer.from_pretrained(
+            args.base_model_name_or_path)
+        # Add a new pad token to the tokenizer
+        tokenizer.sep_token = '/'
+        tokenizer.pad_token = tokenizer.eos_token
     args.tokenizer = tokenizer
 
     max_length = args.max_seq_length
 
     logger.info('==> Preparing data..')
 
-    if "roberta" in args.base_model_name_or_path:
+    if "roberta" in args.base_model_name_or_path or "Llama" in args.base_model_name_or_path:
         if args.hyperparameter_tune:
             datasets = get_dataset_eval(
                 args.dataset_name, tokenizer=tokenizer, args=args)
@@ -149,7 +163,7 @@ def main():
         model_inputs["labels"] = labels["input_ids"]
         return model_inputs
 
-    if "roberta" in args.base_model_name_or_path:
+    if "roberta" in args.base_model_name_or_path or "Llama" in args.base_model_name_or_path:
         test_dataset = test_dataset.map(
             lambda e: tokenizer(e['text'], truncation=True, padding='max_length', max_length=max_length), batched=True)
     elif "t5" in args.base_model_name_or_path:
@@ -159,7 +173,7 @@ def main():
     test_loader = DataLoader(test_dataset, batch_size=args.batch_size, shuffle=False, drop_last=False,
                              num_workers=8)
 
-    if "roberta" in args.base_model_name_or_path:
+    if "roberta" in args.base_model_name_or_path or "Llama" in args.base_model_name_or_path:
         train_dataset = train_dataset.map(
             lambda e: tokenizer(e['text'], truncation=True, padding='max_length', max_length=max_length), batched=True)
     elif "t5" in args.base_model_name_or_path:

@@ -12,6 +12,7 @@ from transformers import (
     get_scheduler,
     Adafactor
 )
+from peft import get_peft_model_state_dict
 
 logger = logging.getLogger(__name__)
 MODEL_CONFIG_CLASSES = list(MODEL_MAPPING.keys())
@@ -25,7 +26,10 @@ def compute(self, model, train_loader_subset, self_fisher, mask_pre, buffer, acc
 
     if accelerator.is_main_process:
         unwrapped_model = accelerator.unwrap_model(model)
-        if 'piggyback' in self.args.baseline or 'lora' in self.args.baseline:
+        if 'Llama' in self.args.base_model_name_or_path:
+            torch.save(get_peft_model_state_dict(unwrapped_model.model),
+                       os.path.join(self.args.output_dir, 'model.pt'))
+        elif 'piggyback' in self.args.baseline or 'lora' in self.args.baseline:
             torch.save(unwrapped_model.model.state_dict(),
                        os.path.join(self.args.output_dir, 'model.pt'))
         else:
@@ -64,6 +68,5 @@ def compute(self, model, train_loader_subset, self_fisher, mask_pre, buffer, acc
             softmask.compute_impt(args=self.args, config=config, model=model,
                                   eval_dataloader=train_loader_subset, accelerator=accelerator,
                                   prune_loss='after_mlm')
-            
 
     return self

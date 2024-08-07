@@ -203,7 +203,7 @@ class Appr(object):
 
             references = accelerator.gather(inputs['labels'])
 
-            if "roberta" in self.args.base_model_name_or_path:
+            if "roberta" in self.args.base_model_name_or_path or "Llama" in self.args.base_model_name_or_path:
                 pred = outp.max(1)[1]
                 predictions = accelerator.gather(pred)
                 train_acc += (references == predictions).sum().item()
@@ -257,7 +257,7 @@ class Appr(object):
             for batch, inputs in enumerate(dataloader):
                 references = accelerator.gather(inputs['labels'])
 
-                if "roberta" in self.args.base_model_name_or_path:
+                if "roberta" in self.args.base_model_name_or_path or "Llama" in self.args.base_model_name_or_path:
                     input_ids = inputs['input_ids']
                     if 'piggyback' in self.args.baseline or 'lora' in self.args.baseline:
                         res = model.model(
@@ -294,10 +294,11 @@ class Appr(object):
                         references, skip_special_tokens=True)
 
                     loss_fct = torch.nn.CrossEntropyLoss()
+                    max_len = max(outp.shape[1], references.shape[1])
                     outputs = torch.nn.functional.pad(
-                        outp, (0, outp.shape[1] - references.shape[1]), 'constant', self.args.tokenizer.pad_token_id)
+                        outp, (0, 0, 0, max_len - outp.shape[1]), 'constant', self.args.tokenizer.pad_token_id)
                     target_ids = torch.nn.functional.pad(
-                        references, (0, outp.shape[1] - references.shape[1]), 'constant', self.args.tokenizer.pad_token_id)
+                        references, (0, max_len - references.shape[1]), 'constant', self.args.tokenizer.pad_token_id)
                     loss = loss_fct(
                         outputs.view(-1, outputs.size(-1)), target_ids.view(-1))
                     total_loss += loss.data.cpu().numpy().item()*real_b

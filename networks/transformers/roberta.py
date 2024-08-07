@@ -37,17 +37,8 @@ from transformers.models.roberta.modeling_roberta import RobertaLMHead, RobertaS
 from transformers.models.roberta.modeling_roberta import RobertaEmbeddings, \
     RobertaOutput, RobertaLayer, RobertaAttention, RobertaForMaskedLM, RobertaForSequenceClassification, RobertaForTokenClassification
 
-from networks.adapters.mixins.bert import (
-    BertModelAdaptersMixin,
-    BertOutputAdaptersMixin,
-    BertSelfOutputAdaptersMixin,
-)
 import inspect
 
-from networks.adapters.model_mixin import InvertibleAdaptersMixin, ModelWithHeadsAdaptersMixin
-from networks.adapters.prefix_tuning import PrefixTuningShim
-from transformers.adapters.composition import adjust_tensors_for_parallel
-from transformers.adapters.context import ForwardContext
 from transformers.file_utils import (
     add_code_sample_docstrings,
     add_end_docstrings,
@@ -63,6 +54,7 @@ from transformers.modeling_utils import (
 )
 from typing import Optional
 from transformers.activations import ACT2FN
+from transformers.utils import logging
 
 _CHECKPOINT_FOR_DOC = "roberta-base"
 _CONFIG_FOR_DOC = "RobertaConfig"
@@ -80,12 +72,11 @@ ROBERTA_PRETRAINED_MODEL_ARCHIVE_LIST = [
 
 # because adapter has been changed, we need to re-write the complete class
 
+logger = logging.get_logger(__name__)
 
 # Copied from transformers.models.modeling_bert.BertSelfOutput
-class MyRobertaSelfOutput(BertSelfOutputAdaptersMixin, nn.Module):
+class MyRobertaSelfOutput(nn.Module):
     def __init__(self, config, args):
-
-        BertSelfOutputAdaptersMixin.__init__(self, args)
         nn.Module.__init__(self)
 
         self.config = config
@@ -94,22 +85,20 @@ class MyRobertaSelfOutput(BertSelfOutputAdaptersMixin, nn.Module):
         self.LayerNorm = nn.LayerNorm(
             config.hidden_size, eps=config.layer_norm_eps)
         self.dropout = nn.Dropout(config.hidden_dropout_prob)
-        self._init_adapter_modules()
 
     def forward(self, hidden_states, input_tensor, down_mask, up_mask, **kwargs):
         hidden_states = self.dense(hidden_states)
         hidden_states = self.dropout(hidden_states)
-        hidden_states = self.adapter_layer_forward(
-            hidden_states, input_tensor, 'encoder', down_mask, up_mask, self.LayerNorm)
+        hidden_states = self.LayerNorm(hidden_states + input_tensor)
         return hidden_states
 
 
 # Copied from transformers.models.bert.modeling_bert.BertAttention with Bert->Roberta
 class MyRobertaAttention(nn.Module):
-    def __init__(self, config, position_embedding_type=None, location_key: Optional[str] = None, args=None):
+    def __init__(self, config, position_embedding_type=None, args=None):
         super().__init__()
         self.self = RobertaSelfAttention(
-            config, position_embedding_type=position_embedding_type, location_key=location_key
+            config, position_embedding_type=position_embedding_type
         )
         self.output = MyRobertaSelfOutput(config, args)
         self.pruned_heads = set()
@@ -165,9 +154,8 @@ class MyRobertaAttention(nn.Module):
 
 
 # Copied from transformers.models.bert.modeling_bert.BertOutput
-class MyRobertaOutput(BertOutputAdaptersMixin, nn.Module):
+class MyRobertaOutput(nn.Module):
     def __init__(self, config, args):
-        BertOutputAdaptersMixin.__init__(self, args)
         nn.Module.__init__(self)
 
         self.config = config
@@ -176,7 +164,6 @@ class MyRobertaOutput(BertOutputAdaptersMixin, nn.Module):
         self.LayerNorm = nn.LayerNorm(
             config.hidden_size, eps=config.layer_norm_eps)
         self.dropout = nn.Dropout(config.hidden_dropout_prob)
-        self._init_adapter_modules()
 
     def forward(self, hidden_states, input_tensor, output_mask, down_mask, up_mask, **kwargs):
         if output_mask is not None:
@@ -184,8 +171,7 @@ class MyRobertaOutput(BertOutputAdaptersMixin, nn.Module):
         else:
             hidden_states = self.dense(hidden_states)
         hidden_states = self.dropout(hidden_states)
-        hidden_states = self.adapter_layer_forward(
-            hidden_states, input_tensor, 'encoder', down_mask, up_mask, self.LayerNorm)
+        hidden_states = self.LayerNorm(hidden_states + input_tensor)
         return hidden_states
 
 
@@ -216,7 +202,7 @@ class MyRobertaLayer(nn.Module):
         self.chunk_size_feed_forward = config.chunk_size_feed_forward
         self.seq_len_dim = 1
         self.attention = MyRobertaAttention(
-            config, location_key="self", args=args)
+            config, args=args)
         self.is_decoder = config.is_decoder
         self.add_cross_attention = config.add_cross_attention
         if self.add_cross_attention:
@@ -224,7 +210,7 @@ class MyRobertaLayer(nn.Module):
                 raise ValueError(
                     f"{self} should be used as a decoder model if cross attention is added")
             self.crossattention = MyRobertaAttention(
-                config, position_embedding_type="absolute", location_key="cross", args=args)
+                config, position_embedding_type="absolute", args=args)
         self.intermediate = MyRobertaIntermediate(config)
         self.output = MyRobertaOutput(config, args)
 
@@ -346,6 +332,14 @@ class MyRobertaEncoder(nn.Module):
         all_self_attentions = () if output_attentions else None
         all_cross_attentions = () if output_attentions and self.config.add_cross_attention else None
 
+        if self.gradient_checkpointing and self.training:
+
+            if use_cache:
+                logger.warning(
+                    "`use_cache=True` is incompatible with gradient checkpointing. Setting `use_cache=False`..."
+                )
+                use_cache = False
+                
         next_decoder_cache = () if use_cache else None
         for i, layer_module in enumerate(self.layer):
             if output_hidden_states:
@@ -360,26 +354,15 @@ class MyRobertaEncoder(nn.Module):
             past_key_value = past_key_values[i] if past_key_values is not None else None
 
             if self.gradient_checkpointing and self.training:
-
-                if use_cache:
-                    logger.warning(
-                        "`use_cache=True` is incompatible with gradient checkpointing. Setting `use_cache=False`..."
-                    )
-                    use_cache = False
-
-                def create_custom_forward(module):
-                    def custom_forward(*inputs):
-                        return module(*inputs, past_key_value, output_attentions)
-
-                    return custom_forward
-
-                layer_outputs = torch.utils.checkpoint.checkpoint(
-                    create_custom_forward(layer_module),
+                layer_outputs = self._gradient_checkpointing_func(
+                    layer_module.__call__,
                     hidden_states,
                     attention_mask,
                     layer_head_mask,
                     encoder_hidden_states,
                     encoder_attention_mask,
+                    past_key_value,
+                    output_attentions,
                 )
             else:
                 layer_outputs = layer_module(
@@ -398,9 +381,6 @@ class MyRobertaEncoder(nn.Module):
                 )
 
             hidden_states = layer_outputs[0]
-            (attention_mask,) = adjust_tensors_for_parallel(
-                hidden_states, attention_mask)
-
             if use_cache:
                 next_decoder_cache += (layer_outputs[-1],)
             if output_attentions:
@@ -491,7 +471,7 @@ ROBERTA_INPUTS_DOCSTRING = r"""
     "The bare RoBERTa Model transformer outputting raw hidden-states without any specific head on top.",
     ROBERTA_START_DOCSTRING,
 )
-class MyRobertaModel(BertModelAdaptersMixin, RobertaPreTrainedModel):
+class MyRobertaModel(RobertaPreTrainedModel):
     """
     The model can behave as an encoder (with only self-attention) as well as a decoder, in which case a layer of
     cross-attention is added between the self-attention layers, following the architecture described in *Attention is
@@ -515,8 +495,6 @@ class MyRobertaModel(BertModelAdaptersMixin, RobertaPreTrainedModel):
         self.encoder = MyRobertaEncoder(config, args)
 
         self.pooler = RobertaPooler(config) if add_pooling_layer else None
-
-        self._init_adapter_modules()
 
         # Initialize weights and apply final processing
         self.post_init()
@@ -542,8 +520,6 @@ class MyRobertaModel(BertModelAdaptersMixin, RobertaPreTrainedModel):
         output_type=BaseModelOutputWithPoolingAndCrossAttentions,
         config_class=_CONFIG_FOR_DOC,
     )
-    @ForwardContext.wrap
-    # Copied from transformers.models.bert.modeling_bert.BertModel.forward
     def forward(
         self,
         input_ids=None,
@@ -578,15 +554,14 @@ class MyRobertaModel(BertModelAdaptersMixin, RobertaPreTrainedModel):
             use_cache = False
 
         if input_ids is not None and inputs_embeds is not None:
-            raise ValueError(
-                "You cannot specify both input_ids and inputs_embeds at the same time")
+            raise ValueError("You cannot specify both input_ids and inputs_embeds at the same time")
         elif input_ids is not None:
+            self.warn_if_padding_and_no_attention_mask(input_ids, attention_mask)
             input_shape = input_ids.size()
         elif inputs_embeds is not None:
             input_shape = inputs_embeds.size()[:-1]
         else:
-            raise ValueError(
-                "You have to specify either input_ids or inputs_embeds")
+            raise ValueError("You have to specify either input_ids or inputs_embeds")
 
         batch_size, seq_length = input_shape
         device = input_ids.device if input_ids is not None else inputs_embeds.device
@@ -642,7 +617,6 @@ class MyRobertaModel(BertModelAdaptersMixin, RobertaPreTrainedModel):
             inputs_embeds=inputs_embeds,
             past_key_values_length=past_key_values_length,
         )
-        embedding_output = self.invertible_adapters_forward(embedding_output)
 
         encoder_outputs = self.encoder(
             embedding_output,
@@ -685,7 +659,7 @@ class MyRobertaModel(BertModelAdaptersMixin, RobertaPreTrainedModel):
     """,
     ROBERTA_START_DOCSTRING,
 )
-class MyRobertaForSequenceClassification(ModelWithHeadsAdaptersMixin, RobertaPreTrainedModel):
+class MyRobertaForSequenceClassification(RobertaPreTrainedModel):
 
     # TODO: we also need to train MLM for representation learning1
 
@@ -754,9 +728,6 @@ class MyRobertaForSequenceClassification(ModelWithHeadsAdaptersMixin, RobertaPre
             up_mask=up_mask
         )
 
-        if only_return_output:
-            return outputs
-
         sequence_output = outputs[0]
         logits = self.classifier(sequence_output)
 
@@ -802,7 +773,7 @@ class MyRobertaForSequenceClassification(ModelWithHeadsAdaptersMixin, RobertaPre
 
 
 @add_start_docstrings("""RoBERTa Model with a `language modeling` head on top. """, ROBERTA_START_DOCSTRING)
-class MyRobertaForMaskedLM(ModelWithHeadsAdaptersMixin, RobertaPreTrainedModel):
+class MyRobertaForMaskedLM(RobertaPreTrainedModel):
     _keys_to_ignore_on_save = [
         r"lm_head.decoder.weight", r"lm_head.decoder.bias"]
     _keys_to_ignore_on_load_missing = [
@@ -812,19 +783,16 @@ class MyRobertaForMaskedLM(ModelWithHeadsAdaptersMixin, RobertaPreTrainedModel):
     def __init__(self, config, args):
         super().__init__(config)
 
+        if config.is_decoder:
+            logger.warning(
+                "If you want to use `RobertaForMaskedLM` make sure `config.is_decoder=False` for "
+                "bi-directional self-attention."
+            )
+
         self.roberta = MyRobertaModel(
             config, add_pooling_layer=False, args=args)
         self.lm_head = RobertaLMHead(config)
         self.args = args
-
-        # The LM head weights require special treatment only when they are tied with the word embeddings
-        self.update_keys_to_ignore(config, ["lm_head.decoder.weight"])
-        # Initialize weights and apply final processing
-
-        if 'adapter_classic' in args.baseline:
-            self.self_attns = nn.ModuleList()
-            for t in range(args.ntasks):
-                self.self_attns.append(utils.model.Self_Attn(t + 1))
 
         self.post_init()
 
@@ -892,12 +860,12 @@ class MyRobertaForMaskedLM(ModelWithHeadsAdaptersMixin, RobertaPreTrainedModel):
         )
         sequence_output = outputs[0]
         prediction_scores = self.lm_head(
-            sequence_output,
-            inv_lang_adapter=self.roberta.get_invertible_adapter(),
+            sequence_output
         )
 
         masked_lm_loss = None
         if labels is not None:
+            labels = labels.to(prediction_scores.device)
             loss_fct = CrossEntropyLoss()
             masked_lm_loss = loss_fct(
                 prediction_scores.view(-1, self.config.vocab_size), labels.view(-1))

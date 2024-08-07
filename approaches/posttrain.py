@@ -103,7 +103,7 @@ class Appr(object):
         # We need to recalculate our total training steps as the size of the training dataloader may have changed.
         num_update_steps_per_epoch = math.ceil(
             len(train_loader) / self.args.gradient_accumulation_steps)
-        # prev_max_train_steps = self.args.max_train_steps
+        prev_max_train_steps = self.args.max_train_steps
         self.args.max_train_steps = self.args.num_train_epochs * num_update_steps_per_epoch
 
         if accelerator.is_main_process:
@@ -166,10 +166,10 @@ class Appr(object):
                                                 lr_scheduler, progress_bar, global_step, completed_steps, accelerator)
 
                         # break
-                        if completed_steps >= self.args.max_train_steps:
-                            break
-                        # if step >= prev_max_train_steps:
+                        # if completed_steps >= self.args.max_train_steps:
                         #     break
+                        if step >= prev_max_train_steps:
+                            break
 
         except KeyboardInterrupt:  # even if contro-C, I still want to save model
             return

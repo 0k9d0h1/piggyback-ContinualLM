@@ -1,7 +1,6 @@
 import torch
 import math
 import torch.nn as nn
-import avalanche.models as am
 import torch.nn.functional as F
 
 from torch.autograd import Variable
@@ -9,7 +8,6 @@ from torch import Tensor
 from torch.nn import init
 from torch.nn.parameter import Parameter
 from typing import Optional
-from avalanche.benchmarks.scenarios import CLExperience
 
 DEFAULT_THRESHOLD = 5e-3
 
@@ -28,9 +26,9 @@ class Binarizer(torch.autograd.Function):
 
     def backward(self, gradOutput):
         return gradOutput, None, None
-    
 
-class PretrainingMultiTaskClassifier(am.MultiTaskModule):
+
+class PretrainingMultiTaskClassifier(nn.Module):
 
     def __init__(self, in_features, initial_out_features, bias=True):
         super().__init__()
@@ -45,11 +43,11 @@ class PretrainingMultiTaskClassifier(am.MultiTaskModule):
             self.classifiers[str(task_label)] = nn.Linear(
                 in_features=self.in_features, out_features=self.initial_out_features, bias=self.bias_)
 
-    def forward_single_task(self, x: Tensor, task_label: int) -> Tensor:
+    def forward(self, x: Tensor, task_label: int) -> Tensor:
         return self.classifiers[str(task_label)](x.to(dtype=torch.float32))
 
 
-class MultiTaskClassifier(am.MultiTaskModule):
+class MultiTaskClassifier(nn.Module):
 
     def __init__(self, in_features, initial_out_features, bias=True):
         super().__init__()
@@ -63,15 +61,15 @@ class MultiTaskClassifier(am.MultiTaskModule):
             self.classifiers[str(task_label)] = nn.Linear(
                 in_features=self.in_features, out_features=num_class, bias=self.bias)
 
-    def forward_single_task(self, x: Tensor, task_label: int) -> Tensor:
+    def forward(self, x: Tensor, task_label: int) -> Tensor:
         return self.classifiers[str(task_label)](x)
 
 
-class ElementWiseLinear(am.MultiTaskModule):
+class ElementWiseLinear(nn.Module):
     """Modified linear layer."""
 
     def __init__(self, in_features, out_features, zero_out=True, bias=True,
-                 mask_init='1s', 
+                 mask_init='1s',
                  threshold_fn='binarizer', threshold=None, config=None):
         super().__init__()
         self.in_features = in_features
@@ -103,7 +101,7 @@ class ElementWiseLinear(am.MultiTaskModule):
         if str(task_label) not in self.masks:
             self.masks[str(task_label)] = self.make_mask()
 
-    def forward_single_task(self, x: Tensor, task_label: int) -> Tensor:
+    def forward(self, x: Tensor, task_label: int) -> Tensor:
         # Get binarized/ternarized mask from real-valued mask.
         if self.zero_out:
             weight_thresholded = self.get_weight(task_label)
@@ -161,7 +159,7 @@ class ElementWiseLinear(am.MultiTaskModule):
         self.bias.data = fn(self.bias.data)
 
 
-class LoRALinear(am.MultiTaskModule):
+class LoRALinear(nn.Module):
     # LoRA implemented in a dense layer
     def __init__(
         self,
@@ -191,7 +189,8 @@ class LoRALinear(am.MultiTaskModule):
         self.weight = Parameter(torch.Tensor(
             out_features, in_features), requires_grad=False)
         if bias:
-            self.bias = Parameter(torch.Tensor(out_features), requires_grad=False)
+            self.bias = Parameter(torch.Tensor(
+                out_features), requires_grad=False)
         else:
             self.register_parameter('bias', None)
 
@@ -289,6 +288,16 @@ class LoRAPiggybackLinear(LoRALinear):
             # self.masks_B = nn.ParameterDict({'0': self.make_mask('B')})
             self.masks = nn.ParameterDict({'0': self.make_mask('weight')})
 
+        if self.config.training_type == 'finetune' and self.config.finetune_type == 'merge':
+            self.lora_As_stacked = self.weight.data.new(
+                self.lora_As['0'].size()).unsqueeze(0)
+            self.lora_Bs_stacked = self.weight.data.new(
+                self.lora_Bs['0'].size()).unsqueeze(0)
+            self.mergeratios = self.weight.data.new(1)
+            self.lora_As_stacked.fill_(0)
+            self.lora_Bs_stacked.fill_(0)
+            self.mergeratios.fill_(0)
+
     def adaptation(self, num_class, task_label):
         super().adaptation(num_class, task_label)
         if self.config.training_type == 'finetune' and self.config.finetune_type == 'lora_piggyback' and str(task_label) not in self.masks:
@@ -296,7 +305,7 @@ class LoRAPiggybackLinear(LoRALinear):
             # self.masks_B[str(task_label)] = self.make_mask('B')
             self.masks[str(task_label)] = self.make_mask('weight')
 
-    def forward_single_task(self, x: Tensor, task_label: int) -> Tensor:
+    def forward(self, x: Tensor, task_label: int) -> Tensor:
         def T(w):
             return w.transpose(0, 1) if self.fan_in_fan_out else w
         if self.r > 0:
@@ -311,22 +320,33 @@ class LoRAPiggybackLinear(LoRALinear):
                     #     self.masks_A[str(task_label)], 5e-3, 0)
                     # thresholded_mask_B = Binarizer.apply(
                     #     self.masks_B[str(task_label)], 5e-3, 0)
-                    self.lora_weight = self.weight + (self.lora_Bs[str(task_label)] @ self.lora_As[str(task_label)]) * self.scaling
+                    self.lora_weight = self.weight + \
+                        (self.lora_Bs[str(task_label)] @
+                         self.lora_As[str(task_label)]) * self.scaling
                     thresholded_mask = Binarizer.apply(
                         self.masks[str(task_label)], 5e-3, 0)
-                    result = F.linear(x, T(self.lora_weight * thresholded_mask), bias=self.bias)
+                    result = F.linear(
+                        x, T(self.lora_weight * thresholded_mask), bias=self.bias)
                     # result += (self.lora_dropout(x) @ (self.lora_As[str(task_label)] * thresholded_mask_A).transpose(0, 1)
                     #            @ (self.lora_Bs[str(task_label)] * thresholded_mask_B).transpose(0, 1)) * self.scaling
                 elif self.config.finetune_type == 'full_finetune':
                     if self.r > 0 and not self.merged:
                         self.weight.data += T(self.lora_Bs[str(task_label)] @
-                                            self.lora_As[str(task_label)]) * self.scaling
+                                              self.lora_As[str(task_label)]) * self.scaling
                         self.merged = True
                     result = F.linear(x, T(self.weight), bias=self.bias)
                 elif self.config.finetune_type == 'lora':
                     result = F.linear(x, T(self.weight), bias=self.bias)
                     result = result + (self.lora_dropout(x) @ self.lora_As[str(task_label)].transpose(0, 1)
-                            @ self.lora_Bs[str(task_label)].transpose(0, 1)) * self.scaling
+                                       @ self.lora_Bs[str(task_label)].transpose(0, 1)) * self.scaling
+                elif self.config.finetune_type == 'merge':
+                    result = F.linear(x, T(self.weight), bias=self.bias)
+                    merged_A = torch.einsum(
+                        'i, ijk -> jk', self.mergeratios, self.lora_As_stacked)
+                    merged_B = torch.einsum(
+                        'i, ijk -> jk', self.mergeratios, self.lora_Bs_stacked)
+                    result = result + (self.lora_dropout(x) @
+                                       merged_A.t() @ merged_B.t()) * self.scaling
             return result
         else:
             return F.linear(x, T(self.weight), bias=self.bias)

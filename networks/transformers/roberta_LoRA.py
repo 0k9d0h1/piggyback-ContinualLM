@@ -1,18 +1,22 @@
 import torch.nn as nn
 import torch
 import math
-import avalanche.models as am
 
 from .layers import LoRALinear, LoRAPiggybackLinear, MultiTaskClassifier, PretrainingMultiTaskClassifier
 from transformers.modeling_outputs import BaseModelOutputWithPastAndCrossAttentions, BaseModelOutputWithPoolingAndCrossAttentions, MaskedLMOutput, SequenceClassifierOutput
 from transformers.modeling_utils import ModuleUtilsMixin
+from transformers.pytorch_utils import find_pruneable_heads_and_indices, prune_linear_layer, apply_chunking_to_forward
+from transformers.activations import ACT2FN, gelu
+from transformers.utils import logging
+from transformers.models.roberta.modeling_roberta import RobertaPreTrainedModel
 from typing import List, Optional, Tuple, Union
-from avalanche.benchmarks.scenarios import CLExperience
 from torch import Tensor
 from torch.nn import CrossEntropyLoss, MSELoss, BCEWithLogitsLoss
 
+logger = logging.get_logger(__name__)
 
-class LoRARobertaEmbeddings(am.MultiTaskModule):
+
+class LoRARobertaEmbeddings(nn.Module):
     """
     Same as BertEmbeddings with a tiny tweak for positional embeddings indexing.
     """
@@ -54,17 +58,6 @@ class LoRARobertaEmbeddings(am.MultiTaskModule):
                 module.adaptation(num_class, task_label)
 
     def forward(
-        self,
-        input_ids=None,
-        token_type_ids=None,
-        task_label=0,
-        position_ids: Optional[torch.LongTensor] = None,
-        inputs_embeds: Optional[torch.FloatTensor] = None,
-        past_key_values_length: int = 0,
-    ) -> torch.Tensor:
-        return self.forward_single_task(input_ids, token_type_ids, task_label, position_ids, inputs_embeds, past_key_values_length)
-
-    def forward_single_task(
         self, input_ids=None, token_type_ids=None, task_label=0, position_ids=None, inputs_embeds=None, past_key_values_length=0
     ):
         if position_ids is None:
@@ -127,7 +120,7 @@ class LoRARobertaEmbeddings(am.MultiTaskModule):
         return position_ids.unsqueeze(0).expand(input_shape)
 
 
-class LoRARobertaSelfAttention(am.MultiTaskModule):
+class LoRARobertaSelfAttention(nn.Module):
     def __init__(self, config, position_embedding_type=None):
         super().__init__()
         if config.hidden_size % config.num_attention_heads != 0 and not hasattr(config, "embedding_size"):
@@ -152,6 +145,9 @@ class LoRARobertaSelfAttention(am.MultiTaskModule):
         self.position_embedding_type = position_embedding_type or getattr(
             config, "position_embedding_type", "absolute"
         )
+        if self.position_embedding_type == "relative_key" or self.position_embedding_type == "relative_key_query":
+            self.max_position_embeddings = config.max_position_embeddings
+            self.distance_embedding = nn.Embedding(2 * config.max_position_embeddings - 1, self.attention_head_size)
 
         self.is_decoder = config.is_decoder
 
@@ -166,19 +162,7 @@ class LoRARobertaSelfAttention(am.MultiTaskModule):
             if 'adaptation' in dir(module) and module is not self:
                 module.adaptation(num_class, task_label)
 
-    def forward(self,
-                hidden_states: torch.Tensor,
-                attention_mask: Optional[torch.FloatTensor] = None,
-                task_label=0,
-                head_mask: Optional[torch.FloatTensor] = None,
-                encoder_hidden_states: Optional[torch.FloatTensor] = None,
-                encoder_attention_mask: Optional[torch.FloatTensor] = None,
-                past_key_value: Optional[Tuple[Tuple[torch.FloatTensor]]] = None,
-                output_attentions: Optional[bool] = False,):
-
-        return self.forward_single_task(hidden_states, attention_mask, task_label, head_mask, encoder_hidden_states, encoder_attention_mask, past_key_value, output_attentions)
-
-    def forward_single_task(
+    def forward(
         self,
         hidden_states: torch.Tensor,
         attention_mask: Optional[torch.FloatTensor] = None,
@@ -228,6 +212,28 @@ class LoRARobertaSelfAttention(am.MultiTaskModule):
         # Take the dot product between "query" and "key" to get the raw attention scores.
         attention_scores = torch.matmul(
             query_layer, key_layer.transpose(-1, -2))
+        
+        if self.position_embedding_type == "relative_key" or self.position_embedding_type == "relative_key_query":
+            query_length, key_length = query_layer.shape[2], key_layer.shape[2]
+            if use_cache:
+                position_ids_l = torch.tensor(key_length - 1, dtype=torch.long, device=hidden_states.device).view(
+                    -1, 1
+                )
+            else:
+                position_ids_l = torch.arange(query_length, dtype=torch.long, device=hidden_states.device).view(-1, 1)
+            position_ids_r = torch.arange(key_length, dtype=torch.long, device=hidden_states.device).view(1, -1)
+            distance = position_ids_l - position_ids_r
+
+            positional_embedding = self.distance_embedding(distance + self.max_position_embeddings - 1)
+            positional_embedding = positional_embedding.to(dtype=query_layer.dtype)  # fp16 compatibility
+
+            if self.position_embedding_type == "relative_key":
+                relative_position_scores = torch.einsum("bhld,lrd->bhlr", query_layer, positional_embedding)
+                attention_scores = attention_scores + relative_position_scores
+            elif self.position_embedding_type == "relative_key_query":
+                relative_position_scores_query = torch.einsum("bhld,lrd->bhlr", query_layer, positional_embedding)
+                relative_position_scores_key = torch.einsum("bhrd,lrd->bhlr", key_layer, positional_embedding)
+                attention_scores = attention_scores + relative_position_scores_query + relative_position_scores_key
 
         attention_scores = attention_scores / \
             math.sqrt(self.attention_head_size)
@@ -259,7 +265,7 @@ class LoRARobertaSelfAttention(am.MultiTaskModule):
         return outputs
 
 
-class LoRARobertaSelfOutput(am.MultiTaskModule):
+class LoRARobertaSelfOutput(nn.Module):
     def __init__(self, config):
         super().__init__()
         self.dense = LoRAPiggybackLinear(
@@ -274,21 +280,37 @@ class LoRARobertaSelfOutput(am.MultiTaskModule):
                 module.adaptation(num_class, task_label)
 
     def forward(self, hidden_states: torch.Tensor, input_tensor: torch.Tensor, task_label) -> torch.Tensor:
-        return self.forward_single_task(hidden_states, input_tensor, task_label)
-
-    def forward_single_task(self, hidden_states: torch.Tensor, input_tensor: torch.Tensor, task_label) -> torch.Tensor:
         hidden_states = self.dense(hidden_states, task_label)
         hidden_states = self.dropout(hidden_states)
         hidden_states = self.LayerNorm(hidden_states + input_tensor)
         return hidden_states
 
 
-class LoRARobertaAttention(am.MultiTaskModule):
+class LoRARobertaAttention(nn.Module):
     def __init__(self, config, position_embedding_type=None):
         super().__init__()
         self.self = LoRARobertaSelfAttention(
             config, position_embedding_type=position_embedding_type)
         self.output = LoRARobertaSelfOutput(config)
+        self.pruned_heads = set()
+
+    def prune_heads(self, heads):
+        if len(heads) == 0:
+            return
+        heads, index = find_pruneable_heads_and_indices(
+            heads, self.self.num_attention_heads, self.self.attention_head_size, self.pruned_heads
+        )
+
+        # Prune linear layers
+        self.self.query = prune_linear_layer(self.self.query, index)
+        self.self.key = prune_linear_layer(self.self.key, index)
+        self.self.value = prune_linear_layer(self.self.value, index)
+        self.output.dense = prune_linear_layer(self.output.dense, index, dim=1)
+
+        # Update hyper params and store pruned heads
+        self.self.num_attention_heads = self.self.num_attention_heads - len(heads)
+        self.self.all_head_size = self.self.attention_head_size * self.self.num_attention_heads
+        self.pruned_heads = self.pruned_heads.union(heads)
 
     def adaptation(self, num_class, task_label):
         for module in self.modules():
@@ -296,19 +318,6 @@ class LoRARobertaAttention(am.MultiTaskModule):
                 module.adaptation(num_class, task_label)
 
     def forward(
-            self,
-            hidden_states: torch.Tensor,
-            attention_mask: Optional[torch.FloatTensor] = None,
-            task_label=0,
-            head_mask: Optional[torch.FloatTensor] = None,
-            encoder_hidden_states: Optional[torch.FloatTensor] = None,
-            encoder_attention_mask: Optional[torch.FloatTensor] = None,
-            past_key_value: Optional[Tuple[Tuple[torch.FloatTensor]]] = None,
-            output_attentions: Optional[bool] = False,):
-
-        return self.forward_single_task(hidden_states, attention_mask, task_label, head_mask, encoder_hidden_states, encoder_attention_mask, past_key_value, output_attentions)
-
-    def forward_single_task(
         self,
         hidden_states: torch.Tensor,
         attention_mask: Optional[torch.FloatTensor] = None,
@@ -336,25 +345,28 @@ class LoRARobertaAttention(am.MultiTaskModule):
         return outputs
 
 
-class LoRARobertaIntermediate(am.MultiTaskModule):
+class LoRARobertaIntermediate(nn.Module):
     def __init__(self, config):
         super().__init__()
         self.dense = LoRAPiggybackLinear(
             config.hidden_size, config.intermediate_size, config.lora_r, lora_alpha=config.lora_alpha, config=config)
-        self.intermediate_act_fn = nn.GELU()
+        if isinstance(config.hidden_act, str):
+            self.intermediate_act_fn = ACT2FN[config.hidden_act]
+        else:
+            self.intermediate_act_fn = config.hidden_act
 
     def adaptation(self, num_class, task_label):
         for module in self.modules():
             if 'adaptation' in dir(module) and module is not self:
                 module.adaptation(num_class, task_label)
 
-    def forward_single_task(self, hidden_states: torch.Tensor, task_label) -> torch.Tensor:
+    def forward(self, hidden_states: torch.Tensor, task_label) -> torch.Tensor:
         hidden_states = self.dense(hidden_states, task_label)
         hidden_states = self.intermediate_act_fn(hidden_states)
         return hidden_states
 
 
-class LoRARobertaOutput(am.MultiTaskModule):
+class LoRARobertaOutput(nn.Module):
     def __init__(self, config):
         super().__init__()
         self.dense = LoRAPiggybackLinear(
@@ -369,21 +381,24 @@ class LoRARobertaOutput(am.MultiTaskModule):
                 module.adaptation(num_class, task_label)
 
     def forward(self, hidden_states: torch.Tensor, input_tensor: torch.Tensor, task_label) -> torch.Tensor:
-        return self.forward_single_task(hidden_states, input_tensor, task_label)
-
-    def forward_single_task(self, hidden_states: torch.Tensor, input_tensor: torch.Tensor, task_label) -> torch.Tensor:
         hidden_states = self.dense(hidden_states, task_label)
         hidden_states = self.dropout(hidden_states)
         hidden_states = self.LayerNorm(hidden_states + input_tensor)
         return hidden_states
 
 
-class LoRARobertaLayer(am.MultiTaskModule):
+class LoRARobertaLayer(nn.Module):
     def __init__(self, config):
         super().__init__()
         self.chunk_size_feed_forward = config.chunk_size_feed_forward
         self.seq_len_dim = 1
         self.attention = LoRARobertaAttention(config)
+        self.is_decoder = config.is_decoder
+        self.add_cross_attention = config.add_cross_attention
+        if self.add_cross_attention:
+            if not self.is_decoder:
+                raise ValueError(f"{self} should be used as a decoder model if cross attention is added")
+            self.crossattention = LoRARobertaAttention(config, position_embedding_type="absolute")
         self.intermediate = LoRARobertaIntermediate(config)
         self.output = LoRARobertaOutput(config)
 
@@ -393,20 +408,6 @@ class LoRARobertaLayer(am.MultiTaskModule):
                 module.adaptation(num_class, task_label)
 
     def forward(
-        self,
-        hidden_states: torch.Tensor,
-        attention_mask: Optional[torch.FloatTensor] = None,
-        task_label=0,
-        head_mask: Optional[torch.FloatTensor] = None,
-        encoder_hidden_states: Optional[torch.FloatTensor] = None,
-        encoder_attention_mask: Optional[torch.FloatTensor] = None,
-        past_key_value: Optional[Tuple[Tuple[torch.FloatTensor]]] = None,
-        output_attentions: Optional[bool] = False,
-    ) -> Tuple[torch.Tensor]:
-
-        return self.forward_single_task(hidden_states, attention_mask, task_label, head_mask, encoder_hidden_states, encoder_attention_mask, past_key_value, output_attentions)
-
-    def forward_single_task(
         self,
         hidden_states: torch.Tensor,
         attention_mask: Optional[torch.FloatTensor] = None,
@@ -431,17 +432,53 @@ class LoRARobertaLayer(am.MultiTaskModule):
         )
         attention_output = self_attention_outputs[0]
 
-        outputs = self_attention_outputs[1:]
+        # if decoder, the last output is tuple of self-attn cache
+        if self.is_decoder:
+            outputs = self_attention_outputs[1:-1]
+            present_key_value = self_attention_outputs[-1]
+        else:
+            outputs = self_attention_outputs[1:]  # add self attentions if we output attention weights
+        
+        cross_attn_present_key_value = None
+        if self.is_decoder and encoder_hidden_states is not None:
+            if not hasattr(self, "crossattention"):
+                raise ValueError(
+                    f"If `encoder_hidden_states` are passed, {self} has to be instantiated with cross-attention layers"
+                    " by setting `config.add_cross_attention=True`"
+                )
 
-        intermediate_output = self.intermediate(attention_output, task_label)
-        layer_output = self.output(
-            intermediate_output, attention_output, task_label)
+            # cross_attn cached key/values tuple is at positions 3,4 of past_key_value tuple
+            cross_attn_past_key_value = past_key_value[-2:] if past_key_value is not None else None
+            cross_attention_outputs = self.crossattention(
+                attention_output,
+                attention_mask,
+                head_mask,
+                encoder_hidden_states,
+                encoder_attention_mask,
+                cross_attn_past_key_value,
+                output_attentions,
+            )
+            attention_output = cross_attention_outputs[0]
+            outputs = outputs + cross_attention_outputs[1:-1]  # add cross attentions if we output attention weights
+
+            # add cross-attn cache to positions 3,4 of present_key_value tuple
+            cross_attn_present_key_value = cross_attention_outputs[-1]
+            present_key_value = present_key_value + cross_attn_present_key_value
+
+        layer_output = apply_chunking_to_forward(
+            self.feed_forward_chunk, self.chunk_size_feed_forward, self.seq_len_dim, attention_output, task_label
+        )
         outputs = (layer_output,) + outputs
 
         return outputs
+    
+    def feed_forward_chunk(self, attention_output, task_label):
+        intermediate_output = self.intermediate(attention_output, task_label)
+        layer_output = self.output(intermediate_output, attention_output, task_label)
+        return layer_output
 
 
-class LoRARobertaEncoder(am.MultiTaskModule):
+class LoRARobertaEncoder(nn.Module):
     def __init__(self, config):
         super().__init__()
         self.config = config
@@ -468,26 +505,16 @@ class LoRARobertaEncoder(am.MultiTaskModule):
         output_hidden_states: Optional[bool] = False,
         return_dict: Optional[bool] = True,
     ) -> Union[Tuple[torch.Tensor], BaseModelOutputWithPastAndCrossAttentions]:
-
-        return self.forward_single_task(hidden_states, attention_mask, task_label, head_mask, encoder_hidden_states, encoder_attention_mask, past_key_values, use_cache, output_attentions, output_hidden_states, return_dict)
-
-    def forward_single_task(
-        self,
-        hidden_states: torch.Tensor = None,
-        attention_mask: Optional[torch.FloatTensor] = None,
-        task_label=0,
-        head_mask: Optional[torch.FloatTensor] = None,
-        encoder_hidden_states: Optional[torch.FloatTensor] = None,
-        encoder_attention_mask: Optional[torch.FloatTensor] = None,
-        past_key_values: Optional[Tuple[Tuple[torch.FloatTensor]]] = None,
-        use_cache: Optional[bool] = None,
-        output_attentions: Optional[bool] = False,
-        output_hidden_states: Optional[bool] = False,
-        return_dict: Optional[bool] = True,
-    ) -> Union[Tuple[torch.Tensor], BaseModelOutputWithPastAndCrossAttentions]:
         all_hidden_states = () if output_hidden_states else None
         all_self_attentions = () if output_attentions else None
         all_cross_attentions = () if output_attentions and self.config.add_cross_attention else None
+
+        if self.gradient_checkpointing and self.training:
+            if use_cache:
+                logger.warning_once(
+                    "`use_cache=True` is incompatible with gradient checkpointing. Setting `use_cache=False`..."
+                )
+                use_cache = False
 
         next_decoder_cache = () if use_cache else None
         for i, layer_module in enumerate(self.layer):
@@ -496,24 +523,37 @@ class LoRARobertaEncoder(am.MultiTaskModule):
 
             layer_head_mask = head_mask[i] if head_mask is not None else None
             past_key_value = past_key_values[i] if past_key_values is not None else None
-            layer_outputs = layer_module(
-                hidden_states,
-                attention_mask,
-                task_label,
-                layer_head_mask,
-                encoder_hidden_states,
-                encoder_attention_mask,
-                past_key_value,
-                output_attentions,
-            )
+            
+            if self.gradient_checkpointing and self.training:
+                layer_outputs = self._gradient_checkpointing_func(
+                    layer_module.__call__,
+                    hidden_states,
+                    attention_mask,
+                    layer_head_mask,
+                    encoder_hidden_states,
+                    encoder_attention_mask,
+                    past_key_value,
+                    output_attentions,
+                )
+            else:
+                layer_outputs = layer_module(
+                    hidden_states,
+                    attention_mask,
+                    task_label,
+                    layer_head_mask,
+                    encoder_hidden_states,
+                    encoder_attention_mask,
+                    past_key_value,
+                    output_attentions,
+                )
+
             hidden_states = layer_outputs[0]
             if use_cache:
                 next_decoder_cache += (layer_outputs[-1],)
             if output_attentions:
                 all_self_attentions = all_self_attentions + (layer_outputs[1],)
                 if self.config.add_cross_attention:
-                    all_cross_attentions = all_cross_attentions + \
-                        (layer_outputs[2],)
+                    all_cross_attentions = all_cross_attentions + (layer_outputs[2],)
 
         if output_hidden_states:
             all_hidden_states = all_hidden_states + (hidden_states,)
@@ -539,7 +579,7 @@ class LoRARobertaEncoder(am.MultiTaskModule):
         )
 
 
-class LoRARobertaPooler(am.MultiTaskModule):
+class LoRARobertaPooler(nn.Module):
     def __init__(self, config):
         super().__init__()
         self.dense = LoRAPiggybackLinear(
@@ -551,7 +591,7 @@ class LoRARobertaPooler(am.MultiTaskModule):
             if 'adaptation' in dir(module) and module is not self:
                 module.adaptation(num_class, task_label)
 
-    def forward_single_task(self, hidden_states: torch.Tensor, task_label) -> torch.Tensor:
+    def forward(self, hidden_states: torch.Tensor, task_label) -> torch.Tensor:
         # We "pool" the model by simply taking the hidden state corresponding
         # to the first token.
         first_token_tensor = hidden_states[:, 0]
@@ -560,11 +600,11 @@ class LoRARobertaPooler(am.MultiTaskModule):
         return pooled_output
 
 
-class LoRARobertaModel(am.MultiTaskModule):
+class LoRARobertaModel(RobertaPreTrainedModel):
 
     # Copied from transformers.models.bert.modeling_bert.BertModel.__init__ with Bert->LoRARoberta
     def __init__(self, config, args, add_pooling_layer=True):
-        super().__init__()
+        super().__init__(config)
         self.config = config
         self.args = args
 
@@ -572,6 +612,23 @@ class LoRARobertaModel(am.MultiTaskModule):
         self.encoder = LoRARobertaEncoder(config)
 
         self.pooler = LoRARobertaPooler(config) if add_pooling_layer else None
+
+        # Initialize weights and apply final processing
+        self.post_init()
+
+    def get_input_embeddings(self):
+        return self.embeddings.word_embeddings
+
+    def set_input_embeddings(self, value):
+        self.embeddings.word_embeddings = value
+
+    def _prune_heads(self, heads_to_prune):
+        """
+        Prunes heads of the model. heads_to_prune: dict of {layer_num: list of heads to prune in this layer} See base
+        class PreTrainedModel
+        """
+        for layer, heads in heads_to_prune.items():
+            self.encoder.layer[layer].attention.prune_heads(heads)
 
     def get_extended_attention_mask(
         self, attention_mask: Tensor, input_shape: Tuple[int], device: torch.device = None, dtype: torch.float = torch.float32
@@ -611,27 +668,7 @@ class LoRARobertaModel(am.MultiTaskModule):
             if 'adaptation' in dir(module) and module is not self:
                 module.adaptation(num_class, task_label)
 
-    def forward(self,
-                input_ids: Optional[torch.Tensor] = None,
-                attention_mask: Optional[torch.Tensor] = None,
-                token_type_ids: Optional[torch.Tensor] = None,
-                task_label=0,
-                position_ids: Optional[torch.Tensor] = None,
-                head_mask: Optional[torch.Tensor] = None,
-                inputs_embeds: Optional[torch.Tensor] = None,
-                encoder_hidden_states: Optional[torch.Tensor] = None,
-                encoder_attention_mask: Optional[torch.Tensor] = None,
-                past_key_values: Optional[List[torch.FloatTensor]] = None,
-                use_cache: Optional[bool] = None,
-                output_attentions: Optional[bool] = None,
-                output_hidden_states: Optional[bool] = None,
-                return_dict: Optional[bool] = None,
-                ) -> Union[Tuple[torch.Tensor], BaseModelOutputWithPoolingAndCrossAttentions]:
-
-        return self.forward_single_task(input_ids, attention_mask, token_type_ids, task_label, position_ids, head_mask, inputs_embeds, encoder_hidden_states, encoder_attention_mask,
-                                        past_key_values, use_cache, output_attentions, output_hidden_states, return_dict)
-
-    def forward_single_task(
+    def forward(
         self,
         input_ids: Optional[torch.Tensor] = None,
         attention_mask: Optional[torch.Tensor] = None,
@@ -670,17 +707,38 @@ class LoRARobertaModel(am.MultiTaskModule):
             raise ValueError(
                 "You have to specify either input_ids or inputs_embeds")
 
+        batch_size, seq_length = input_shape
         device = input_ids.device if input_ids is not None else inputs_embeds.device
 
         # past_key_values_length
         past_key_values_length = past_key_values[0][0].shape[2] if past_key_values is not None else 0
+
+        if attention_mask is None:
+            attention_mask = torch.ones(((batch_size, seq_length + past_key_values_length)), device=device)
+
+        if token_type_ids is None:
+            if hasattr(self.embeddings, "token_type_ids"):
+                buffered_token_type_ids = self.embeddings.token_type_ids[:, :seq_length]
+                buffered_token_type_ids_expanded = buffered_token_type_ids.expand(batch_size, seq_length)
+                token_type_ids = buffered_token_type_ids_expanded
+            else:
+                token_type_ids = torch.zeros(input_shape, dtype=torch.long, device=device)
 
         # We can provide a self-attention mask of dimensions [batch_size, from_seq_length, to_seq_length]
         # ourselves in which case we just need to make it broadcastable to all heads.
         extended_attention_mask: torch.Tensor = self.get_extended_attention_mask(
             attention_mask, input_shape, dtype=self.args.precision)
 
-        encoder_extended_attention_mask = None
+        # If a 2D or 3D attention mask is provided for the cross-attention
+        # we need to make broadcastable to [batch_size, num_heads, seq_length, seq_length]
+        if self.config.is_decoder and encoder_hidden_states is not None:
+            encoder_batch_size, encoder_sequence_length, _ = encoder_hidden_states.size()
+            encoder_hidden_shape = (encoder_batch_size, encoder_sequence_length)
+            if encoder_attention_mask is None:
+                encoder_attention_mask = torch.ones(encoder_hidden_shape, device=device)
+            encoder_extended_attention_mask = self.invert_attention_mask(encoder_attention_mask)
+        else:
+            encoder_extended_attention_mask = None
 
         # Prepare head mask if needed
         # 1.0 in head_mask indicate we keep the head
@@ -689,6 +747,7 @@ class LoRARobertaModel(am.MultiTaskModule):
         # and head_mask is converted to shape [num_hidden_layers x batch x num_heads x seq_length x seq_length]
         # head_mask = self.get_head_mask(
         #     head_mask, self.config.num_hidden_layers)
+        head_mask = self.get_head_mask(head_mask, self.config.num_hidden_layers)
 
         embedding_output = self.embeddings(
             input_ids=input_ids,
@@ -728,11 +787,17 @@ class LoRARobertaModel(am.MultiTaskModule):
         )
 
 
-class LoRARobertaForMaskedLM(am.MultiTaskModule):
+class LoRARobertaForMaskedLM(RobertaPreTrainedModel):
     _tied_weights_keys = ["lm_head.decoder.weight", "lm_head.decoder.bias"]
 
     def __init__(self, config, args):
-        super().__init__()
+        super().__init__(config)
+        if config.is_decoder:
+            logger.warning(
+                "If you want to use `RobertaForMaskedLM` make sure `config.is_decoder=False` for "
+                "bi-directional self-attention."
+            )
+
         self.config = config
         self.roberta = LoRARobertaModel(
             config, args, add_pooling_layer=False)
@@ -743,6 +808,15 @@ class LoRARobertaForMaskedLM(am.MultiTaskModule):
         
         self.lm_head = LoRARobertaLMHead(config)
 
+        # Initialize weights and apply final processing
+        self.post_init()
+
+    def get_output_embeddings(self):
+        return self.lm_head.decoder
+
+    def set_output_embeddings(self, new_embeddings):
+        self.lm_head.decoder = new_embeddings
+
     def adaptation(self, num_class, task_label):
         for module in self.modules():
             if 'adaptation' in dir(module) and module is not self:
@@ -752,26 +826,7 @@ class LoRARobertaForMaskedLM(am.MultiTaskModule):
                 self.keys[str(task_label)] = nn.Parameter(torch.zeros(self.config.hidden_size), requires_grad=True)
                 nn.init.uniform_(self.keys[str(task_label)])
 
-    def forward(self,
-                input_ids: Optional[torch.Tensor] = None,
-                attention_mask: Optional[torch.Tensor] = None,
-                token_type_ids: Optional[torch.Tensor] = None,
-                task_label=0,
-                position_ids: Optional[torch.Tensor] = None,
-                head_mask: Optional[torch.Tensor] = None,
-                inputs_embeds: Optional[torch.Tensor] = None,
-                encoder_hidden_states: Optional[torch.Tensor] = None,
-                encoder_attention_mask: Optional[torch.Tensor] = None,
-                output_attentions: Optional[bool] = None,
-                output_hidden_states: Optional[bool] = None,
-                return_dict: Optional[bool] = None,
-                labels: Optional[torch.LongTensor] = None,
-                ) -> Union[Tuple[torch.Tensor], BaseModelOutputWithPoolingAndCrossAttentions]:
-
-        return self.forward_single_task(input_ids, attention_mask, token_type_ids, task_label, position_ids, head_mask, inputs_embeds, encoder_hidden_states, encoder_attention_mask,
-                                        output_attentions, output_hidden_states, return_dict, labels)
-
-    def forward_single_task(
+    def forward(
         self,
         input_ids: Optional[torch.LongTensor] = None,
         attention_mask: Optional[torch.FloatTensor] = None,
@@ -841,7 +896,7 @@ class LoRARobertaForMaskedLM(am.MultiTaskModule):
         )
 
 
-class LoRARobertaLMHead(am.MultiTaskModule):
+class LoRARobertaLMHead(nn.Module):
     """LoRARoberta Head for masked language modeling."""
 
     def __init__(self, config):
@@ -850,7 +905,6 @@ class LoRARobertaLMHead(am.MultiTaskModule):
             config.hidden_size, config.hidden_size)
         self.layer_norm = nn.LayerNorm(
             config.hidden_size, eps=config.layer_norm_eps)
-        self.gelu = nn.GELU()
 
         self.decoder = PretrainingMultiTaskClassifier(
             config.hidden_size, config.vocab_size)
@@ -862,9 +916,9 @@ class LoRARobertaLMHead(am.MultiTaskModule):
             if 'adaptation' in dir(module) and module is not self:
                 module.adaptation(num_class, task_label)
 
-    def forward_single_task(self, features, task_label):
+    def forward(self, features, task_label):
         x = self.dense(features, task_label)
-        x = self.gelu(x)
+        x = gelu(x)
         x = self.layer_norm(x)
 
         # project back to size of vocabulary with bias
@@ -873,9 +927,9 @@ class LoRARobertaLMHead(am.MultiTaskModule):
         return x
 
 
-class LoRARobertaForSequenceClassification(am.MultiTaskModule):
+class LoRARobertaForSequenceClassification(RobertaPreTrainedModel):
     def __init__(self, config, args, initial_out_features):
-        super().__init__()
+        super().__init__(config)
         self.config = config
         self.num_labels = args.class_num
 
@@ -883,29 +937,16 @@ class LoRARobertaForSequenceClassification(am.MultiTaskModule):
             config, args, add_pooling_layer=False)
         self.classifier = LoRARobertaClassificationHead(
             config, initial_out_features)
+        
+        # Initialize weights and apply final processing
+        self.post_init()
 
     def adaptation(self, num_class, task_label):
         for module in self.modules():
             if 'adaptation' in dir(module) and module is not self:
                 module.adaptation(num_class, task_label)
 
-    def forward(
-        self,
-        input_ids: Optional[torch.LongTensor] = None,
-        attention_mask: Optional[torch.FloatTensor] = None,
-        token_type_ids: Optional[torch.LongTensor] = None,
-        task_label=0,
-        position_ids: Optional[torch.LongTensor] = None,
-        head_mask: Optional[torch.FloatTensor] = None,
-        inputs_embeds: Optional[torch.FloatTensor] = None,
-        labels: Optional[torch.LongTensor] = None,
-        output_attentions: Optional[bool] = None,
-        output_hidden_states: Optional[bool] = None,
-        return_dict: Optional[bool] = None,
-    ):
-        return self.forward_single_task(input_ids, attention_mask, token_type_ids, task_label, position_ids, head_mask, inputs_embeds, labels, output_attentions, output_hidden_states, return_dict)
-
-    def forward_single_task(self,
+    def forward(self,
                             input_ids: Optional[torch.LongTensor] = None,
                             attention_mask: Optional[torch.FloatTensor] = None,
                             token_type_ids: Optional[torch.LongTensor] = None,
@@ -917,6 +958,8 @@ class LoRARobertaForSequenceClassification(am.MultiTaskModule):
                             output_attentions: Optional[bool] = None,
                             output_hidden_states: Optional[bool] = None,
                             return_dict: Optional[bool] = None,):
+        return_dict = return_dict if return_dict is not None else self.config.use_return_dict
+
         outputs = self.roberta(
             input_ids,
             attention_mask=attention_mask,
@@ -970,7 +1013,7 @@ class LoRARobertaForSequenceClassification(am.MultiTaskModule):
         )
 
 
-class LoRARobertaForLoRAEndtask(am.MultiTaskModule):
+class LoRARobertaForLoRAEndtask(nn.Module):
     def __init__(self, config, args, initial_out_features):
         super().__init__()
         self.config = config
@@ -1030,7 +1073,7 @@ class LoRARobertaForLoRAEndtask(am.MultiTaskModule):
         return logits
 
 
-class LoRARobertaClassificationHead(am.MultiTaskModule):
+class LoRARobertaClassificationHead(nn.Module):
     """Head for sentence-level classification tasks."""
 
     def __init__(self, config, initial_out_features):
@@ -1049,7 +1092,7 @@ class LoRARobertaClassificationHead(am.MultiTaskModule):
             if 'adaptation' in dir(module) and module is not self:
                 module.adaptation(num_class, task_label)
 
-    def forward_single_task(self, features, task_label):
+    def forward(self, features, task_label):
         x = features[:, 0, :]  # take <s> token (equiv. to [CLS])
         x = self.dropout(x)
         x = self.dense(x, task_label)

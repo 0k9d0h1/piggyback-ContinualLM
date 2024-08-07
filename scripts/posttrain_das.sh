@@ -13,7 +13,7 @@ do
   for pt_task in 0 1 2 3 4 5
   do
     python -m torch.distributed.launch --nproc_per_node 1 --use_env posttrain.py \
-    --base_model_name_or_path "t5-base" \
+    --base_model_name_or_path "roberta-base" \
     --per_device_train_batch_size 16 \
     --max_seq_length 164 \
     --max_samples ${max_samples} \
