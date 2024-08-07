@@ -815,11 +815,8 @@ def _lookfor_model_lora(args, training_type):
                             module.mergeratios.requires_grad = True
 
                 for n, p in model.model.named_parameters():
-                    print(n)
-                    if ('q_proj' in n or 'v_proj' in n) and ('lora' not in n and 'attn' in n) or 'mergeratios' in n:
+                    if 'lora' not in n:
                         p.requires_grad = True
-                    # if 'lora' not in n:
-                    #     p.requires_grad = True
                     else:
                         p.requires_grad = False
 
