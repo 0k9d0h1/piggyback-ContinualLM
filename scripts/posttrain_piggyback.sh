@@ -6,7 +6,7 @@
 
 export HF_DATASETS_CACHE='/home/eecomp_test/donghoon/dataset_cache'
 export TRANSFORMERS_CACHE='/home/eecomp_test/donghoon/model_cache'
-max_samples=64
+max_samples=640000
 
 for idrandom in 0
 do

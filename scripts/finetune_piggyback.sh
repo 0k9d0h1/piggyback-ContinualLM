@@ -7,7 +7,7 @@
 export HF_DATASETS_CACHE='/home/eecomp_test/donghoon/dataset_cache'
 export TRANSFORMERS_CACHE='/home/eecomp_test/donghoon/model_cache'
 
-max_samples=64
+max_samples=640000
 
 seed=(2021 111 222 333 444 555 666 777 888 999)
 
@@ -20,7 +20,6 @@ do
       CUDA_VISIBLE_DEVICES=0,1 python finetune.py \
       --base_model_name_or_path "meta-llama/Llama-2-7b-hf" \
       --target_modules "q_proj" "v_proj" \
-      --batch_size 1 \
       --max_seq_length 164 \
       --pt_task ${ft_task} \
       --ft_task ${ft_task} \
