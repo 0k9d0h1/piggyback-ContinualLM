@@ -17,9 +17,8 @@ do
   do
   for ft_task in 0 1 2 3 4 5;
     do
-      CUDA_VISIBLE_DEVICES=0,1 python finetune.py \
-      --base_model_name_or_path "meta-llama/Llama-2-7b-hf" \
-      --target_modules "q_proj" "v_proj" \
+      CUDA_VISIBLE_DEVICES=0 python finetune.py \
+      --base_model_name_or_path "t5-base" \
       --max_seq_length 164 \
       --pt_task ${ft_task} \
       --ft_task ${ft_task} \
@@ -28,7 +27,7 @@ do
       --max_samples ${max_samples} \
       --seed ${seed[$round]} \
       --baseline 'lora' \
-      --finetune_type 'merge'
+      --finetune_type 'lora_piggyback'
     done
   done
 done

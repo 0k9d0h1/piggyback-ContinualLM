@@ -477,8 +477,20 @@ def prepare_sequence_finetune(args):
                 if args.hyperparameter_tune:
                     pass
                 else:
-                    args.epoch = 10
-                    args.lr = 5e-4
+                    if args.dataset_name == 'restaurant_sup':
+                        args.epoch = 30
+                        args.lr = 0.00001
+                    elif args.dataset_name == 'aclarc_sup' or args.dataset_name == 'scierc_sup' or args.dataset_name == 'chemprot_sup':
+                        args.epoch = 25
+                        args.lr = 0.0001
+                    elif args.dataset_name == 'phone_sup':
+                        args.epoch = 35
+                        args.lr = 0.0001
+                        args.weight_decay = 0.001
+                    elif args.dataset_name == 'camera_sup':
+                        args.epoch = 25
+                        args.lr = 0.00005
+
             elif args.finetune_type == 'full_finetune':
                 if args.hyperparameter_tune:
                     pass
